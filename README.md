@@ -3,7 +3,7 @@ Exported from code.google.com/p/etalis
 
 ETALIS is an open source system for Complex Event Processing with two accompanied languages called: ETALIS Language for Events (ELE) and Event Processing SPARQL (EP-SPARQL). ETALIS is based on a declarative semantics, grounded in Logic Programming. Complex events are derived from simpler events by means of deductive rules. Due to its root in logic, ETALIS also supports reasoning about events, context, and real-time complex situations (i.e., Knowledge-based Event Processing). ETALIS stands for Event TrAnsaction Logic Inference System.
 
-ETALIS is implemented in Prolog. The engine runs on many Prolog systems: YAP, SWI, SICStus, XSB, tuProlog and LPA Prolog. Download ETALIS from here. We installed ETALIS and EP-SPARQL on several operating systems including: Windows XP, Vista and 7, Mac OS, Android OS (with tuProlog) and Linux-based systems (Ubuntu, RedHat?, SUSE).
+ETALIS is implemented in Prolog. The engine runs on many Prolog systems: YAP, SWI, SICStus, XSB, tuProlog and LPA Prolog. Download ETALIS from here. We installed ETALIS and EP-SPARQL on several operating systems including: Windows XP, Vista and 7, Mac OS, Android OS (with tuProlog) and Linux-based systems (Ubuntu, RedHat, SUSE).
 
 Features:
 
