@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="ProjectDescription-intern.txt" open="0" top="0" tabpos="6">
+		<Cursor position="199" topLine="0" />
+	</File>
+	<File name="lib\btree.h" open="0" top="0" tabpos="0">
+		<Cursor position="272" topLine="0" />
+	</File>
+	<File name="lib\red_black_tree.c" open="0" top="0" tabpos="0">
+		<Cursor position="1340" topLine="37" />
+	</File>
+	<File name="lib\red_black_tree.h" open="0" top="0" tabpos="0">
+		<Cursor position="106" topLine="0" />
+	</File>
+	<File name="lib\stack.h" open="1" top="0" tabpos="6">
+		<Cursor position="1323" topLine="11" />
+	</File>
+	<File name="src\ETALIS_conf.h" open="1" top="0" tabpos="7">
+		<Cursor position="310" topLine="0" />
+	</File>
+	<File name="src\cep_core.c" open="1" top="0" tabpos="4">
+		<Cursor position="853" topLine="20" />
+	</File>
+	<File name="src\cep_core.h" open="1" top="0" tabpos="5">
+		<Cursor position="105" topLine="0" />
+	</File>
+	<File name="src\events.c" open="1" top="0" tabpos="3">
+		<Cursor position="9056" topLine="288" />
+	</File>
+	<File name="src\events.h" open="1" top="1" tabpos="2">
+		<Cursor position="3833" topLine="174" />
+	</File>
+	<File name="src\main.c" open="1" top="0" tabpos="1">
+		<Cursor position="3409" topLine="99" />
+	</File>
+	<File name="src\memory.c" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="62" />
+	</File>
+	<File name="src\memory.h" open="0" top="0" tabpos="5">
+		<Cursor position="52" topLine="0" />
+	</File>
+	<File name="src\term.c" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="1" />
+	</File>
+	<File name="src\utils.c" open="0" top="0" tabpos="0">
+		<Cursor position="1058" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

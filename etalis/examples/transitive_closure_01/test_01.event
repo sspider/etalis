@@ -1,0 +1,5 @@
+print_trigger(edge_event/2).
+print_trigger(reach/2).
+
+reach(X,Y)<- reach(X,Z) seq edge_event(Z,Y).
+reach(X,Y)<- edge_event(X,Y).

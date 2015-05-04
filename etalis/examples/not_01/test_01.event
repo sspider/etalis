@@ -1,0 +1,4 @@
+print_trigger(d/1).
+print_trigger(a/1).
+
+d(X) <- a(X) where (\+(X<1)).

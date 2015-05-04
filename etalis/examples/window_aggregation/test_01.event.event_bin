@@ -1,0 +1,4 @@
+eventClause(r2,temp_e_1(start_aggr,aggregate(count,a(_G1622),_G1620)),seqf(start_aggr,aggregate(count,a(_G1622),_G1620))).
+
+eventClause(r2,d(_G1620),temp_e_1(start_aggr,aggregate(count,a(_G1622),_G1620))).
+

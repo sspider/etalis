@@ -1,0 +1,10 @@
+d1(X) <- a(X) 'seq' b(X1) 'seq' c(X2).
+d2(X) <- a(X) 'seq' b(X1) 'seq' c(X2).
+
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+
+print_trigger(d1/1).
+print_trigger(d2/1).
+

@@ -1,0 +1,5 @@
+patternMatch1(Id,X,Y) <-
+        a(Id,X) 'seq' 
+        b(Id,Y) 'where'
+        (Y<11).	
+%print_trigger(patternMatch1/3)

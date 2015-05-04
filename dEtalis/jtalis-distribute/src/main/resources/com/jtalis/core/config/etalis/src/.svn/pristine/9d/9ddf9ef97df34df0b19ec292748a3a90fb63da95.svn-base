@@ -1,0 +1,1229 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ep_sparql_parser
+
+% This is a very experimental parser for EP SPARQL.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ep_sparql_parse/2
+% ep_sparql_parse(+EPQuery,-ParsedEPQuery)
+%
+%  Parse the EP-SPARQL statement Input into a Prolog representation.
+ep_sparql_parse(Codes, Query) :-
+  is_list(Codes), 
+  !,
+  (  phrase(ep_sparql_query_parse(Query), Codes)
+  -> true
+  ; ( write('Error(unknown) in EP-SPARQL query'), nl)
+  ).
+ep_sparql_parse(Atomic, Query) :-
+  atomic(Atomic), 
+  !,
+  atom_codes(Atomic, Codes),
+  ep_sparql_parse(Codes, Query).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ep_sparql_parse/3
+% ep_sparql_parse(+EPQuery,-ParsedEPQuery,-Win)
+ep_sparql_parse(Codes, Query, Win) :-
+  is_list(Codes), 
+  !,
+  (  phrase(ep_sparql_query_parse(Query,Win), Codes)
+  	-> true
+  	; ( write('Error(unknown) in EP-SPARQL query'), nl)
+  ).
+ep_sparql_parse(Atomic, Query, 0) :-
+  atomic(Atomic), 
+  !,
+  atom_codes(Atomic, Codes),
+  ep_sparql_parse(Codes, Query).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ep_sparql_query_parse(Query) -->
+ skip_ws,
+ (   select_query(Query)
+ ;   construct_query(Query)
+ ), !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% select_query(-Select)
+%  Process "select ..." into a term
+%  select(Projection, Query)
+select_query(select(Projection, Query)) -->
+ keyword("select"),
+ select_projection(Projection),
+ where_clause(Query), {true}.
+select_query(select(Projection, Query, Within)) -->
+ keyword("select"), {trace},
+ select_projection(Projection),
+ where_clause(Query),
+ within_clause(Within).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% construct_query(-Construct)
+% Processes "construct ..." into a term
+% construct(Template, Query)
+construct_query(construct(Template, Query)) -->
+ keyword("construct"),
+ block_of_triples(Template),
+ where_clause(Query), {true}.
+construct_query(construct(Template, Query, Within)) -->
+ keyword("construct"),
+ block_of_triples(Template),
+ where_clause(Query),
+ within_clause(Within).
+
+% within_clause(-Pattern)
+within_clause(Pattern) -->
+ keyword("within"), !, {trace},
+ within_expression(Pattern).
+
+within_expression(E) --> numeric_literal(E), !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+select_projection(*) --> "*", !, skip_ws.
+select_projection([H|T]) -->
+ var(H),
+ vars(T), !.
+select_projection(_) -->
+ syntax_error(projection_expected).
+
+vars([H|T]) -->
+ var(H),
+ vars(T).
+vars([]) -->
+ [].
+
+% where_clause(-Pattern)
+where_clause(Pattern) -->
+ keyword("where"), !, %{trace},
+ must_see_group_graph_pattern(Pattern).
+where_clause(Pattern) -->
+ group_graph_pattern(Pattern).
+
+must_see_group_graph_pattern(Pattern) -->
+ group_graph_pattern(Pattern), !.
+must_see_group_graph_pattern(_) -->
+ syntax_error(group_graph_pattern_expected).
+
+% group_graph_pattern(P)
+group_graph_pattern(P) --> %{trace},
+ (   graph_pattern(P0)  %, { write('\n\nhere\n\n'), write(P0) }
+ ->  ( 
+ 	%{trace},
+ 	filter(C)
+     ->  { P=wheref(P0,C) }
+     ; { P=P0 } )
+ ;   syntax_error(graph_pattern_expected)
+ ).
+
+% graph_pattern(P)
+graph_pattern(P) --> %{trace},
+ ws_star,
+ "{",
+ ws_star,
+ filtered_basic_graph_pattern(P1), %{trace},
+ ws_star,
+ "}",
+ ws_star,
+ { op_functor(A,F), atom_codes(A,L) },
+ keyword(L),
+ ws_star,
+ graph_pattern(P2),
+ ws_star,
+ {P=..[F,P1,P2]}.
+
+graph_pattern(P) -->
+ ws_star,
+ "{",
+ ws_star,
+ filtered_basic_graph_pattern(P),
+ ws_star,
+ "}",
+ ws_star.
+
+graph_pattern(P) -->
+ ws_star,
+ "{",
+ ws_star,
+ filtered_basic_graph_pattern(P1),
+ (   graph_pattern_not_triples(P2)
+ ->  optional_dot,
+     graph_pattern(P3),
+     { P = (P1,P2,P3) }
+ ;   { P = P1 }
+ ).
+
+% graph_pattern_not_triples(-Pattern)
+graph_pattern_not_triples(P) --> group_or_seq_graph_pattern(P), !.
+graph_pattern_not_triples(P) --> optional_graph_pattern(P), !.
+graph_pattern_not_triples(P) --> group_or_union_graph_pattern(P), !.
+graph_pattern_not_triples(P) --> graph_graph_pattern(P).
+
+% group_or_seq_graph_pattern(-Pattern)
+group_or_seq_graph_pattern(Pattern) --> % {trace},
+ group_graph_pattern(P0),
+ add_seq(P0, Pattern).
+
+add_seq(P0, (P0;P)) -->
+ keyword("seq"), !,
+ must_see_group_graph_pattern(P1),
+ add_seq(P1, P).
+add_seq(P, P) -->
+ [].
+
+
+% filtered_basic_graph_pattern(P)
+filtered_basic_graph_pattern(P) -->
+ (   block_of_triples(P1)
+ ->  ""
+ ;   {P1=true}
+ ),
+ (   filter(C)
+ ->  optional_dot,
+     filtered_basic_graph_pattern(P2),
+     { P = (P1,C,P2) }
+ ;   { P = P1 }
+ ).
+
+filtered_basic_graph_pattern(P) -->
+ (   function_call(P1)
+ ->  ""
+ ;   {P1=true}
+ ),
+ (   filter(C)
+ ->  optional_dot,
+     filtered_basic_graph_pattern(P2),
+     { P = (P1,C,P2) }
+ ;   { P = P1 }
+ ).
+
+
+one_dot -->
+ ".", !, skip_ws,
+ (   "."
+ ->  syntax_error("double_dot")
+ ;   ""
+ ).
+
+optional_dot --> ".", skip_ws.
+optional_dot --> "".
+
+% block_of_triples(P)
+block_of_triples(P) -->
+ block_of_triples(P, []).
+
+block_of_triples(List, T) -->
+ triples_same_subject(List, T0),
+ block_of_triples_cont(T0, T).
+
+block_of_triples_cont(List, T) -->
+ one_dot,
+ triples_same_subject(List, T0), !,
+ block_of_triples_cont(T0, T).
+block_of_triples_cont(List, T) -->
+ one_dot, !,
+ block_of_triples_cont(List, T).
+block_of_triples_cont(T, T) -->
+ "".
+
+% optional_graph_pattern(Pattern)
+optional_graph_pattern(Pattern) -->
+ keyword("optional"),
+ must_see_group_graph_pattern(P0),
+ { Pattern = optional(P0) }.
+
+% graph_graph_pattern(-Graph)
+% Processes a "graph ..." clause into
+% graph(Graph, Pattern)
+graph_graph_pattern(graph(Graph, Pattern)) -->
+ keyword("graph"), !,
+ var_or_blank_node_or_iri_ref(Graph),
+ must_see_group_graph_pattern(Pattern).
+
+% group_or_union_graph_pattern(-Pattern)
+group_or_union_graph_pattern(Pattern) -->
+ group_graph_pattern(P0),
+ add_union(P0, Pattern).
+
+add_union(P0, (P0;P)) -->
+ keyword("union"), !,
+ must_see_group_graph_pattern(P1),
+ add_union(P1, P).
+add_union(P, P) -->
+ [].
+
+
+% filter(-Filter)
+%filter(ebv(Exp)) -->
+filter(Exp) -->
+ keyword("filter"),
+ (   constraint(Exp)
+ ->  ""
+ ;   syntax_error(filter_expected)
+ ).
+
+filter(Exp) -->
+ keyword("do"),
+ (   constraint(Exp)
+ ->  ""
+ ;   syntax_error(filter_expected)
+ ).
+
+% constraint(-Filter)
+constraint(Exp) -->
+ (   bracketted_expression(Exp)
+ ->  []
+ ;   built_in_call(Exp)
+ ->  ""
+ ;   function_call(Exp)
+ ).
+
+% function_call(-Function).
+% Processes <URI>(Arg ...) into function(IRI, Args)
+function_call(function(F, Args)) -->
+ iri_ref(F),
+ arg_list(Args).
+
+function_call(function('aggregate', Args)) -->
+ keyword("aggregate"),
+ "(",
+ keyword("count"), ",",
+ function_call(F), ",",
+ var_or_term(V),
+ ")",
+ {Args = [count, F, V]}.
+
+function_call(function('aggregate', Args)) -->
+ keyword("aggregate"),
+ "(",
+ keyword("sum"), "(", var_or_term(V1), ")", ",",
+ function_call(F), ",",
+ var_or_term(V),
+ ")",
+ {Args = [sum(V1), F, V]}.
+
+function_call(function('rdf', Args)) -->
+ keyword("rdf"),
+ "(",
+ var_or_term(V1), ",",
+ get_Keyword(V2), ",",
+ var_or_term(V3),
+ ")",
+ {Args = [V1, V2, V3]}.
+
+% arg_list(-List)
+arg_list(List) -->
+ "(", skip_ws,
+ (   expression(A0)
+ ->  arg_list_cont(As),
+     {List = [A0|As]}
+ ;   {List = []}
+ ),
+ (   ")"
+ ->  []
+ ;   syntax_error(expression_expected)
+ ),
+ skip_ws.
+
+get_Keyword(Atom) -->
+ one_or_more_ascii_letters(Letters, []),
+ { atom_codes(Atom, Letters)
+ },
+ skip_ws.
+
+
+arg_list_cont([H|T]) -->
+ ",", !, skip_ws,
+ must_see_expression(H),
+ arg_list_cont(T).
+arg_list_cont([]) -->
+ [].
+
+% construct_template(Triples)
+construct_template(Triples) -->
+ "{", skip_ws, construct_triples(Triples), "}", !, skip_ws.
+construct_template(_) -->
+ syntax_error(construct_template_expected).
+
+% construct_triples(-List)
+construct_triples(List) -->
+ construct_triples(List, []).
+
+construct_triples(List, T) -->
+ triples_same_subject(List, T0), !,
+ (   one_dot
+ ->  (   peek("}")
+     ->  { T = T0 }
+     ;   construct_triples(T0, T)
+     )
+ ;   { T = T0 }
+ ).
+construct_triples(T, T) -->
+ "".
+
+% triples_same_subject(-List, ?Tail)
+% Return list of rdf(S,P,O) from triple spec.
+triples_same_subject(List, Tail) -->
+ var_or_term(S), !, %{trace},
+ property_list_not_empty(L, List, T0),
+ { make_triples_same_subject(L, S, T0, Tail) }.
+triples_same_subject(List, Tail) -->
+ triples_node(S, List, T0),
+ property_list(L, T0, T1),
+ { make_triples_same_subject(L, S, T1, Tail) }.
+
+make_triples_same_subject([], _, T, T).
+make_triples_same_subject([property(P,O)|TP], S, [rdf(S,P,O)|T0], T) :-
+ make_triples_same_subject(TP, S, T0, T).
+
+% property_list(-L, -Triples, ?TriplesTail)
+property_list(L, Triples, Tail) -->
+ property_list_not_empty(L, Triples, Tail), !.
+property_list([], Tail, Tail) --> [].
+
+% property_list_not_empty(-L, -Triples, ?TriplesTail)
+property_list_not_empty(E, Triples, Tail) -->
+ verb(P),
+ must_see_object_list(OL, Triples, T0),
+ { mk_proplist(OL, P, E, T) },
+ (   ";", skip_ws
+ ->  property_list(T, T0, Tail)
+ ;   { T = [],
+       Tail = T0
+     }
+ ).
+
+mk_proplist([], _, T, T).
+mk_proplist([O|OT], P, [property(P,O)|T0], T) :-
+ mk_proplist(OT, P, T0, T).
+
+% object_list(-L, -Triples, ?TriplesTail)
+object_list(List, Triples, Tail) -->
+ object(H, Triples, T0),
+ (   ",", skip_ws
+ ->  { List = [H|T] },
+     object_list(T, T0, Tail)
+ ;   { List = [H],
+       Tail = T0
+     }
+ ).
+
+must_see_object_list(List, Triples, Tail) -->
+ object_list(List, Triples, Tail), !.
+must_see_object_list(_,_,_) -->
+ syntax_error(object_list_expected).
+
+object(Obj, Triples, Tail) -->
+ graph_node(Obj, Triples, Tail).
+
+% verb(-E)
+verb(E) --> varname(E). %%% 
+verb(E) --> var_or_iri_ref(E), !.
+verb(E) --> "a", skip_ws, { rdf_equal(E, rdf:type) }.
+
+% triples_node(-Subj, -Triples, ?TriplesTail)
+triples_node(Subj, Triples, Tail) -->
+ collection(Subj, Triples, Tail), !.
+triples_node(Subj, Triples, Tail) -->
+ blank_node_property_list(Subj, Triples, Tail).
+
+% blank_node_property_list(-Subj, -Triples, ?TriplesTail)
+blank_node_property_list(Subj, Triples, Tail) -->
+ "[", skip_ws,
+ property_list_not_empty(List, Triples, T0),
+ "]", skip_ws,
+ { make_triples_same_subject(List, Subj, T0, Tail) }.
+
+% collection(-Subj, -Triples, ?TriplesTail)
+collection(CollSubj, Triples, Tail) -->
+ "(", skip_ws,
+ graph_node(H, Triples, T0),
+ graph_nodes(T, T0, T1),
+ ")", skip_ws,
+ { mkcollection([H|T], CollSubj, T1, Tail) }.
+
+mkcollection([Last], S, [ rdf(S, rdf:first, Last),
+     rdf(S, rdf:rest, rdf:nil)
+   | Tail
+   ], Tail) :- !.
+mkcollection([H|T], S, [ rdf(S, rdf:first, H),
+    rdf(S, rdf:rest, R)
+         | RDF
+         ], Tail) :-
+ mkcollection(T, R, RDF, Tail).
+
+graph_nodes([H|T], Triples, Tail) -->
+ graph_node(H, Triples, T0), !,
+ graph_nodes(T, T0, Tail).
+graph_nodes([], T, T) --> [].
+
+% graph_node(E, -Triples, ?TriplesTail)
+graph_node(E, T, T)       --> var_or_term(E), !.
+graph_node(E, Triples, T) --> triples_node(E, Triples, T).
+
+% var_or_term(-E)
+var_or_term(E) --> var(E), !.
+var_or_term(E) --> graph_term(E).
+
+% var_or_iri_ref(-E)
+var_or_iri_ref(E) --> var(E), !.
+var_or_iri_ref(E) --> iri_ref(E), !.
+
+% var_or_blank_node_or_iri_ref(-E)
+var_or_blank_node_or_iri_ref(T) --> var(T), !.
+var_or_blank_node_or_iri_ref(T) --> blank_node(T), !.
+var_or_blank_node_or_iri_ref(T) --> iri_ref(T), !.
+
+% var(-Var)
+var(var(Name)) -->
+ (   var1(Name)
+ ->  []
+ ;   var2(Name)
+ ),
+ skip_ws.
+
+% graph_term(-T)
+graph_term(T)    --> iri_ref(T), !.
+graph_term(T)    --> rdf_literal(T), !.
+graph_term(T)    --> numeric_literal(T), !.
+graph_term(T)    --> boolean_literal(T), !.
+graph_term(T)  --> blank_node(T).
+graph_term(T)  --> nil(T).
+
+% expression(-E)
+expression(E) -->
+ conditional_or_expression(E),
+ skip_ws.
+
+must_see_expression(E) -->
+ expression(E), !.
+must_see_expression(_) -->
+ syntax_error(expression_expected).
+
+% conditional_or_expression(-E)
+conditional_or_expression(E) -->
+ conditional_and_expression(E0),
+ or_args(E0, E).
+
+or_args(E0, or(E0,E)) --> "||", !, skip_ws, value_logical(E1), or_args(E1, E).
+or_args(E, E) --> [].
+
+% conditional_and_expression(-E)
+conditional_and_expression(E) -->
+ value_logical(E0),
+ and_args(E0, E).
+
+and_args(E0, ','(E0,E)) --> "&&", !, skip_ws, value_logical(E1), and_args(E1, E).
+and_args(E, E) --> [].
+
+% value_logical(-E)
+value_logical(E) --> relational_expression(E).
+
+% relational_expression(E)
+relational_expression(E) -->
+  %{trace},
+ numeric_expression(E0),
+ ws_star,
+ (   relational_op(Op)
+ ->  skip_ws,
+     numeric_expression(E1),
+     { E =.. [Op,E0,E1] }
+ ;   { E = E0 }
+ ).
+
+relational_expression(E) -->
+ % {trace}, % match everything else
+ get_keyword(KWD),
+ "(", skip_ws, arg_list(_Types, Args), ")", skip_ws,
+ { E =.. [KWD|Args] }.
+
+relational_op(=) --> "=".
+relational_op(\=) --> "!=".
+relational_op(=<) --> "<=".
+relational_op(>=) --> ">=".
+relational_op(<) --> "<".
+relational_op(>) --> ">".
+relational_op(is) --> "is".
+
+% numeric_expression(-E)
+numeric_expression(E) -->
+ additive_expression(E).
+
+% additive_expression(-E)
+additive_expression(E) -->
+ multiplicative_expression(E0),
+ add_args(E0, E).
+
+add_args(E0, E0+E) --> "+", !, skip_ws,
+ multiplicative_expression(E1), add_args(E1, E).
+add_args(E0, E0-E) --> "-", !, skip_ws,
+ multiplicative_expression(E1), add_args(E1, E).
+add_args(E, E) --> [].
+
+% multiplicative_expression(-E)
+multiplicative_expression(E) -->
+ unary_expression(E0),
+ mult_args(E0, E).
+
+mult_args(E0, E0*E) --> "*", !, skip_ws,
+ unary_expression(E1), mult_args(E1, E).
+mult_args(E0, E0/E) --> "/", !, skip_ws,
+ unary_expression(E1), mult_args(E1, E).
+mult_args(E, E) --> [].
+
+% unary_expression(-E)
+unary_expression(not(E)) --> "!", skip_ws, primary_expression(E).
+unary_expression(+(E))   --> "+", skip_ws, primary_expression(E).
+unary_expression(-(E))   --> "-", skip_ws, primary_expression(E).
+unary_expression(E)      -->        primary_expression(E).
+
+% primary_expression(-E)
+primary_expression(E) --> bracketted_expression(E), !.
+primary_expression(E) --> built_in_call(E), !.
+primary_expression(E) --> iri_ref_or_function(E), !.
+primary_expression(E) --> rdf_literal(E), !.
+primary_expression(E) --> numeric_literal(E), !.
+primary_expression(E) --> boolean_literal(E), !.
+primary_expression(E) --> blank_node(E), !.
+primary_expression(E) --> var(E), !.
+primary_expression('getDURATION') --> "getDURATION()", !.
+
+% bracketted_expression(-E)
+bracketted_expression(E) -->
+ "(", skip_ws, must_see_expression(E), ")", skip_ws.
+
+bracketted_expression(E) -->
+ "(", skip_ws, must_see_expression(E), ")", skip_ws.
+
+% built_in_call(-Call)
+built_in_call(F) -->
+ get_keyword(KWD),
+ { built_in_function(KWD, Types) },
+ "(", skip_ws, arg_list(Types, Args), ")", skip_ws,
+ { F =.. [KWD|Args] }.
+built_in_call(Regex) -->
+ regex_expression(Regex).
+
+built_in_function(str,        [expression]).
+built_in_function(lang,        [expression]).
+built_in_function(langmatches, [expression, expression]).
+built_in_function(datatype,    [expression]).
+built_in_function(bound,       [var]).
+built_in_function(isiri,       [expression]).
+built_in_function(isuri,       [expression]).
+built_in_function(isblank,     [expression]).
+built_in_function(isliteral,   [expression]).
+
+arg_list([HT|TT], [HA|TA]) -->
+ arg(HT, HA),
+ arg_list_cont(TT, TA).
+
+arg_list_cont([], []) -->
+ [].
+arg_list_cont([H|T], [A|AT]) -->
+ ",", skip_ws,
+ arg(H, A),
+ arg_list_cont(T, AT).
+
+arg(expression, A) --> expression(A).
+arg(var,        A) --> var(A).
+arg(expression,        KWD) --> verb(KWD) %, {trace}
+  . 
+
+% regex_expression(-Regex)
+regex_expression(regex(Target, Pattern, Flags)) -->
+ keyword("regex"),
+ "(", skip_ws,
+ must_see_expression(Target), ",", skip_ws,
+ must_see_expression(Pattern),
+ (   ",", skip_ws, must_see_expression(Flags)
+ ->  []
+ ;   {Flags = literal('')}
+ ),
+ ")", skip_ws.
+
+% iri_ref_or_function(-Term)
+iri_ref_or_function(Term) -->
+ iri_ref(IRI),
+ (   arg_list(Args)
+ ->  { Term = function(IRI, Args) }
+ ;   { Term = IRI }
+ ).
+
+% rdf_literal(-Literal)
+rdf_literal(literal(Value)) -->
+ string(String),
+ (   langtag(Lang)
+ ->  { Value = lang(Lang, String) }
+ ;   "^^", iri_ref(IRI)
+ ->  { Value = type(IRI, String) }
+ ;   { Value = String }
+ ),
+ skip_ws.
+
+% numeric_literal(-Number)
+% Match a literal value and return it as a term
+%  literal(type(Type, Atom))
+% Where Type is one of xsd:double,  xsd:decimal or xsd:integer and
+% Atom is the matched text. The   value  cannot always be obtained
+% using atom_number/2 because floats and decimals can start or end
+% with a '.', something which is not allowed in Prolog.
+numeric_literal(literal(type(Type, Value))) -->
+ optional_pm(Codes, CV),
+ (   double_string(CV)
+ ->  { rdf_equal(xsd:double, Type) }
+ ;   decimal_string(CV)
+ ->  { rdf_equal(xsd:decimal, Type) }
+ ;   integer_string(CV)
+ ->  { rdf_equal(xsd:integer, Type) }
+ %;   duration_string(CV)
+ %->  { rdf_equal(xsd:duration, Type) }
+ ), !,
+ { atom_codes(Value, Codes)
+ },
+ skip_ws.
+
+% boolean_literal(-TrueOrFalse)
+boolean_literal(Lit) -->
+ (   keyword("true")
+ ->  { Lit = boolean(true) }
+ ;   keyword("false")
+ ->  { Lit = boolean(false) }
+ ).
+
+% string(-Atom)
+string(Atom) --> string_literal_long1(Atom), !.
+string(Atom) --> string_literal_long2(Atom), !.
+string(Atom) --> string_literal1(Atom), !.
+string(Atom) --> string_literal2(Atom).
+
+% iri_ref(IRI)
+iri_ref(IRI) -->
+ q_iri_ref(IRI).
+iri_ref(IRI) -->
+ qname(IRI).
+
+% qname(-Term)
+% TBD: Looks like this is ambiguous!?
+
+qname(Term) -->
+ 'QNAME'(Term), !, skip_ws.
+qname(Q:'') -->
+ qname_ns(Q).
+
+% blank_node(-Id)
+% Blank node.  Anonymous blank nodes are returned with unbound Id
+blank_node(Id) -->
+ blank_node_label(Id), !.
+blank_node(Id) -->
+ anon(Id).
+
+ /*******************************
+ *        BASICS  *
+ *******************************/
+
+% q_iri_ref(-Atom)
+q_iri_ref(Atom) -->
+ "<",
+ (    q_iri_ref_codes(Codes), ">"
+ ->   skip_ws,
+      { atom_codes(Atom, Codes) }
+ ;    syntax_error(illegal_qualified_iri)
+ ).
+
+q_iri_ref_codes([]) -->
+ [].
+q_iri_ref_codes([H|T]) -->
+ iri_code(H), !,
+ q_iri_ref_codes(T).
+q_iri_ref_codes(_) -->
+ syntax_error(illegal_code_in_iri).
+
+iri_code(Code) -->
+ [Code],
+ { \+ not_iri_code(Code) }, !.
+iri_code(Code) -->
+ uchar(Code).
+
+not_iri_code(0'<).
+not_iri_code(0'>).
+not_iri_code(0'').
+not_iri_code(0'{).
+not_iri_code(0'}).
+not_iri_code(0'|).
+not_iri_code(0'\\).
+not_iri_code(0'`).
+not_iri_code(Code) :- between(0x00, 0x20, Code).
+
+% qname_ns(Q)
+qname_ns(Q) -->
+ ncname_prefix(Q), ":", !, skip_ws.
+qname_ns('') -->
+ ":", skip_ws.
+
+% 'QNAME'(-Term)
+% Qualified name.  Term is one of Q:N or '':N
+'QNAME'(Q:N) -->
+ ncname_prefix(Q), ":", !, pn_local(N).
+'QNAME'('':N) -->
+ ":", pn_local(N).
+
+% blank_node_label(-Bnode).
+% Processes "_:..." into a bnode(Name) term.
+blank_node_label(bnode(Name)) -->
+ "_:", pn_local(Name), skip_ws.
+
+% var1(-Atom).
+% var2(-Atom).
+var1(Name) --> "?", varname(Name).
+var2(Name) --> "$", varname(Name).
+
+% langtag(-Tag)
+% Return language tag (without leading @)
+langtag(Atom) -->
+ "@",
+ one_or_more_ascii_letters(Codes, T0),
+ sub_lang_ids(T0, []),
+ skip_ws,
+ { atom_codes(Atom, Codes) }.
+
+sub_lang_ids([0'-|Codes], Tail) -->
+ "-", !,
+ one_or_more_ascii_letter_or_digits(Codes, T0),
+ sub_lang_ids(T0, Tail).
+sub_lang_ids(T, T) -->
+ [].
+
+% integer(-Integer).
+% Match an integer and return its value.
+integer(Integer) -->
+ integer_string(Codes),
+ { number_codes(Integer, Codes)
+ },
+ skip_ws.
+
+% integer_string(-Codes).
+% Extract integer value.
+integer_string(Codes) -->
+ one_or_more_digits(Codes, []), !.
+
+% decimal_string(-Codes)
+% Extract float without exponent and return  the matched text as a
+% list of codes.
+decimal_string(Codes) -->
+ one_or_more_digits(Codes, T0), !,
+ dot(T0, T1),
+ digits(T1, []).
+decimal_string(Codes) -->
+ dot(Codes, T1),
+ one_or_more_digits(T1, []).
+
+% double_string(-Codes).
+% Extract a float number with exponent and  return the result as a
+% list of codes.
+double_string(Codes) -->
+ one_or_more_digits(Codes, T0), !,
+ dot(T0, T1),
+ digits(T1, T2),
+ exponent(T2, []).
+double_string(Codes) -->
+ dot(Codes, T1),
+ one_or_more_digits(T1, T2), !,
+ exponent(T2, []).
+double_string(Codes) -->
+ one_or_more_digits(Codes, T2), !,
+ exponent(T2, []).
+
+dot([0'.|T], T) --> ".".  % 0'
+
+% exponent(-Codes, ?Tail)
+% Float exponent.  Returned as difference-list
+exponent(Codes, T) -->
+ optional_e(Codes, T0),
+ optional_pm(T0, T1),
+ one_or_more_digits(T1, T).
+
+optional_e([0'e|T], T) -->
+ (   "e"
+ ;   "E"
+ ), !.
+optional_e(T, T) -->
+ "".
+
+optional_pm([C|T], T) -->
+ [C],
+ { C == 0'+ ; C == 0'- }, !.
+optional_pm(T, T) -->
+ "".
+
+% string_literal1(-Atom)
+
+string_literal1(Atom) -->
+ "'", !,
+ string_literal_codes(Codes),
+ "'", !,
+ { atom_codes(Atom, Codes) }.
+
+% string_literal2(-Atom)
+
+string_literal2(Atom) -->
+ "\"", !,
+ string_literal_codes(Codes),
+ "\"", !,
+ { atom_codes(Atom, Codes) }.
+
+string_literal_codes([]) -->
+ "".
+string_literal_codes([H|T]) -->
+ (   echar(H)
+ ;   uchar(H)
+ ;   [H], { \+ not_in_string_literal(H) }
+ ),
+ string_literal_codes(T).
+
+not_in_string_literal(0x5C).
+not_in_string_literal(0x0A).
+not_in_string_literal(0x0D).
+
+% string_literal_long1(-Atom)
+
+string_literal_long1(Atom) -->
+ "'''", !,
+ string_literal_codes_long(Codes),
+ "'''", !,
+ { atom_codes(Atom, Codes) }.
+
+% string_literal_long2(-Atom)
+
+string_literal_long2(Atom) -->
+ "\"\"\"", !,
+ string_literal_codes_long(Codes),
+ "\"\"\"", !,
+ { atom_codes(Atom, Codes) }.
+
+string_literal_codes_long([]) -->
+ "".
+string_literal_codes_long([H|T]) -->
+ (   echar(H)
+ ;   uchar(H)
+ ;   [H], { H \== 0'\\ }
+ ),
+ string_literal_codes_long(T).
+
+% echar(-Code)
+% Escaped character
+
+echar(Code) -->
+ "\\", echar2(Code).
+
+echar2(0'\t) --> "t".
+echar2(0'\b) --> "b".
+echar2(0'\n) --> "n".
+echar2(0'\r) --> "r".
+echar2(0'\f) --> "f".
+echar2(0'\\) --> "\\".
+echar2(0'")  --> "\"".
+echar2(0'')  --> "'".
+
+% uchar(-Code)
+% \uXXXX or \UXXXXXXXX, returning character value
+
+uchar(Code) -->
+ "\\u", !,
+ (   hex(D1), hex(D2), hex(D3), hex(D4)
+ ->  { Code is D1<<12 + D2<<8 + D3<<4 + D4 }
+ ;   syntax_error(illegal_uchar)
+ ).
+uchar(Code) -->
+ "\\U", !,
+ (   hex(D1), hex(D2), hex(D3), hex(D4),
+     hex(D5), hex(D6), hex(D7), hex(D8)
+ ->  { Code is D1<<28 + D2<<24 + D3<<20 + D4<<16 +
+               D5<<12 + D6<<8 + D7<<4 + D8 }
+ ;   syntax_error(illegal_Uchar)
+ ).
+
+% hex(-Weigth)
+% HEX digit (returning numeric value)
+
+hex(Weigth) -->
+ [C],
+ { code_type(C, xdigit(Weigth)) }.
+
+% nil(-NIL)
+% End-of-collection (rdf:nil)
+
+nil(NIL) --> "(", ws_star, ")", skip_ws, { rdf_equal(NIL, rdf:nil) }.
+
+% ws
+% white space characters.
+
+ws --> [0x20].
+ws --> [0x09].
+ws --> [0x0D].
+ws --> [0x0A].
+
+% ws_star
+
+ws_star --> ws, !, ws_star.
+ws_star --> "".
+
+% anon
+% Anonymous resource
+
+anon(bnode(_)) --> "[", ws_star, "]", skip_ws.
+
+% pn_chars_base(-Code)
+% Basic identifier characters
+
+pn_chars_base(Code) -->
+ esc_code(Code),
+ { pn_chars_base(Code) }, !.
+
+pn_chars_base(Code) :- between(0'A, 0'Z, Code).
+pn_chars_base(Code) :- between(0'a, 0'z, Code).
+pn_chars_base(Code) :- between(0x00C0, 0x00D6, Code).
+pn_chars_base(Code) :- between(0x00D8, 0x00F6, Code).
+pn_chars_base(Code) :- between(0x00F8, 0x02FF, Code).
+pn_chars_base(Code) :- between(0x0370, 0x037D, Code).
+pn_chars_base(Code) :- between(0x037F, 0x1FFF, Code).
+pn_chars_base(Code) :- between(0x200C, 0x200D, Code).
+pn_chars_base(Code) :- between(0x2070, 0x218F, Code).
+pn_chars_base(Code) :- between(0x2C00, 0x2FEF, Code).
+pn_chars_base(Code) :- between(0x3001, 0xD7FF, Code).
+pn_chars_base(Code) :- between(0xF900, 0xFDCF, Code).
+pn_chars_base(Code) :- between(0xFDF0, 0xFFFD, Code).
+pn_chars_base(Code) :- between(0x10000, 0xEFFFF, Code).
+
+esc_code(Code) -->
+ uchar(Code), !.
+esc_code(Code) -->
+ [ Code ].
+
+% pn_chars_u(-Code)
+% Allows for _
+
+pn_chars_u(Code) -->
+ esc_code(Code),
+ { pn_chars_u(Code) }.
+
+pn_chars_u(Code) :-
+ pn_chars_base(Code).
+pn_chars_u(0'_).
+
+% varname(-Atom)
+% Name of a variable (after the ? or $)
+
+varname(Atom) -->
+ varchar1(C0),
+ varchars(Cs),
+ { atom_codes(Atom, [C0|Cs]) },
+ skip_ws.
+
+write_1(List,_L) :- nl, atom_codes(L1,List), write(List), nl, write(L1), nl, fail.
+
+varchar1(Code) -->
+ esc_code(Code),
+ { varchar1(Code) }.
+
+varchar1(Code) :-
+ pn_chars_u(Code), !.
+varchar1(Code) :-
+ between(0'0, 0'9, Code).
+
+varchars([H|T]) -->
+ varchar(H), !,
+ varchars(T).
+varchars([]) -->
+ [].
+
+varchar(Code) -->
+ esc_code(Code),
+ { varchar(Code) }.
+
+varchar(Code) :-
+ varchar1(Code), !.
+varchar(Code) :-
+ varchar_extra(Code), !.
+
+varchar_extra(0x00B7).
+varchar_extra(Code) :- between(0x0300, 0x036F, Code).
+varchar_extra(Code) :- between(0x203F, 0x2040, Code).
+
+ncchar(Code) :-
+ varchar(Code), !.
+ncchar(0'-).
+
+% ncname_prefix(-Atom)
+
+ncname_prefix(Atom) -->
+ pn_chars_base(C0),
+ (   ncname_prefix_suffix(Cs)
+ ->  { atom_codes(Atom, [C0|Cs]) }
+        ;   { char_code(Atom, C0) }
+ ).
+
+ncname_prefix_suffix(Codes) -->
+ ncchar_or_dots(Codes, []),
+ { \+ append(_, [0'.], Codes) }.
+
+ncchar_or_dots([H|T0], T) -->
+ ncchar_or_dot(H), !,
+ ncchar_or_dots(T0, T).
+ncchar_or_dots(T, T) -->
+ [].
+
+ncchar_or_dot(Code) -->
+ esc_code(Code),
+ { ncchar_or_dot(Code) }.
+
+ncchar_or_dot(Code) :-
+ ncchar(Code), !.
+ncchar_or_dot(0'.).
+
+% pn_local(-Atom)
+
+pn_local(Atom) -->
+ varchar1(C0),
+ (   ncname_prefix_suffix(Cs)
+ ->  { atom_codes(Atom, [C0|Cs]) }
+        ;   { char_code(Atom, C0) }
+ ).
+
+   /*******************************
+   *       EXTRAS  *
+   *******************************/
+
+digit(Code) -->
+ [Code],
+ { between(0'0, 0'9, Code) }.
+
+ascii_letter(Code) -->
+ [Code],
+ { between(0'a, 0'z, Code)
+ ; between(0'A, 0'Z, Code)
+ ; Code=95
+ }, !.
+
+ascii_letter_or_digit(Code) -->
+ [Code],
+ { between(0'a, 0'z, Code)
+ ; between(0'A, 0'Z, Code)
+ ; between(0'0, 0'9, Code)
+ }, !.
+
+digits([H|T0], T) -->
+ digit(H), !,
+ digits(T0, T).
+digits(T, T) -->
+ [].
+
+ascii_letters([H|T0], T) -->
+ ascii_letter(H), !,
+ ascii_letters(T0, T).
+ascii_letters(T, T) -->
+ [].
+
+ascii_letter_or_digits([H|T0], T) -->
+ ascii_letter_or_digit(H), !,
+ ascii_letter_or_digits(T0, T).
+ascii_letter_or_digits(T, T) -->
+ [].
+
+one_or_more_digits([C0|CT], Tail) -->
+ digit(C0),
+ digits(CT, Tail).
+
+one_or_more_ascii_letters([C0|CT], Tail) -->
+ ascii_letter(C0),
+ ascii_letters(CT, Tail).
+
+one_or_more_ascii_letter_or_digits([C0|CT], Tail) -->
+ ascii_letter_or_digit(C0),
+ ascii_letter_or_digits(CT, Tail).
+
+% keyword(+Codes)
+% Case-insensitive match for a keyword.
+
+keyword([]) -->
+ (  ascii_letter(_)
+ -> !, {fail}
+ ;  skip_ws
+ ).
+keyword([H|T]) -->
+ [C],
+ { code_type(H, to_lower(C)) },
+ keyword(T).
+
+% get_keyword(-Atom)
+% Get next identifier as lowercase
+
+get_keyword(Atom) -->
+ one_or_more_ascii_letters(Letters, []),
+ { atom_codes(Raw, Letters),
+   downcase_atom(Raw, Atom)
+ },
+ skip_ws.
+
+% skip_ws
+
+skip_ws -->
+ ws, !,
+ skip_ws.
+skip_ws -->
+ "#", !,
+ skip_comment,
+ skip_ws.
+skip_ws -->
+ [].
+
+skip_comment --> "\n", !.
+skip_comment --> "\r", !.
+skip_comment --> eos, !.
+skip_comment --> [_], skip_comment.
+
+eos([], []).
+
+peek(C, T, T) :-
+ append(C, _, T), !.
+
+/*******************************
+*         ERRORS    *
+*******************************/
+
+syntax_error(What) :-
+  throw(error(syntax_error(What),
+        context(_, 'in SPARQL query'))).
+
+syntax_error(What, In, []) :-
+  throw(error(syntax_error(What),
+        context(_, left(In)))).
+
+add_error_location(error(syntax_error(What),
+       context(_, left(After))),
+       Input) :-
+  append(Before, After, Input),
+  length(Before, BL),
+  CLen = 80,
+  (   BL =< CLen
+  ->  BC = Before
+  ;   length(BC0, CLen),
+      append(_, BC0, Before),
+      append("...", BC0, BC)
+  ),
+  length(After, AL),
+  (   AL =< CLen
+  ->  AC = After
+  ;   length(AC0, CLen),
+      append(AC0, _, After),
+      append(AC0, "...", AC)
+  ),
+  append("\n**here**\n", AC, HAC),
+  append([0'\n|BC], HAC, ContextCodes),  % '
+  atom_codes(Context, ContextCodes),
+  throw(error(syntax_error(What),
+        context('SPARQL', Context))). 
+
+rdf_equal(X,Y):- X=Y.
+

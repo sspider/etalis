@@ -1,0 +1,9 @@
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+
+print_trigger(_/_).
+
+d(X) <- a(X) 'and' b(X).
+d(X) <- d(X) 'and' c(X).

@@ -1,0 +1,21 @@
+test(EventFile):-
+	load_event_stream_file(EventFile,EventList),
+	my_cputime(T0),
+	repeat_fireEvent(EventList),
+	my_cputime(T1),
+	DT is T1-T0,
+	nl,
+	write(DT),
+	nl,
+	nl.
+	
+
+repeat_fireEvent([H|T]):-
+	call(cevent(H)),
+	repeat_fireEvent(T).
+repeat_fireEvent([]).
+
+my_cputime(T):-
+	T is cputime.
+
+%test('benchmarks/a_0_d_0_500000_events.P').

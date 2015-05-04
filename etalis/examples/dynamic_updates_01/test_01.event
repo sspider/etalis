@@ -1,0 +1,20 @@
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+print_trigger(e/1).
+
+noop_event <- a(X) 'seq' b(X) 'do' ins_event_rule(d(Y) <- c(Y)).
+
+noop_event <- a(X) 'do' ins_static_rule(s1 :- s2).
+
+r1 'rule:' e(X) <- a(X).
+
+noop_event <- b(X) 'do' del_event_rule(r1 'rule:' e(X) <- a(X)).
+
+% static rules
+s2 :- s3.
+s3.
+
+% we fire a(1), b(1) and c(2) and we check if event d(2) was detected
+%  and if the literal s1 is true

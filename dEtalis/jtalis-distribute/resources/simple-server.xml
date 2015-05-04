@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xsi:schemaLocation="http://www.w3schools.com http://etalis.googlecode.com/files/XmlConfig.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3schools.com">
+
+	<eventTriggers>
+		<trigger>_/_</trigger>
+	</eventTriggers>
+
+	<eventRules>
+		<eventRule>
+			<consequence>c</consequence>
+			<antecedent>a seq b</antecedent>
+		</eventRule>
+	</eventRules>
+
+	<providers>
+		<provider type="input" class="com.jtalis.core.event.provider.DefaultInputProvider" />
+		<provider regex="c" type="output" class="com.jtalis.core.event.provider.DefaultOutputProvider">
+			<parameters>
+				<parameter name="url">localhost:8888</parameter>
+			</parameters>
+		</provider>
+		<provider type="output" class="com.jtalis.core.event.provider.DefaultOutputProvider" />
+	</providers>
+
+</config>

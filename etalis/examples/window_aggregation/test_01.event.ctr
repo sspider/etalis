@@ -1,0 +1,6 @@
+trClause(r2,event(a(_G1622),[_G1872,_G1875]),seqf(etr_dbf(r2,aggregate_goal(event(start_aggr,[_G1891,_G1894]),count,_G1886)),seqf(etr_delf(r2,aggregate_goal(event(start_aggr,[_G1891,_G1894]),count,_G1886)),seqf(prolog(_G1921 is _G1886+1),seqf(etr_insf(r2,aggregate_goal(event(start_aggr,[_G1891,_G1894]),count,_G1921)),seqf(prolog(_G1620 is _G1921),seqf(check_event_rule_conditions(r2,temp_e_1(start_aggr,aggregate(count,a(_G1622),_G1620)),[_G1891,_G1875]),event(temp_e_1(start_aggr,aggregate(count,a(_G1622),_G1620)),[_G1891,_G1875])))))))).
+
+trClause(r2,event(start_aggr,[_G1810,_G1813]),seqf(etr_insf(r2,aggregate_goal(event(start_aggr,[_G1810,_G1813]),count,0)),seqf(prolog(_G1620 is 0),seqf(check_event_rule_conditions(r2,temp_e_1(start_aggr,aggregate(count,a(_G1622),_G1620)),[_G1810,_G1813]),event(temp_e_1(start_aggr,aggregate(count,a(_G1622),_G1620)),[_G1810,_G1813]))))).
+
+trClause(r2,event(temp_e_1(start_aggr,aggregate(count,a(_G1622),_G1620)),[_G1986,_G1989]),seqf(check_event_rule_conditions(r2,d(_G1620),[_G1986,_G1989]),event(d(_G1620),[_G1986,_G1989]))).
+

@@ -1,0 +1,50 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Flags and configuration parameters
+start_assignment_time(120). % start assignment after 120 sec
+                                % (2 min. in the specification)
+check_manual_assignment_time(60). % check manual assignment after 60 sec
+                                % (1 min. in the specification)
+check_pick_up_time(300). % check pickup after 300 sec
+                                % (5 min. in the specification)
+check_delivery_time(600). % check delivery after 600 sec
+                                % (10 min. in the specification)
+ranking_threshold(20). % increment/decrement ranking for drivers after N deliv.
+                                % (20 deliveries in the specification)
+delivery_alarm_threshold(5).
+                                % (5 delivery alerts in the specification)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Database for flower_interface_01:
+store_record('store1',5,automatic).
+store_record('store2',6,manual).
+store_record('store3',7,automatic).
+
+driver_record('driver1',5).
+driver_record('driver2',6).
+driver_record('driver3',7).
+driver_record('driver4',8).
+
+average_driver_assignment(5).
+
+gps_to_region(coordinates('N',X,'W',Y),'Manhattan')    :-
+        4042=<X,X<4049,
+        7358=<Y,Y<7370,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'TheBronx')     :-
+        4049=<X,X<4059,
+        7352=<Y,Y<7370,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'Brooklyn')     :-
+        4040=<X,X<4042,
+        7358=<Y,Y<7360,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'Queens')       :-
+        4042=<X,X<4059,
+        7355=<Y,Y<7364,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'StatenIsland') :-
+        4034=<X,X<4040,
+        7368=<Y,Y<7399,
+        !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

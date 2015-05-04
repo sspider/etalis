@@ -1,0 +1,31 @@
+#labels Fast-Flowers-Delivery,Use-Case
+= The Fast Flower Delivery Use Case in Etalis =
+
+This page contains information related to the implementation of the [http://epthinking.blogspot.com/2009/06/on-methodic-use-case-used-in-epia-book.html Fast Flowers Delivery Use Case] in the ETALIS language. This example was developed as a part of the book: [http://www.manning.com/etzion Event Processing in Action], written by Opher Etzion and Peter Niblett.
+
+[http://www.ep-ts.com/content/view/74/108/ http://www.cs.sunysb.edu/~pfodor/EPIAcover001.jpg]
+
+For more details about the use case and a skeleton specification, please reefer to [http://www.ep-ts.com/content/view/80/111/ http://www.ep-ts.com/content/view/80/111/].
+
+= Getting Started with _Etalis Language for Events_=
+
+ETALIS is a declarative rule-based language for Complex Event Processing based on Prolog. Using this language, it is possible to specify expressive complex event patterns and execute event streams triggering external complex events during execution. ETALIS Language for Events covers standard CEP operations: event pattern matching, filtering, enrichment, aggregation, transformation, multiplication etc. Apart from this, ETALIS also features database querying and inference capabilities, features useful for: reasoning about events and their temporal and causal relationships, reasoning about the current state (in state-changing environments), aggregate functions and statistics, etc.
+
+Prerequisites: install SWI prolog from: http://www.swi-prolog.org/download/stable (Note: SWI has the alarm predicates used by us for the alarm events only starting with version 5.8.0, while older version do not support these calls. If your Linux system has a preinstalled version of swipl, please check if it's 5.8.0 or newer).
+
+ETALIS is an open source project and its source code is available for portability and extensibility under the GNU General Public Library License. The source code of the system, including the Flower Delivery use case implementation, can be download from [http://code.google.com/p/etalis/source/checkout] using Subversion. These souces can also be accessed online at: [http://code.google.com/p/etalis/source/browse/etalis http://code.google.com/p/etalis/source/browse/etalis]. The Etalis user instructions can be found in the "docs/userman" directory under the Etalis home directory. Note that Linux installations have installations of Subversion "svn" programs, while for Windows, we recommend using svn command line, "TortoiseSVN" from http://tortoisesvn.tigris.org or the Subclipse plugin in eclipse.
+
+= The Fast Flowers Delivery Use Case Implementation in Etalis =
+
+The use case implementation, written in ETALIS Language for Events, is part of the example directory of the Etalis system "$EtalisHomeDir/examples/flower_delivery" and can also be browsed online at [http://code.google.com/p/etalis/source/browse/#svn/etalis/examples/flower_delivery http://code.google.com/p/etalis/source/browse/#svn/etalis/examples/flower_delivery].
+
+= Run The Flower Delivery Use Case =
+
+There are two ways to run the Flower Delivery use case: 
+    * test with a synthetic stream (i.e., flower_stream_test.bat) loading a stream file of events (such as: "flower_test_01.stream"), and 
+    * test with user input events (i.e., flower_interface.bat) waiting for the user to input events with the "event(...)." predicate.
+
+The two ".bat" batch files above start Etalis and initialize use cases from the "use_cases" directory. Each test also has a database file (such as: "flower_test_01.db") which specifies data in the database (i.e., "driver_record(driver1,ranking1)") and configuration parameters (i.e., time to wait before triggering alarms, etc.)
+
+
+Please contact Darko Anicic <darko.anicic@fzi.de> and Paul Fodor <pfodor@cs.stonybrook.edu> for any issues and problems with the installation of the Etalis system and the execution of the Flower Delivery use case.

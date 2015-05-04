@@ -1,0 +1,45 @@
+E:\_workspaces\_workspace_01_internal_SVN_based\etalis\examples\justification_02>"c:\Program Files\pl\bin\plcon.exe" -g "open('../results.txt',append,FH), ['../../src/etalis.P'], set_etalis_flag(store
+_fired_events,on), set_etalis_flag(etalis_justification,on), compile_event_file('test_01.event'), event(a), findall(stored_event(event(c,T)),stored_event(event(c,T)),List), ( List = [] -> write(FH,'ju
+stification_02\t\tpassed\n') ; write(FH,'justification_02\t\tfailed\n') ), nl,nl,write('Justification for NOT c\n'),nl, etalis_justify(c,[T1,T2],J), write_justification(J), halt."
+% c:/documents and settings/pfodor/application data/swi-prolog/pl.ini compiled 0.00 sec, 1,844 bytes
+%  binarizer.P compiled 0.00 sec, 10,256 bytes
+%  compiler.P compiled 0.02 sec, 63,420 bytes
+%  date_time.P compiled 0.02 sec, 18,076 bytes
+%  event_utils.P compiled 0.00 sec, 3,704 bytes
+%  executor.P compiled 0.00 sec, 12,708 bytes
+%  flags.P compiled 0.00 sec, 2,348 bytes
+%  garbage_collection.P compiled 0.00 sec, 3,764 bytes
+%  java_interface.P compiled 0.00 sec, 712 bytes
+%  justify_etalis.P compiled 0.00 sec, 6,484 bytes
+%  labeled_event_rules.P compiled 0.00 sec, 2,352 bytes
+%  logging.P compiled 0.00 sec, 1,924 bytes
+%  parser.P compiled 0.00 sec, 14,528 bytes
+%  storage.P compiled 0.02 sec, 13,676 bytes
+%  utils.P compiled 0.00 sec, 6,244 bytes
+% ../../src/etalis.P compiled 0.05 sec, 176,440 bytes
+*Event: a @ [datime(2010, 4, 15, 18, 8, 30, 1), datime(2010, 4, 15, 18, 8, 30, 1)]
+
+
+Justification for NOT c
+
+
+
+failed forall rules(
+        failed(
+        event(c, [_G626, _G629])
+        --------------------
+                failed forall rules(
+                        failed(
+                        event(temp_e_1(a, b), [_G2014, _G2017])
+                        --------------------
+                                seq(
+                                        event(a, [datime(2010, 4, 15, 18, 8, 30, 1), datime(2010, 4, 15, 18, 8, 30, 1)])
+                                ,
+                                        failed(event(b, [_G2119, _G2075]))
+                                )
+                                --------------------
+                                event(seqf(a, b), [datime(2010, 4, 15, 18, 8, 30, 1), _G2075])
+                        )
+                )
+        )
+)

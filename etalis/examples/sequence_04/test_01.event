@@ -1,0 +1,38 @@
+%print_trigger(_/_).
+
+
+print_trigger(stock/1).
+
+min_compEvent(1000000) <- 
+        start_compEvent.
+min_compEvent(Min) <- 
+        (min_compEvent(MinTemp) 'seq' 
+        stock(1,Price,Volume) )'seq' 
+        prolog(min(Price,MinTemp,Min)).
+
+print_trigger(min_compEvent/1).
+
+%final_min(Min) <- min_compEvent(Min) 'seq' stop_compEvent.
+%print_trigger(final_min(_)).
+
+max_compEvent(0) <- 
+        start_compEvent.
+max_compEvent(Max) <- 
+        max_compEvent(MaxTemp) 'seq' 
+        stock(1,Price,Volume) 'seq' 
+        prolog(max(Price,MaxTemp,Max)).
+
+print_trigger(max_compEvent/1).
+
+%final_max(Max) <- max_compEvent(Max) 'seq' stop_compEvent.
+%print_trigger(final_max(_)).
+
+buy_compEvent(NewPrice) <- 
+        ((min_compEvent(MinPrice) 'and' max_compEvent(MaxPrice)) 'seq' 
+        stock(1,NewPrice,NewVolume) ) 
+        'where' (
+                'is'(Threshold,MinPrice+(MaxPrice-MinPrice)/10),
+                '<'(NewPrice,Threshold) 
+        ).
+
+print_trigger(buy_compEvent(_)).

@@ -1,0 +1,24 @@
+% Flags and configuration parameters
+start_assignment_time(2). % start assignment after 2 sec
+check_manual_assignment_time(1). % check manual assignment after 1 sec
+check_pick_up_time(3). % check pickup after 5 min
+check_delivery_time(6). % check delivery after 10 min
+ranking_threshold(4). % increment and decrement ranking for drivers after every 4 deliveries
+delivery_alarm_threshold(20).
+
+% Database for flower_test_01:
+store_record('store1',5,automatic).
+store_record('store2',6,manual).
+store_record('store3',7,automatic).
+
+driver_record('driver1',5).
+driver_record('driver2',6).
+driver_record('driver3',7).
+driver_record('driver4',8).
+
+gps_to_region(coordinates('N',X,'W',Y),'Manhattan')    :- 4042<X, X<4049, 7358<Y, Y<7370,!.
+gps_to_region(coordinates('N',X,'W',Y),'TheBronx')     :- 4049<X,X<4059, 7352<Y,Y<7370,!.
+gps_to_region(coordinates('N',X,'W',Y),'Brooklyn')     :- 4040<X,X<4042, 7358<Y,Y<7360,!.
+gps_to_region(coordinates('N',X,'W',Y),'Queens')       :- 4042<X,X<4059, 7355<Y,Y<7364,!.
+gps_to_region(coordinates('N',X,'W',Y),'StatenIsland') :- 4034<X,X<4040, 7368<Y,Y<7399,!.
+

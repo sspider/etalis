@@ -1,0 +1,213 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:fp="http://deri.org/floorplan/" > 
+  <rdf:Description rdf:about="http://deri.org/floorplan/G021">
+    <name>Location G021</name>
+    <connected rdf:resource="http://deri.org/floorplan/J019"/>
+    <connected rdf:resource="http://deri.org/floorplan/H011"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/G016">
+    <name>Location G016</name>
+    <connected rdf:resource="http://deri.org/floorplan/G022"/>
+    <connected rdf:resource="http://deri.org/floorplan/F011"/>
+    <connected rdf:resource="http://deri.org/floorplan/I001"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/I005">
+    <name>Location I005</name>
+    <connected rdf:resource="http://deri.org/floorplan/I014"/>
+    <connected rdf:resource="http://deri.org/floorplan/F011"/>
+    <connected rdf:resource="http://deri.org/floorplan/E021"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/F017">
+    <name>Location F017</name>
+    <connected rdf:resource="http://deri.org/floorplan/C012"/>
+    <connected rdf:resource="http://deri.org/floorplan/G002"/>
+    <connected rdf:resource="http://deri.org/floorplan/F012"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/H016">
+    <name>Location H016</name>
+    <connected rdf:resource="http://deri.org/floorplan/H017"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/F011">
+    <name>Location F011</name>
+    <connected rdf:resource="http://deri.org/floorplan/G016"/>
+    <connected rdf:resource="http://deri.org/floorplan/I005"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/D001">
+    <name>Location D001</name>
+    <connected rdf:resource="http://deri.org/floorplan/F012"/>
+    <connected rdf:resource="http://deri.org/floorplan/C006"/>
+    <connected rdf:resource="http://deri.org/floorplan/E021"/>
+    <connected rdf:resource="http://deri.org/floorplan/D005"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/C023">
+    <name>Location C023</name>
+    <connected rdf:resource="http://deri.org/floorplan/C150"/>
+    <connected rdf:resource="http://deri.org/floorplan/C005"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/D005">
+    <name>Location D005</name>
+    <connected rdf:resource="http://deri.org/floorplan/D001"/>
+    <connected rdf:resource="http://deri.org/floorplan/F012"/>
+    <connected rdf:resource="http://deri.org/floorplan/D015"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/I001">
+    <name>Location I001</name>
+    <connected rdf:resource="http://deri.org/floorplan/H019"/>
+    <connected rdf:resource="http://deri.org/floorplan/G016"/>
+    <connected rdf:resource="http://deri.org/floorplan/I014"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/E006">
+    <name>Location E006</name>
+    <connected rdf:resource="http://deri.org/floorplan/E017"/>
+    <connected rdf:resource="http://deri.org/floorplan/D003"/>
+    <connected rdf:resource="http://deri.org/floorplan/F002"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/D015">
+    <name>Location D015</name>
+    <connected rdf:resource="http://deri.org/floorplan/F012"/>
+    <connected rdf:resource="http://deri.org/floorplan/D005"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/C150">
+    <name>Location C150</name>
+    <connected rdf:resource="http://deri.org/floorplan/E021"/>
+    <connected rdf:resource="http://deri.org/floorplan/C023"/>
+    <connected rdf:resource="http://deri.org/floorplan/C005"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/D011">
+    <name>Location D011</name>
+    <connected rdf:resource="http://deri.org/floorplan/D021"/>
+    <connected rdf:resource="http://deri.org/floorplan/D010"/>
+    <connected rdf:resource="http://deri.org/floorplan/D003"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/H019">
+    <name>Location H019</name>
+    <connected rdf:resource="http://deri.org/floorplan/H017"/>
+    <connected rdf:resource="http://deri.org/floorplan/I001"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/D003">
+    <name>Location D003</name>
+    <connected rdf:resource="http://deri.org/floorplan/E017"/>
+    <connected rdf:resource="http://deri.org/floorplan/D011"/>
+    <connected rdf:resource="http://deri.org/floorplan/D010"/>
+    <connected rdf:resource="http://deri.org/floorplan/E006"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/C006">
+    <name>Location C006</name>
+    <connected rdf:resource="http://deri.org/floorplan/C012"/>
+    <connected rdf:resource="http://deri.org/floorplan/B001"/>
+    <connected rdf:resource="http://deri.org/floorplan/C015"/>
+    <connected rdf:resource="http://deri.org/floorplan/D001"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/H011">
+    <name>Location H011</name>
+    <connected rdf:resource="http://deri.org/floorplan/G021"/>
+    <connected rdf:resource="http://deri.org/floorplan/J013"/>
+    <connected rdf:resource="http://deri.org/floorplan/H017"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/B007">
+    <name>Location B007</name>
+    <connected rdf:resource="http://deri.org/floorplan/B001"/>
+    <connected rdf:resource="http://deri.org/floorplan/C015"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/C015">
+    <name>Location C015</name>
+    <connected rdf:resource="http://deri.org/floorplan/B007"/>
+    <connected rdf:resource="http://deri.org/floorplan/C012"/>
+    <connected rdf:resource="http://deri.org/floorplan/C006"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/G022">
+    <name>Location G022</name>
+    <connected rdf:resource="http://deri.org/floorplan/H017"/>
+    <connected rdf:resource="http://deri.org/floorplan/G016"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/J019">
+    <name>Location J019</name>
+    <connected rdf:resource="http://deri.org/floorplan/J013"/>
+    <connected rdf:resource="http://deri.org/floorplan/G021"/>
+    <connected rdf:resource="http://deri.org/floorplan/B001"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/F002">
+    <name>Location F002</name>
+    <connected rdf:resource="http://deri.org/floorplan/E021"/>
+    <connected rdf:resource="http://deri.org/floorplan/E006"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/E013">
+    <name>Location E013</name>
+    <connected rdf:resource="http://deri.org/floorplan/E017"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/D010">
+    <name>Location D010</name>
+    <connected rdf:resource="http://deri.org/floorplan/D011"/>
+    <connected rdf:resource="http://deri.org/floorplan/D003"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/H017">
+    <name>Location H017</name>
+    <connected rdf:resource="http://deri.org/floorplan/H011"/>
+    <connected rdf:resource="http://deri.org/floorplan/G022"/>
+    <connected rdf:resource="http://deri.org/floorplan/H019"/>
+    <connected rdf:resource="http://deri.org/floorplan/H016"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/C012">
+    <name>Location C012</name>
+    <connected rdf:resource="http://deri.org/floorplan/C015"/>
+    <connected rdf:resource="http://deri.org/floorplan/G002"/>
+    <connected rdf:resource="http://deri.org/floorplan/C006"/>
+    <connected rdf:resource="http://deri.org/floorplan/F017"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/F012">
+    <name>Location F012</name>
+    <connected rdf:resource="http://deri.org/floorplan/F017"/>
+    <connected rdf:resource="http://deri.org/floorplan/D001"/>
+    <connected rdf:resource="http://deri.org/floorplan/D015"/>
+    <connected rdf:resource="http://deri.org/floorplan/D005"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/E017">
+    <name>Location E017</name>
+    <connected rdf:resource="http://deri.org/floorplan/E006"/>
+    <connected rdf:resource="http://deri.org/floorplan/D003"/>
+    <connected rdf:resource="http://deri.org/floorplan/E013"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/E021">
+    <name>Location E021</name>
+    <connected rdf:resource="http://deri.org/floorplan/I005"/>
+    <connected rdf:resource="http://deri.org/floorplan/D001"/>
+    <connected rdf:resource="http://deri.org/floorplan/C150"/>
+    <connected rdf:resource="http://deri.org/floorplan/F002"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/J013">
+    <name>Location J013</name>
+    <connected rdf:resource="http://deri.org/floorplan/J019"/>
+    <connected rdf:resource="http://deri.org/floorplan/H011"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/C007">
+    <name>Location C007</name>
+    <connected rdf:resource="http://deri.org/floorplan/D021"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/C005">
+    <name>Location C005</name>
+    <connected rdf:resource="http://deri.org/floorplan/C023"/>
+    <connected rdf:resource="http://deri.org/floorplan/C150"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/D021">
+    <name>Location D021</name>
+    <connected rdf:resource="http://deri.org/floorplan/C007"/>
+    <connected rdf:resource="http://deri.org/floorplan/D011"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/G002">
+    <name>Location G002</name>
+    <connected rdf:resource="http://deri.org/floorplan/C012"/>
+    <connected rdf:resource="http://deri.org/floorplan/F017"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/I014">
+    <name>Location I014</name>
+    <connected rdf:resource="http://deri.org/floorplan/I001"/>
+    <connected rdf:resource="http://deri.org/floorplan/I005"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://deri.org/floorplan/B001">
+    <name>Location B001</name>
+    <connected rdf:resource="http://deri.org/floorplan/J019"/>
+    <connected rdf:resource="http://deri.org/floorplan/B007"/>
+    <connected rdf:resource="http://deri.org/floorplan/C006"/>
+  </rdf:Description>
+</rdf:RDF>

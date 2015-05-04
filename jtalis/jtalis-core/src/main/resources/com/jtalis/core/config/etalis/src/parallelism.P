@@ -1,0 +1,554 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% $Rev: 855 $:     Revision of last commit
+% $Author: fodor.paul $:  Author of last commit
+% $Date: 2011-07-27 21:13:24 -0400 (Wed, 27 Jul 2011) $:    Date of last commit
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% distribute_complex_events_strategy_1/2
+% distribute_complex_events_strategy_1(+Rules,-EngineDistribution)
+%  finds a way to distribute complex events to multiple engines
+%  STRATEGY 1: one composed event per thread
+%  Rules is a list of eventClause(Label,Head,Body) (after the binarization step in ETALIS)
+%  EngineDistribution is a list of lists of complex events (each list is the set of complex events computed in one engine)
+distribute_complex_events_strategy_1(Rules,EngineDistribution):-
+	complex_events(Rules,ComplexEvents), % extract the composed events from the rules (excludes events that start with ''temp_''
+	list_to_lists(ComplexEvents,EngineDistribution),
+	!.
+% list_to_lists/2
+% list_to_lists(+ComplexEvents,-EngineDistribution)
+list_to_lists([],[]):-
+	!.
+list_to_lists([H|ComplexEvents],[[H]|EngineDistribution]):-
+	list_to_lists(ComplexEvents,EngineDistribution),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% distribute_complex_events_strategy_2/3
+% distribute_complex_events_strategy_2(+Rules,+N,-EngineDistribution)
+%  finds a way to distribute complex events to multiple engines
+%  STRATEGY 1: N composed events per thread
+%  Rules is a list of eventClause(Label,Head,Body) (after the binarization step in ETALIS)
+%  EngineDistribution is a list of lists of complex events (each list is the set of complex events computed in one engine)
+distribute_complex_events_strategy_2(Rules,N,EngineDistribution):-
+	complex_events(Rules,ComplexEvents), % extract the composed events from the rules (excludes events that start with ''temp_''
+	extract_partial_order(Rules,PartialOrderGraph),
+	topological_sort(PartialOrderGraph,LinearExtension),
+	filter_complex_events(LinearExtension,ComplexEvents,ComplexEvents_2),
+	list_to_lists_of_N(ComplexEvents_2,N,EngineDistribution),
+	!.
+% filter_complex_events/3
+% filter_complex_events(+LinearExtension,+ComplexEvents,-ComplexEvents_2)
+filter_complex_events([],_ComplexEvents,[]):-
+	!.
+filter_complex_events([H|LinearExtension],ComplexEvents,[H|ComplexEvents_2]):-
+	my_member(H,ComplexEvents),
+	filter_complex_events(LinearExtension,ComplexEvents,ComplexEvents_2),
+	!.
+filter_complex_events([_|LinearExtension],ComplexEvents,ComplexEvents_2):-
+	filter_complex_events(LinearExtension,ComplexEvents,ComplexEvents_2),
+	!.	
+
+% list_to_lists_of_N/3
+% list_to_lists_of_N(+ComplexEvents,+N,-EngineDistribution)
+list_to_lists_of_N(ComplexEvents,N,EngineDistribution):-
+	list_to_lists_of_N_internal(ComplexEvents,0,N,[],EngineDistribution),
+	!.
+% list_to_lists_of_N_internal/5
+% list_to_lists_of_N_internal(+ComplexEvents,+N1,+N,+P,-EngineDistribution)
+list_to_lists_of_N_internal([],_N1,_N,[],[]):-
+	!.
+list_to_lists_of_N_internal([],_N1,_N,P,[P]):-
+	!.
+list_to_lists_of_N_internal([H|ComplexEvents],N1,N,P,[P|EngineDistribution]):-
+	N2 is N1 + 1,
+	N < N2,
+	!,
+	list_to_lists_of_N_internal([H|ComplexEvents],0,N,[],EngineDistribution).
+list_to_lists_of_N_internal([H|ComplexEvents],N1,N,P,EngineDistribution):-
+	N2 is N1 + 1,
+	list_to_lists_of_N_internal(ComplexEvents,N2,N,[H|P],EngineDistribution),
+	!.
+
+% distribute_complex_events_to_engines/3
+% distribute_complex_events_to_engines(+Rules,+EngineDistribution,-Engines)
+%  finds a way to distribute complex events to multiple engines
+%  Rules is a list of eventClause(Label,Head,Body) (after the binarization step in ETALIS)
+%  EngineDistribution is a list of lists of complex events (each list is the set of complex events computed in one engine)
+%  Engines is a list of engine(EngineId,OutputEvents,TempEvents,InputEvents,ListRules)
+distribute_complex_events_to_engines(Rules,EngineDistribution,Engines):-
+	dependancy_graph(Rules,Graph),
+	distribute_complex_events_to_engines_internal1(EngineDistribution,Rules,Graph,Engines),
+	!.
+
+% distribute_complex_events_to_engines_internal1/4
+% distribute_complex_events_to_engines_internal1(+EngineDistribution,+Rules,+Graph,+Engines)
+distribute_complex_events_to_engines_internal1([],_Rules,_Graph,[]):-
+	!.
+distribute_complex_events_to_engines_internal1([CE1|EngineDistribution],Rules,Graph,[engine(EngineId,CE1,TempEvents,InputEvents,ListRules)|Engines]):-
+	incCounter(distribute_composed_events_to_engines),
+	counter(distribute_composed_events_to_engines,EngineId),
+	distribute_complex_events_to_engines_internal2(CE1,Rules,Graph,TempEvents,InputEvents,ListRules),
+	distribute_complex_events_to_engines_internal1(EngineDistribution,Rules,Graph,Engines),	
+	!.
+
+% distribute_complex_events_to_engines_internal2/6
+% distribute_complex_events_to_engines_internal2(+OutputEvents,+Rules,+Graph,-TempEvents,-InputEvents,-ListRules)
+distribute_complex_events_to_engines_internal2(OutputEvents,Rules,Graph,TempEvents,InputEvents,ListRules):-
+	compute_support_events_for_events(OutputEvents,Graph,[],SupportEvents),
+	filter_temp_events(SupportEvents,TempEvents),
+	set_difference(SupportEvents,TempEvents,SupportEventsWithoutTempEvents),
+	set_difference(SupportEventsWithoutTempEvents,OutputEvents,InputEvents),
+	set_union(OutputEvents,TempEvents,RuleEvents),
+	events_rules(RuleEvents,Rules,ListRules),
+	!.
+
+% distribute_input_event_to_engines/3
+% distribute_input_event_to_engines(+Engines,+Event,-OutputEngines)
+%  accepts an event and returns all the engines that this event is an input to
+%  Engines is a list of engine(EngineId,OutputEvents,TempEvents,InputEvents,ListRules)
+%  Event is an event
+%  OutputEngines is a list of engine(EngineId,OutputEvents,TempEvents,InputEvents,ListRules)
+%  the rule has no other side effects (bindings of variables, etc.)
+%  the rule assummes that the list of engines is correct
+distribute_input_events_to_engines([],_Event,[]):-
+	!.
+distribute_input_events_to_engines([engine(EngineId,OutputEvents,TempEvents,InputEvents,ListRules)|Engines],Event,[engine(EngineId,OutputEvents,TempEvents,InputEvents,ListRules)|OutputEngines]):-
+	create_new_term_same_arity(Event,NewEvent),
+	member(NewEvent,InputEvents),
+	!,	
+	distribute_input_event_to_engines(Engines,Event,OutputEngines).
+distribute_input_events_to_engines([_|Engines],Event,OutputEngines):-
+	!,
+	distribute_input_event_to_engines(Engines,Event,OutputEngines).
+
+% events_rules/3
+% events_rules(+Events,+Rules,-ListRules)
+%  for a given set of events, returns the rules defining those events
+events_rules([],_Rules,[]):-
+	!.
+events_rules([X|Events],Rules,ListRules):-
+	findall(eventClause(Label,NewX,Body),
+		(
+			X =.. [EventName|Args],
+			my_length(Args,Arity),
+			member(eventClause(Label,NewX,Body),Rules),
+			NewX =.. [EventName|NewArgs],
+			my_length(NewArgs,Arity)
+		),
+		ListRules2),
+	events_rules(Events,Rules,ListRules3),
+	set_union(ListRules2,ListRules3,ListRules),
+	!.
+	
+% compute_support_events_for_event/3
+% compute_support_events_for_event(+Event,+Graph,-SupportEvents)
+%  for one Event, find all the children events (for the temporary events, continue the process until there are no more temporary events)
+compute_support_events_for_event(Event,Graph,SupportEvents):-
+	parent_direct_children(Event,Children,Graph),
+	compute_support_events_for_support_events(Children,Graph,Children,SupportEvents),
+	!.
+
+% compute_support_events_for_events/4
+% compute_support_events_for_events(+Children,+Graph,+TempSupportEvents,-SupportEvents)
+compute_support_events_for_events([],_Graph,SupportEvents,SupportEvents):-
+	!.
+compute_support_events_for_events([H|Children],Graph,TempSupportEvents,SupportEvents):-
+	compute_support_events_for_event(H,Graph,HSupportEvents),
+	set_union(HSupportEvents,TempSupportEvents,NewTempSupportEvents),
+	compute_support_events_for_support_events(Children,Graph,NewTempSupportEvents,SupportEvents).
+
+% compute_support_events_for_support_events/4
+% compute_support_events_for_support_events(+Children,+Graph,+TempSupportEvents,-SupportEvents)
+compute_support_events_for_support_events([],_Graph,SupportEvents,SupportEvents):-
+	!.
+compute_support_events_for_support_events([H|Children],Graph,TempSupportEvents,SupportEvents):-
+	% H is a temp event - continue to unfold it
+	H=..[EventSymbol|_],
+	atom_codes(EventSymbol,[116,101,109,112,95|_]),
+	!,
+	compute_support_events_for_event(H,Graph,HSupportEvents),
+	set_union(HSupportEvents,TempSupportEvents,NewTempSupportEvents),
+	compute_support_events_for_support_events(Children,Graph,NewTempSupportEvents,SupportEvents).
+compute_support_events_for_support_events([_|Children],Graph,TempSupportEvents,SupportEvents):-
+	!,
+	compute_support_events_for_support_events(Children,Graph,TempSupportEvents,SupportEvents).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% dependancy_graph/2
+% dependancy_graph(+Rules,-Graph)
+%  given a list of rules, returns the dependency graph
+%  Rules is a list of eventClause(Label,Head,Body)
+%  Graph is a list of edge(X,Y)
+dependancy_graph(Rules,Graph):-
+	dependancy_graph_internal(Rules,[],Graph).
+
+% dependancy_graph_internal/3
+% dependancy_graph_internal(+Rules,+TempGraph,-Graph)
+dependancy_graph_internal([],Graph,Graph):-
+	!.
+dependancy_graph_internal([eventClause(_,Head,Body)|T],TempGraph,Graph):-
+	create_new_term_same_arity(Head,NewHead),
+	break_formula_into_events(Body,BodyEvents),
+	pair_x_y(NewHead,BodyEvents,Pairs),
+	set_union(Pairs,TempGraph,TempGraph2),
+	dependancy_graph_internal(T,TempGraph2,Graph),
+	!.
+
+% dependancy_graph_non_temps/2
+% dependancy_graph_non_temps(+Rules,-Graph)
+%  given a list of rules, returns the dependency graph with operators instead of temp events
+%  Rules is a list of eventClause(Label,Head,Body)
+%  Graph is a list of edge(X,Y)
+dependancy_graph_non_temps(Rules,Graph):-
+	dependancy_graph_non_temps_internal(Rules,Rules,[],Graph).
+
+% dependancy_graph_non_temps_internal/4
+% dependancy_graph_non_temps_internal(+Rules,+TempGraph,-Graph)
+dependancy_graph_non_temps_internal([],_Rules,Graph,Graph):-
+	!.
+dependancy_graph_non_temps_internal([eventClause(_,Head,Body)|T],Rules,TempGraph,Graph):-
+	create_new_term_same_arity(Head,NewHead),
+	break_formula_into_events(Body,BodyEvents),
+	dependancy_graph_non_temps_internal_2(BodyEvents,BodyEventsOps,Rules),
+	pair_x_y(NewHead,BodyEventsOps,Pairs),
+	set_union(Pairs,TempGraph,TempGraph2),
+	dependancy_graph_non_temps_internal(T,Rules,TempGraph2,Graph),
+	!.
+
+% dependancy_graph_non_temps_internal_2/3
+% dependancy_graph_non_temps_internal_2(+BodyEvents,-BodyEventsOps,+Rules)
+dependancy_graph_non_temps_internal_2([],[],_Rules):-
+	!.
+dependancy_graph_non_temps_internal_2([H|BodyEvents],[H|BodyEventsOps],Rules):-
+	H=..[EventSymbol|_],
+	\+( atom_codes(EventSymbol,[116,101,109,112,95|_]) ),
+	!,
+	dependancy_graph_non_temps_internal_2(BodyEvents,BodyEventsOps,Rules).
+dependancy_graph_non_temps_internal_2([H|BodyEvents],[Op|BodyEventsOps],Rules):-
+	member(eventClause(_Label,H,Body),Rules),
+	Body=..[Op|_],
+	dependancy_graph_non_temps_internal_2(BodyEvents,BodyEventsOps,Rules).
+
+% event_op/3
+% event_op(+Event,+Rules,-Op)
+event_op(H,Rules,Op):-
+	!,
+	create_new_term_same_arity(H,NewEvent),
+	member(eventClause(_Label,NewEvent,Body),Rules),
+	Body=..[Op|_].
+	
+% pair_x_y/3
+% pair_x_y(+Head,+BodyEvents,-Pairs)
+pair_x_y(_Head,[],[]):-
+	!.
+pair_x_y(Head,[H|BodyEvents],[edge(Head,H)|Pairs]):-
+	pair_x_y(Head,BodyEvents,Pairs),
+	!.
+
+% pair_x_y_reverse/3
+% pair_x_y_reverse(+Head,+BodyEvents,-Pairs)
+pair_x_y_reverse(_Head,[],[]):-
+	!.
+pair_x_y_reverse(Head,[H|BodyEvents],[edge(H,Head)|Pairs]):-
+	pair_x_y_reverse(Head,BodyEvents,Pairs),
+	!.
+
+% parent_direct_child/3
+% parent_direct_child(?Parent,?Child,+Graph)
+parent_direct_child(Parent,Child,Graph):-
+	my_member(edge(Parent,Child),Graph).
+
+% parent_direct_children/3
+% parent_direct_children(+Parent,?Children,+Graph)
+parent_direct_children(Parent,Children,Graph):-
+	findall(Child,my_member(edge(Parent,Child),Graph),Children).
+
+% parent_child/3
+% parent_child(?Parent,?Child,+Graph)
+parent_child(Parent,Child,Graph):-
+	fixed_point_reachability(Graph,FixedPoint),
+	my_member(edge(Parent,Child),FixedPoint).
+
+% parent_children/3
+% parent_children(+Parent,?Children,+Graph)
+parent_children(Parent,Children,Graph):-
+	fixed_point_reachability(Graph,FixedPoint),
+	findall(Child,my_member(edge(Parent,Child),FixedPoint),Children).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fixed_point_reachability/2
+% fixed_point_reachability(+Graph,-FixedPoint)
+%  computes the reachability for a graph
+%  Graph is a list of edge(X,Y)
+%  FixedPoint is a list of edge(X,Y)
+fixed_point_reachability(Graph,FixedPoint):-
+	fixed_point_reachability(Graph,Graph,FixedPoint),
+	%map_list_functor_to_functor(FixedPointEdges,edge,reach,FixedPoint),
+	!.
+
+% fixed_point_reachability/3
+% fixed_point_reachability(+ReachOnce,+TempFixedPoint,-FixedPoint)
+% fixed_point_reachability(+Graph,+TempFixedPoint,-FixedPoint)
+fixed_point_reachability(Graph,TempFixedPoint,FixedPoint):-
+	extend_graph_once(Graph,Graph,NewGraph),
+	set_union(NewGraph,TempFixedPoint,NewTempFixedPoint),
+	( set_equal(TempFixedPoint,NewTempFixedPoint)
+		-> FixedPoint=TempFixedPoint
+		; fixed_point_reachability(NewTempFixedPoint,NewTempFixedPoint,FixedPoint)
+	),
+	!.
+
+% extend_graph_once/3
+% extend_graph_once(+RestGraph,+InitialGraph,-NewReach)
+extend_graph_once([],_,[]):-
+	!.
+extend_graph_once([edge(X,Y)|Rest],Graph,NewReach):-
+	findall(edge(X,Z),my_member(edge(Y,Z),Graph),Extended),
+	list_to_set(Extended,ExtendedSet),
+	extend_graph_once(Rest,Graph,NewReach2),
+	set_union(ExtendedSet,NewReach2,NewReach),
+	!.
+
+% map_list_functor_to_functor/4
+% map_list_functor_to_functor(+List,+Functor,+Functor2,-List2)
+%  if we have a list of Functor(Args), for example, edge(X,Y), it returns a list of Functor2(Args), for example, reach(X,Y)
+map_list_functor_to_functor([],_,_,[]):-
+	!.
+map_list_functor_to_functor([H|List],Functor,Functor2,[H2|List2]):-
+	H=..[Functor|Args],
+	!,
+	H2=..[Functor2|Args],
+	map_list_functor_to_functor(List,Functor,Functor2,List2).
+map_list_functor_to_functor(List,Functor,Functor2,List2):-
+	nl,nl,nl,
+	write('Error in: '),
+	write(map_list_functor_to_functor(List,Functor,Functor2,List2)),
+	nl,
+	write(' This line in map_list_functor_to_functor/4 should not have been reached!'),
+	nl,nl,nl,
+	fail.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% complex_events/2
+% complex_events(+Rules,-DerivedEvents)
+complex_events(Rules,ComplexEvents):-
+	break_events(Rules,[],[],_BodyEvents,DerivedEvents),
+	filter_non_temp_events(DerivedEvents,ComplexEvents),
+	!.
+
+% base_events/2
+% base_events(+Rules,-BaseEvents)
+base_events(Rules,BaseEvents):-
+	break_events(Rules,[],[],BodyEvents,DerivedEvents),
+	set_difference(BodyEvents,DerivedEvents,BaseEvents),
+	!.
+
+% filter_non_temp_events/2
+% filter_non_temp_events(+Events,-ComplexEvents)
+%  filters out events that start with ''temp_''
+filter_non_temp_events([],[]).
+filter_non_temp_events([H|T],[H|R]):-
+	H=..[EventSymbol|_],
+	\+( atom_codes(EventSymbol,[116,101,109,112,95|_]) ),
+	!,
+	filter_non_temp_events(T,R).
+filter_non_temp_events([_H|T],R):-
+	!,
+	filter_non_temp_events(T,R).
+
+% filter_temp_events/2
+% filter_temp_events(+Events,-ComplexEvents)
+%  returns events that start with ''temp_''
+filter_temp_events([],[]).
+filter_temp_events([H|T],[H|R]):-
+	H=..[EventSymbol|_],
+	atom_codes(EventSymbol,[116,101,109,112,95|_]),
+	!,
+	filter_temp_events(T,R).
+filter_temp_events([_H|T],R):-
+	!,
+	filter_temp_events(T,R).
+
+% break_events/5
+% break_events(+Rules,+TempBodyEvents,+TempDerivedEvents,-BodyEvents,-DerivedEvents)
+break_events([],BodyEvents,DerivedEvents,BodyEvents,DerivedEvents):-
+	!.
+break_events([eventClause(_,Head,Body)|T],TempBodyEvents,TempDerivedEvents,BodyEvents,DerivedEvents):-
+	create_new_term_same_arity(Head,NewHead), % this is a composed event in the head of a rule
+	( my_member(NewHead,TempDerivedEvents) 
+		-> NewTempDerivedEvents = TempDerivedEvents
+		; NewTempDerivedEvents = [NewHead|TempDerivedEvents]
+	),
+	break_formula_into_events(Body,BodyEvents2),
+	set_union(BodyEvents2,TempBodyEvents,NewTempBodyEvents),	
+	break_events(T,NewTempBodyEvents,NewTempDerivedEvents,BodyEvents,DerivedEvents),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% break_formula_into_events/2
+% break_formula_into_events(+Formula,-Events)
+%  breaks a formula into composing events
+break_formula_into_events(Formula,Events):-
+	break_formula_into_events_internal(Formula,[],ListEvents),
+	list_to_set(ListEvents,Events),
+	!.
+% break_formula_into_events_internal/3
+% break_formula_into_events_internal(+Formula,+TempEvents,-Events)
+break_formula_into_events_internal(Formula,TempEvents,Events):-
+	Formula=..[Operand,X,Y],
+	op_functor(_,Operand),
+	member(Operand,[rule_labelf,seqf,forall_seqf,andf,parf,orf,equalsf,meetsf,duringf,startsf,finishesf,event_multiplyf,star_timesf,ntimesf,cnotf,fnotf,notf]),
+	!,
+	break_formula_into_events_internal(X,TempEvents,Events2),
+	break_formula_into_events_internal(Y,Events2,Events).
+break_formula_into_events_internal(Formula,TempEvents,Events):-
+	Formula=..[Operand,X,_],
+	op_functor(_,Operand),
+	member(Operand,[dof,wheref,checkf]),
+	!,
+	break_formula_into_events_internal(X,TempEvents,Events).
+break_formula_into_events_internal(X,TempEvents,Events):-
+	create_new_term_same_arity(X,NewX),
+	( my_member(NewX,TempEvents) 
+		-> Events = TempEvents
+		; Events = [NewX|TempEvents]
+	),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% extract_partial_order/2
+% extract_partial_order(+Rules,-Graph)
+%  given a list of rules, returns the partial order in which the rules were used
+%  Rules is a list of eventClause(Label,Head,Body)
+%  Graph is a list of edge(X,Y)
+extract_partial_order(Rules,Graph):-
+	extract_partial_order_internal(Rules,[],Graph).
+% extract_partial_order_internal/3
+% extract_partial_order_internal(+Rules,+TempGraph,-Graph)
+extract_partial_order_internal([],Graph,Graph):-
+	!.
+extract_partial_order_internal([eventClause(_,Head,Body)|T],TempGraph,Graph):-
+	create_new_term_same_arity(Head,NewHead),
+	break_formula_into_events(Body,BodyEvents),
+	pair_x_y(NewHead,BodyEvents,Pairs),
+	partial_order_pair_x_y(BodyEvents,Pairs,Pairs2),
+	set_union(Pairs2,TempGraph,TempGraph2),
+	extract_partial_order_internal(T,TempGraph2,Graph),
+	!.
+
+% partial_order_pair_x_y/3
+% partial_order_pair_x_y(+BodyEvents,+TempPairs,-Pairs)
+partial_order_pair_x_y([],Pairs,Pairs):-
+	!.
+partial_order_pair_x_y([H|BodyEvents],TempPairs,Pairs):-
+	pair_x_y_reverse(H,BodyEvents,TempPairs2),
+	set_union(TempPairs,TempPairs2,TempPairs3),
+	partial_order_pair_x_y(BodyEvents,TempPairs3,Pairs),
+	!.
+
+% topological_sort/2
+% topological_sort(+PartialOrderGraph,-LinearExtension)
+topological_sort(PartialOrderGraph,LinearExtension):-
+	nodes_graph(PartialOrderGraph,Nodes),
+	topological_sort_intern(PartialOrderGraph,Nodes,Nodes,LinearExtension2),
+	my_reverse(LinearExtension2,LinearExtension).
+% topological_sort_intern/4
+% topological_sort_intern(+PartialOrderGraph,+Nodes,+NodesToDo,-LinearExtension)
+topological_sort_intern(_,_,[],[]):-
+	!.
+topological_sort_intern(PartialOrderGraph,Nodes,NodesToDo,[X|LinearExtension]):-
+	my_select(X,NodesToDo,RestNodesToDo),
+	greater_all(X,PartialOrderGraph),
+	eliminate_all_edges(X,PartialOrderGraph,RestPartialOrderGraph),
+	topological_sort_intern(RestPartialOrderGraph,Nodes,RestNodesToDo,LinearExtension).
+
+% nodes_graph/2
+% nodes_graph(+PartialOrderGraph,-Nodes)
+nodes_graph(PartialOrderGraph,Nodes):-
+	nodes_graph_internal(PartialOrderGraph,[],Nodes).
+% nodes_graph_internal/3
+% nodes_graph_internal(+PartialOrderGraph,+Temp,-Nodes)
+nodes_graph_internal([],Nodes,Nodes):-
+	!.
+nodes_graph_internal([edge(X,Y)|PartialOrderGraph],Temp,Nodes):-
+	set_insert(X,Temp,Temp2),
+	set_insert(Y,Temp2,Temp3),
+	nodes_graph_internal(PartialOrderGraph,Temp3,Nodes).
+
+% greater_all/2
+% greater_all(+X,+PartialOrderGraph)
+greater_all(X,PartialOrderGraph):-
+	\+(my_member(edge(_,X),PartialOrderGraph)),
+	!.
+
+% eliminate_all_edges/3
+% eliminate_all_edges(X,Graph,RestGraph)
+eliminate_all_edges(_,[],[]):-
+	!.
+eliminate_all_edges(X,[edge(X,_)|Graph],RestGraph):-
+	!,
+	eliminate_all_edges(X,Graph,RestGraph).
+eliminate_all_edges(X,[Y|Graph],[Y|RestGraph]):-
+	!,
+	eliminate_all_edges(X,Graph,RestGraph).
+
+% sort_engine_distribution_1/3
+% sort_engine_distribution_1(+LinearExtension,+ComplexEvents,+EngineDistribution,-SortedEngineDistribution)
+%  EngineDistribution is a list of lists of complex events (each list is the set of complex events computed in one engine)
+sort_engine_distribution_1([],_,_,[]):-
+	!.
+sort_engine_distribution_1([H|LinearExtension],ComplexEvents,EngineDistribution,[[H]|SortedEngineDistribution]):-
+	my_member(H,ComplexEvents),
+	!,
+	my_select([H],EngineDistribution,RestEngineDistribution),
+	sort_engine_distribution_1(LinearExtension,ComplexEvents,RestEngineDistribution,SortedEngineDistribution).
+sort_engine_distribution_1([_|LinearExtension],ComplexEvents,EngineDistribution,SortedEngineDistribution):-
+	!,
+	sort_engine_distribution_1(LinearExtension,ComplexEvents,EngineDistribution,SortedEngineDistribution).	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% filter_events_name/3
+% filter_events_name(+List,-FilteredList,+NameEvent)
+%  takes a list of events and an event name and filters out the other events in this list leaving only instances of that event in the list
+%    List is a list of terms (events)
+%    NameEvent is an event name (it has no arity)
+%    FilteredList is a list of terms (events)
+filter_events_name([],[],_EventName):-
+	     !.
+filter_events_name([H|List],[H|FilteredList],EventName):-
+	     H=..[EventName|_],
+	     !,
+	     filter_events_name(List,FilteredList,EventName).
+filter_events_name([_H|List],FilteredList,EventName):-
+	     !,
+	     filter_events_name(List,FilteredList,EventName).
+
+% filter_input_events/3
+% filter_input_events(+List,+InputList,-NewList)
+%  takes a list of events and a list of types of events (empty instances) and filters out the other events in the list leaving only instances of those event types in the list
+%    List is a list of terms (events)
+%    InputList is a list of events (they have arities, but we ignore these arities)
+%    NewList is a list of terms (events)
+filter_input_events([],_InputList,[]):-
+	!.
+filter_input_events([H|List],InputList,[H|NewList]):-
+	check_input(H,InputList),
+	!,
+	filter_input_events(List,InputList,NewList).
+filter_input_events([_|List],InputList,NewList):-
+	!,
+	filter_input_events(List,InputList,NewList).
+
+% check_input/2
+% check_input(+H,+InputList)
+check_input(H,[H2|_InputList]):-
+	H=..[E|_],
+	H2=..[E|_],
+	!.
+check_input(H,[_|InputList]):-
+	check_input(H,InputList),
+	!.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

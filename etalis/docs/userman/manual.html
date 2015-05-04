@@ -1,0 +1,3164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="GENERATOR" content="TtH 3.87" />
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+
+	                	 <title>Paul Fodor</title></head>
+<body>
+
+
+<div class="p"><!----></div>
+     
+<h1 align="center"><b>The ETALIS System Version 1.1&nbsp;Manual</b> </h1>
+
+<div class="p"><!----></div>
+
+<h3 align="center"> <img src="figures/a_ETALIS_Logo.jpg" alt="figures/a_ETALIS_Logo.jpg" /><br />
+        <em>Draft</em> <br />
+        &nbsp;<br />&nbsp;<br />
+        <em>Paul Fodor</em> <br /><em>Darko Anicic</em> <br />
+        <em>Sebastian Rudolph</em> <br />
+        <em>Jia Ding</em> <br />
+        <em>Ahmed Hafsi</em> <br />
+                <em>Roland St&#252;hmer</em> <br />
+        &nbsp;<br />
+ </h3> 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<h1>Contents </h1><a href="#tth_chAp1"
+>1&nbsp; Introduction</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc1.1"
+>1.1&nbsp; Using This Manual</a><br />
+<a href="#tth_chAp2"
+>2&nbsp; Getting Started with the ETALIS language</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.1"
+>2.1&nbsp; Installing ETALIS under UNIX and Windows</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.2"
+>2.2&nbsp; Invoking ETALIS</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.3"
+>2.3&nbsp; Compiling ETALIS programs</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.4"
+>2.4&nbsp; Sample ETALIS programs</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc2.5"
+>2.5&nbsp; Exiting ETALIS</a><br />
+<a href="#tth_chAp3"
+>3&nbsp; Theoretical basis for the ETALIS language</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.1"
+>3.1&nbsp; The ETALIS language for composing events: syntax and semantics</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.2"
+>3.2&nbsp; Event processing execution in Prolog</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.3"
+>3.3&nbsp; Out-of-order event detection in ETALIS</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.4"
+>3.4&nbsp; Memory management</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.4.1"
+>3.4.1&nbsp; Pushed constraints</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.4.2"
+>3.4.2&nbsp; General and pattern-based garbage collection</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc3.5"
+>3.5&nbsp; Justification</a><br />
+<a href="#tth_chAp4"
+>4&nbsp; Interacting with the ETALIS system</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.1"
+>4.1&nbsp; Entering and exiting ETALIS from the command Line</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.2"
+>4.2&nbsp; The system and its directories</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.3"
+>4.3&nbsp; The module system of ETALIS</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.4"
+>4.4&nbsp; Compiling and loading event files</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.5"
+>4.5&nbsp; ETALIS options and flags</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc4.6"
+>4.6&nbsp; Foreign language interface</a><br />
+<a href="#tth_chAp5"
+>5&nbsp; The ETALIS system operands and standard predicates</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.1"
+>5.1&nbsp; ETALIS CEP operands</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc5.2"
+>5.2&nbsp; ETALIS standard predicates</a><br />
+<a href="#tth_chAp6"
+>6&nbsp; Examples</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.1"
+>6.1&nbsp; flower_delivery</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.1.1"
+>6.1.1&nbsp; flower_delivery_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.1.2"
+>6.1.2&nbsp; flower_delivery_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.1.3"
+>6.1.3&nbsp; flower_delivery_03</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2"
+>6.2&nbsp; Aggregates</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2.1"
+>6.2.1&nbsp; aggregates_classic_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2.2"
+>6.2.2&nbsp; aggregates_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2.3"
+>6.2.3&nbsp; aggregates_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2.4"
+>6.2.4&nbsp; aggregates_03</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.2.5"
+>6.2.5&nbsp; aggregates_04</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.3"
+>6.3&nbsp; alarm_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.4"
+>6.4&nbsp; and_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.5"
+>6.5&nbsp; channel_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.6"
+>6.6&nbsp; cnot_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.7"
+>6.7&nbsp; during_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.8"
+>6.8&nbsp; dynamic_updates_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.9"
+>6.9&nbsp; equals_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.10"
+>6.10&nbsp; event_multiply_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.11"
+>6.11&nbsp; finishes_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.12"
+>6.12&nbsp; fnot_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.13"
+>6.13&nbsp; forall_seq_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.14"
+>6.14&nbsp; garbage_collection_general_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.15"
+>6.15&nbsp; garbage_collection_pattern_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.16"
+>6.16&nbsp; java_interface_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.17"
+>6.17&nbsp; justification_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.18"
+>6.18&nbsp; justification_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.19"
+>6.19&nbsp; justification_03</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.20"
+>6.20&nbsp; justification_04</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.21"
+>6.21&nbsp; meets_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.22"
+>6.22&nbsp; or_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.23"
+>6.23&nbsp; out_of_order_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.24"
+>6.24&nbsp; par_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.25"
+>6.25&nbsp; projection_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.26"
+>6.26&nbsp; projection_join_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.27"
+>6.27&nbsp; prolog_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.28"
+>6.28&nbsp; revision_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.29"
+>6.29&nbsp; selection_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.30"
+>6.30&nbsp; selection_join_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.31"
+>6.31&nbsp; sequence_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.32"
+>6.32&nbsp; sequence_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.33"
+>6.33&nbsp; sequence_03</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.34"
+>6.34&nbsp; sequence_04</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.35"
+>6.35&nbsp; sequence_05</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.36"
+>6.36&nbsp; sharing_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.37"
+>6.37&nbsp; sharing_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.38"
+>6.38&nbsp; star_goal_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.39"
+>6.39&nbsp; starts_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.40"
+>6.40&nbsp; transitive_closure_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.41"
+>6.41&nbsp; transitive_closure_02</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.42"
+>6.42&nbsp; where_01</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc6.43"
+>6.43&nbsp; windows_01</a><br />
+<a href="#tth_chAp7"
+>7&nbsp; Event Processing SPARQL (EP-SPARQL)</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc7.0.1"
+>7.0.1&nbsp; Examples with EP-SPARQL</a><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#tth_sEc7.0.2"
+>7.0.2&nbsp; Internals of EP-SPARQL Implementation</a><br />
+<a href="#tth_sEcindex">Index</a><br />
+
+<div class="p"><!----></div>
+        
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />Introduction</h1> <a name="introduction">
+</a>
+
+<div class="p"><!----></div>
+Complex Event Processing (CEP) is concerned with timely detection of complex events within multiple streams of atomic occurrences, and has useful applications in areas including financial services, mobile and sensor devices, click stream analysis etc. 
+
+<div class="p"><!----></div>
+ETALIS ([<a href="#etalis-site" name="CITEetalis-site">8</a>,<a href="#2009_anicic_cse" name="CITE2009_anicic_cse">5</a>,<a href="#2009_anicic_debs_short" name="CITE2009_anicic_debs_short">2</a>,<a href="#2009_anicic_debs_demo" name="CITE2009_anicic_debs_demo">3</a>,<a href="#techRep" name="CITEtechRep">4</a>,<a href="#our-flower-site" name="CITEour-flower-site">6</a>]) is a research-oriented, commercial-grade Complex Event Processing  Logic Programming system for Unix and Windows-based platforms.  In addition to providing standard complex event composition operators, ETALIS includes the following features:
+
+<ul>
+<li> Evaluation of out-of-order events.
+<div class="p"><!----></div>
+</li>
+
+<li> Efficient aggregate functions (sum,min,max,etc.).
+<div class="p"><!----></div>
+</li>
+
+<li> Dynamic insertion and retraction of complex event rules.
+<div class="p"><!----></div>
+</li>
+
+<li> A system of modules.
+<div class="p"><!----></div>
+</li>
+
+<li> A variety of garbage collection techniques.
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+An <i>event</i> represents something that occurs, happens or changes the current state of affairs. For example, an event may signify a problem or an impending problem, a threshold, an opportunity, an information becoming available, a deviation etc. We distinguish between <i>atomic</i> and <i>complex</i> events. An atomic event is defined as an instantaneous occurrence of interest at a point in time. In order to describe more complex dynamic matters that involve several atomic events, formalisms have been created which allow for combining atomic into <i>complex events</i>, using different event operators and temporal relationships. The field of Complex Event Processing has the task of processing streams of atomic events with the goal of detecting complex events according to meaningful event patterns.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+We have observed that logic programming can be useful with respect to many concepts of CEP. First, a rule-based formalism (like the one we present in this paper) is expressive enough and convenient to represent diverse complex event patterns. Also declarative rules are free of side-effects (e.g. confluence problem). Second, integration of query processing, that is essential in many event-based applications, with event processing is easy and natural (e.g. recursive queries). Third, our experience with use of logic programing in implementation of the main constructs in CEP as well as in providing extensibility of a CEP system is very positive and encouraging (e.g. number of code lines in logic programming is significantly smaller than in procedural programming). Ultimately, a logic-based event model allows for <i>reasoning</i> over events, their relationships, entire state, and possible contextual knowledge available for a particular domain (application). This feature potentially can enable a new generation of programmers to innovate on novel event-driven applications in AI. 
+
+<div class="p"><!----></div>
+The general task of Complex Event Processing can be described as follows. Within some dynamic setting, events take place. Those <i>atomic events</i> are instantaneous, i.e., they happen at one specific point in time and have a duration of zero. Notifications about these occurred events together with their timestamps and possibly further associated data (such as involved entities, numerical parameters of the event, or provenance data) enter the CEP system in the order of their occurrence.
+<div class="p"><!----></div>
+The CEP system further features a set of <i>complex event descriptions</i>, by means of which <i>complex events</i> can be specified as temporal constellations of atomic events. The complex events thus defined can in turn be used to compose even more complex events and so forth. As opposed to atomic events, those complex events are not considered instantaneous but are endowed with a time <i>interval</i> denoting when the event started and when it ended.
+
+<div class="p"><!----></div>
+The purpose of the CEP system is now to detect complex events within this input stream of atomic events. That is, the system is supposed to notify that the occurrence of a certain complex event has been detected, as soon as the system is notified of an atomic event that completes a sequence which makes up the complex event due to the complex event description. This notification may be accompanied by additional information composed from the atomic events' data. As a consequence of this detection (and depending on the associated data), responding actions can be taken, yet this is outside the scope of this paper.
+
+<div class="p"><!----></div>
+In summary, the problem we address in our approach is to detect complex events (specified in an appropriate formal language) within a stream of atomic events. Thereby we assume that the timeliness of this detection is crucial and algorithmically optimize our method towards a fast response behavior.
+
+<div class="p"><!----></div>
+In the next two figures we have the ETALIS and EP-SPARQL diagrams.
+They are self explanatory and in the Section <a href="#standard">5</a> we also 
+describe the API to access these diferent modules.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<a name="tth_fIg1.1">
+</a>     <center>    <img src="figures/ETALIS_diagram.jpg" alt="figures/ETALIS_diagram.jpg" />
+    
+<center>Figure 1.1: The ETALIS system diagram</center> <a name="fig:etalis-diagram">
+</a>
+</center>
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<a name="tth_fIg1.2">
+</a>     <center>    <img src="figures/EP-SPARQL_diagram.jpg" alt="figures/EP-SPARQL_diagram.jpg" />
+    
+<center>Figure 1.2: The EP-SPARQL diagram</center> <a name="fig:epsparql-diagram">
+</a>
+</center>
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Using This Manual</h2>
+We adopt some standard notational conventions, such as the name/arity
+convention for describing events, predicates and functors, <tt>+</tt> to 
+denote
+input arguments, 
+<tt>-</tt> to denote output arguments in database predicates, 
+<tt>?</tt> for
+arguments that may be either input or output and <tt>#</tt> for
+arguments that are both input and output (can be changed by the
+procedure). 
+<a name="notational conventions11">
+</a>.  Also, the manual uses the UNIX syntax for
+files and directories except when it specifically addresses other
+operating systems such as Windows.
+
+<div class="p"><!----></div>
+Finally, we note that ETALIS is under continuous development, and this
+document -intended to be the user manual- reflects the current
+status (Version 1.1) of our system.  
+We take great efforts to
+create a robust and efficient system, but
+ETALIS is a research system and is to some degree experimental.
+While some of Version 1.1&nbsp;is subject to change in future releases, we
+will try to be as upward-compatible as possible. 
+We would also like to
+hear from experienced users of our system about features they would
+like us to include. We do try to accommodate serious users of ETALIS
+whenever we can. 
+
+<div class="p"><!----></div>
+
+
+ <h1><a name="tth_chAp2">
+Chapter 2 </a><br />Getting Started with the ETALIS language</h1> <a name="quick_start">
+</a>
+
+<div class="p"><!----></div>
+This section describes the steps needed to install ETALIS under UNIX and
+under Windows.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Installing ETALIS under UNIX and Windows</h2>
+<a name="installation_options">
+</a>
+
+<div class="p"><!----></div>
+The easiest way to install ETALIS is to use the following procedure.
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li>	Unzip Etalis from the latest release or check out Etalis from the Google code repository: 
+<br />
+<a href="http://code.google.com/p/etalis/source/checkout">http://code.google.com/p/etalis/source/checkout</a> <br />
+using &#223;ubversion".
+Linux installations have subversion &#223;vn" programs, while for Windows,
+we recommend "TortoiseSVN" from 
+<br />
+<a href="http://tortoisesvn.tigris.org">http://tortoisesvn.tigris.org</a>. <br />
+Etalis runs on multiple Prolog systems (we tested SWI, XSB, Yap and
+Sicstus).
+However, some features, like the alarm predicates, are supported only under 
+SWI. We will note these exceptions in this document.
+SWI can be downloaded from:
+<br />
+<a href="http://www.swi-prolog.org/download">http://www.swi-prolog.org/download</a>, <br />
+while specific questions about SWI can be addressed on its mailing list: 
+<br />
+<a href="http://www.swi-prolog.org/Mailinglist.txt">http://www.swi-prolog.org/Mailinglist.txt</a> <br />
+Please use other mailing lists, like the newsgroup comp.lang.prolog, for general Prolog questions. 
+An easy way to access this newsgroup is from the Google group 
+<br />
+<a href="http://groups.google.com/group/comp.lang.prolog">http://groups.google.com/group/comp.lang.prolog</a>. <br />
+<div class="p"><!----></div>
+</li>
+
+<li>	Decide in which directory in your file system you want to install
+  ETALIS and copy or move ETALIS there.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp;Invoking ETALIS</h2>
+
+<div class="p"><!----></div>
+Under Windows and SWI Prolog, ETALIS can be invoked by the command:
+
+<blockquote>
+       <tt>$ETALIS_DIR/etalis.bat
+</tt></blockquote>
+You will find yourself in the top level Prolog interpreter.  
+You can modify the script for other Prolog systems.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2.3">
+2.3</a>&nbsp;&nbsp;Compiling ETALIS programs</h2>
+
+<div class="p"><!----></div>
+One way to compile a program from a file, such as <tt>myfile.event</tt> in
+the current directory and load it into memory, is to type the query:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compile_event_file('my_file.event').
+
+</pre>
+where <tt>my_file.event</tt> is the name of the file.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2.4">
+2.4</a>&nbsp;&nbsp;Sample ETALIS programs</h2>
+
+<div class="p"><!----></div>
+There are several sample ETALIS source programs in the directory: <tt>
+  $ETALIS_DIR/examples</tt> illustrating a number of standard features, as
+well as a number of non-standardized or ETALIS-specific features
+including operands, garbage collection, windowing, etc.
+
+<div class="p"><!----></div>
+Hence, a sample session might look like
+(the actual times shown below may vary and some extra information is given
+using comments after the % character):
+
+<div class="p"><!----></div>
+<font size="-2"> 
+<pre>
+
+my_favourite_prompt&#62;&nbsp;cd&nbsp;$ETALIS_DIR/examples
+my_favourite_prompt&#62;&nbsp;test.bat
+and_test_01			passed
+aggregates_01			passed
+alarm_01			passed
+cnot_01				passed
+during_01			passed
+dynamic_updates_01		passed
+equals_01			passed
+event_multiply_01		passed
+flower_delivery_01		passed
+...
+
+my_favourite_prompt&#62;
+&nbsp;
+</pre>
+</font>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2.5">
+2.5</a>&nbsp;&nbsp;Exiting ETALIS</h2>
+
+<div class="p"><!----></div>
+If you want to exit ETALIS, issue the command <tt>halt.</tt> or
+simply type <tt>CTRL-d</tt> at the ETALIS prompt. To exit ETALIS while it is
+executing queries, strike <tt>CTRL-c</tt> a number of times.
+
+
+ <h1><a name="tth_chAp3">
+Chapter 3 </a><br />Theoretical basis for the ETALIS language</h1> <a name="tb">
+</a>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;The ETALIS language for composing events: syntax and semantics</h2>
+The syntax of the language allows for the description of <i>time</i> and <i>events</i>. We represent time instants as well as durations as nonnegative rational numbers q &#8712; \mathbbQ<sup>+</sup>. Events can be atomic or complex. An <i>atomic event</i> refers to an instantaneous occurrence of interest. Atomic events are expressed as ground atoms (i.e. predicates followed by arguments which are terms not containing variables). Intuitively, the arguments of a ground atom describing an atomic event denote information items (i.e. event data) that provide additional information about that event.
+
+<div class="p"><!----></div>
+Atomic events can be composed to form <i>complex events</i> via <i>event patterns</i>. We use event patterns to describe how events can (or have to) be temporally situated to other events or absolute time points. The language P of event patterns is formally defined by
+<font size="-3">
+
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+P :: = <tt>pr</tt>(t<sub>1</sub>,&#8230;,t<sub>n</sub>) </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+ | P   <font size="-2">WHERE</font> t  | q  | (P).q </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+ | P   <font size="-2">BIN</font>  P  |   <font size="-2">NOT</font>(P,seq(P1,P2))</td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td></tr></table>
+
+
+</font>
+Thereby, <tt>pr</tt> is a predicate name with arity n, t<sub>i</sub> denote terms, t is a term of type boolean, q is a nonnegative rational number, and  <font size="-2">BIN</font> is one of the binary operators  <font size="-2">SEQ</font>, <font size="-2">AND</font>, <font size="-2">PAR</font>, <font size="-2">OR</font>, <font size="-2">EQUALS</font>, <font size="-2">MEETS</font>, <font size="-2">EQUALS</font>, <font size="-2">STARTS</font>, or  <font size="-2">FINISHES</font>. As a side condition, in every expression p   <font size="-2">WHERE</font> t, all variables occurring in t must also occur in the pattern p.
+
+<div class="p"><!----></div>
+Finally, an <i>event rule</i> is defined as a formula of the shape <font size="-3">
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+<tt>pr</tt>(t<sub>1</sub>,&#8230;,t<sub>n</sub>)&#8592; p</td></tr></table>
+</td></tr></table>
+
+</font> where p is an event pattern containing all variables occurring in <tt>pr</tt>(t<sub>1</sub>,&#8230;,t<sub>n</sub>).
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Adhering to a stock market scenario, one instantaneous event (not requiring further specification) might be <tt>market</tt><tt>_</tt><tt>closes</tt>(). Other events with additional information associated via arguments would be <tt>bankrupt</tt>(lehman) or <tt>buys</tt>(citigroup,wachovia). Within patterns, variables instead of constants may occur as arguments, whence we can write <tt>bankrupt</tt>(X) as a pattern matching all bankruptcy events irrespective of the victim. "Artificial" time-point events can be defined by just providing the according timestamp.
+
+<div class="p"><!----></div>
+Figure <a href="#fig:graphical_semantics">3.1</a> demonstrates the various ways of constructing complex event descriptions from simpler ones in the proposed language for event processing. Moreover, the figure informally introduces the semantics of the language.
+
+<div class="p"><!----></div>
+<a name="tth_fIg3.1">
+</a>     <center>    <img src="figures/graphical_semantics.jpg" alt="figures/graphical_semantics.jpg" />
+    
+<center>Figure 3.1: Language for Events Processing-Composition Operators</center> <a name="fig:graphical_semantics">
+</a>
+</center>
+<div class="p"><!----></div>
+Let us assume that instances of three complex events, P<sub>1</sub>, P<sub>2</sub>, P<sub>3</sub>, are occurring in time intervals as shown in Figure <a href="#fig:graphical_semantics">3.1</a>. Vertical dashed lines depict different time units, while the horizontal bars represent detected complex events for the given patterns. 
+
+<div class="p"><!----></div>
+It is worth noting that the defined pattern language captures the set of all possible 13 relations on two temporal intervals as defined in [<a href="#ALLEN83" name="CITEALLEN83">1</a>]. The set can also be used for rich temporal reasoning.
+
+<div class="p"><!----></div>
+In the following examples, event patterns are considered under the <i>unrestricted policy</i>. In event processing, consumption policies deal with an issue of <i>selecting</i> particular events occurrences when there are more than one event instance applicable and <i>consuming</i> events after they have been used in patterns.
+
+<div class="p"><!----></div>
+It is worthwhile to briefly review the modeling capabilities of the presented pattern language. For example, one might be interested in defining an event matching stock market working days:
+<font size="-3">
+
+<div class="p"><!----></div>
+<br /><br />
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>workingDay</tt>() &#8592;  <font size="-2">NOT</font>(<tt>marketCloses</tt>())[<tt>marketOpens</tt>(),<tt>marketCloses</tt>()].</td></tr></table></td></tr></table>
+
+
+<div class="p"><!----></div>
+<br /></font><br /> Moreover, we might be interested in detecting the event of two bankruptcies happening on the same market working day:<br />
+<font size="-3">
+
+<div class="p"><!----></div>
+<br /><font size="-3">
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>dieTogether</tt>(X,Y) &#8592;</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp;(<tt>bankrupt</tt>(X)   <font size="-2">SEQ</font> <tt>bankrupt</tt>(Y))   <font size="-2">DURING</font> <tt>workingDay</tt>().</td></tr></table></td></tr></table>
+
+
+<div class="p"><!----></div>
+<br /></font></font><br /> This event rule also shows, how event information (about involved institutions, provenance, etc.) can be "passed" on to the defined complex events by using variables. Furthermore, variables may be employed to conditionally group events into complex ones if they refer to the same entity:<br />
+<font size="-3">
+
+<div class="p"><!----></div>
+<br /><br />
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>indirectlyAcquires</tt>(X,Y) &#8592; <tt>buys</tt>(Z,Y)   <font size="-2">AND</font> <tt>buys</tt>(X,Z)</td></tr></table></td></tr></table>
+
+
+<div class="p"><!----></div>
+<br /></font><br /> Even more elaborate constraints can be put on the applicability of a pattern by endowing it with a boolean type term as filter.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a> Thereby, we can detect a stock prize increase of at least 50% in a time frame of 7 days.
+<font size="-3">
+
+<div class="p"><!----></div>
+<br />
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>remarkableIncrease</tt>(X) &#8592;</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp;(<tt>prize</tt>(X,Y<sub>1</sub>)   <font size="-2">SEQ</font> <tt>prize</tt>(X,Y<sub>2</sub>)).7   <font size="-2">WHERE</font> Y<sub>2</sub> &gt; Y<sub>1</sub>&#183;1.5</td></tr></table></td></tr></table>
+
+
+<div class="p"><!----></div>
+<br /></font><br />This small selection arguably demonstrates the expressivity and versatility of the introduced language.
+
+<div class="p"><!----></div>
+We define the declarative formal semantics of the proposed language for event processing in a model-theoretic way.
+
+<div class="p"><!----></div>
+Note that we assume a fixed interpretation of the occurring function symbols, i.e. for every function symbol f of arity n, we presume a predefined function f<sup>*</sup>: Con<sup>n</sup> &#8594; Con. That is, in our setting, functions are treated as built-in utilities.
+
+<div class="p"><!----></div>
+As usual, a <i>variable assignment</i> is a mapping &#956;: Var &#8594; Con assigning a value to every variable. We let &#956;<sup>*</sup> denote the extension of &#956; to terms defined in the usual way:
+<font size="-3">
+
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+&#956;<sup>*</sup>: </td><td align="left" class="cl">&#63729;<br />&#63732;<br />&#63730;<br />
+&#63732;<br />&#63731;
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+v </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#8594; &#956;(v) </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+ <span class="roman">if</span>  v  &#8712; Var, </td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+c </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#8594; c </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+ <span class="roman">if</span>  c  &#8712; Con, </td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+f(t<sub>1</sub>,&#8230;,t<sub>n</sub>) </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#8594; f<sup>*</sup>(&#956;<sup>*</sup>(t<sub>1</sub>),&#8230;, &#956;<sup>*</sup>(t<sub>n</sub>)) </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+ <span class="roman">otherwise</span><span class="roman">.</span></td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td></tr></table>
+
+
+</font><br />
+In addition to the set of rules <i>R</i>, we fix an <i>event stream</i>. The event stream is formalized as a mapping &#1013;: Ground &#8594; 2<sup>\mathbb</sup>Q<sup>+</sup> from ground predicates into sets of nonnegative rational numbers. It thereby indicates at what time instants what elementary events occur. As a side condition, we require &#1013; to be free of accumulation points, i.e. for every q &#8712; \mathbbQ<sup>+</sup>, the set {q&#8242; &#8712; \mathbbQ<sup>+</sup>  | q&#8242; &lt; q  and  q&#8242; &#8712; &#1013;(g)  for some g &#8712; Ground} is finite.
+
+<div class="p"><!----></div>
+Now, we define an interpretation <i>I</i>: Ground &#8594; 2<sup>\mathbbQ<sup>+</sup>&times;\mathbbQ<sup>+</sup></sup> as a mapping from the ground atoms to sets of pairs of nonnegative rationals, such that q<sub>1</sub>  &#8804; q<sub>2</sub> for every &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002;  &#8712; <i>I</i>(g) for all g &#8712; Ground.
+
+<div class="p"><!----></div>
+Given an event stream &#1013;, an interpretation <i>I</i> is called a <i>model</i> for a rule set <i>R</i> - written as <i>I</i> \models<sub>&#1013;</sub> <i>R</i> - if the following conditions are satisfied:
+
+<ul>
+<br />C1
+&#9001;q,q &#9002; &#8712; <i>I</i>(g) for every q  &#8712; \mathbbQ<sup>+</sup> and g &#8712; Ground with q &#8712; &#1013;(g)
+<br />C2
+for every rule atom &#8592; pattern and every variable assignment &#956; we have <i>I</i><sub>&#956;</sub>(atom)  &#8838; <i>I</i><sub>&#956;</sub>(pattern) where <i>I</i><sub>&#956;</sub> is inductively defined as displayed in Fig.&nbsp;<a href="#fig:Imu">3.2</a>.
+
+<div class="p"><!----></div>
+<a name="tth_fIg3.2">
+</a> 
+<br clear="all" /><table border="0" width="95%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<span class="roman">pattern</span> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<i>I</i><sub>&#956;</sub>(<span class="roman">pattern</span>)</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>pr</tt>(t<sub>1</sub>, &#8230;,t<sub>n</sub>) </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<i>I</i>( <tt>pr</tt>(&#956;<sup>*</sup>(t<sub>1</sub>),&#8230;,&#956;<sup>*</sup>(t<sub>n</sub>)) )</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p   <font size="-2">WHERE</font> t </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<i>I</i><sub>&#956;</sub>( p )  <span class="roman">if</span>  &#956;<sup>*</sup>(t)=<i>true</i></td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#8709; <span class="roman">otherwise</span><span class="roman">.</span></td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+q </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;q,q&#9002; } for all q &#8712; \mathbbQ<sup>+</sup></td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+(p).q </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<i>I</i><sub>&#956;</sub>( p ) &#8745;{&#9001;q<sub>1</sub>,q<sub>2</sub>&#9002;  | q<sub>2</sub>&#8722;q<sub>1</sub> = q}</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">SEQ</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;q<sub>1</sub>,q<sub>4</sub>&#9002;  | &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>1</sub>)  <span class="roman">and</span>  &#9001;q<sub>3</sub>,q<sub>4</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>2</sub>)  <span class="roman">for</span> <span class="roman">some</span>  q<sub>2</sub>,q<sub>3</sub> &#8712; \mathbbQ<sup>+</sup>  <span class="roman">with</span>  q<sub>2</sub>  &lt;  q<sub>3</sub> }</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">AND</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;</td><td nowrap="nowrap" align="center">
+min<br />
+</td><td nowrap="nowrap">(q<sub>1</sub>,q<sub>3</sub>),</td><td nowrap="nowrap" align="center">
+max<br />
+</td><td nowrap="nowrap">(q<sub>2</sub>,q<sub>4</sub>)&#9002;  | &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>1</sub>)  <span class="roman">and</span>  &#9001;q<sub>3</sub>,q<sub>4</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>2</sub>)  <span class="roman">for</span> <span class="roman">some</span>  q<sub>2</sub>,q<sub>3</sub> &#8712; \mathbbQ<sup>+</sup>}</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">PAR</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;</td><td nowrap="nowrap" align="center">
+min<br />
+</td><td nowrap="nowrap">(q<sub>1</sub>,q<sub>3</sub>),</td><td nowrap="nowrap" align="center">
+max<br />
+</td><td nowrap="nowrap">(q<sub>2</sub>,q<sub>4</sub>)&#9002;  | &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>1</sub>)  <span class="roman">and</span>  &#9001;q<sub>3</sub>,q<sub>4</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>2</sub>)</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+  <span class="roman">for</span> <span class="roman">some</span>  q<sub>2</sub>,q<sub>3</sub> &#8712; \mathbbQ<sup>+</sup>  <span class="roman">with</span>  </td><td nowrap="nowrap" align="center">
+max<br />
+</td><td nowrap="nowrap">(q<sub>1</sub>,q<sub>3</sub>)  &lt;  </td><td nowrap="nowrap" align="center">
+min<br />
+</td><td nowrap="nowrap">(q<sub>2</sub>,q<sub>4</sub>) }</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">OR</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<i>I</i><sub>&#956;</sub>(p<sub>1</sub>) &#8746;<i>I</i><sub>&#956;</sub>(p<sub>2</sub>)</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">EQUALS</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<i>I</i><sub>&#956;</sub>(p<sub>1</sub>) &#8745;<i>I</i><sub>&#956;</sub>(p<sub>2</sub>)</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">MEETS</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;q<sub>1</sub>,q<sub>3</sub>&#9002;  | &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>1</sub>)  <span class="roman">and</span>  &#9001;q<sub>2</sub>,q<sub>3</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>2</sub>)  <span class="roman">for</span> <span class="roman">some</span>  q<sub>2</sub> &#8712; \mathbbQ<sup>+</sup>}</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">DURING</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;q<sub>3</sub>,q<sub>4</sub>&#9002;  | &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>1</sub>)  <span class="roman">and</span>  &#9001;q<sub>3</sub>,q<sub>4</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>2</sub>)  <span class="roman">for</span> <span class="roman">some</span>  q<sub>2</sub>,q<sub>3</sub> &#8712; \mathbbQ<sup>+</sup>  <span class="roman">with</span>  q<sub>3</sub>  &lt;  q<sub>1</sub>  &lt;  q<sub>2</sub>  &lt;  q<sub>4</sub> }</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">STARTS</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;q<sub>1</sub>,q<sub>3</sub>&#9002;  | &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>1</sub>)  <span class="roman">and</span>  &#9001;q<sub>1</sub>,q<sub>3</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>2</sub>)  <span class="roman">for</span> <span class="roman">some</span>  q<sub>2</sub> &#8712; \mathbbQ<sup>+</sup>  <span class="roman">with</span>  q<sub>2</sub>  &lt;  q<sub>3</sub>}</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+p<sub>1</sub>   <font size="-2">FINISHES</font> p<sub>2</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{ &#9001;q<sub>1</sub>,q<sub>3</sub>&#9002;  | &#9001;q<sub>2</sub>,q<sub>3</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>1</sub>)  <span class="roman">and</span>  &#9001;q<sub>1</sub>,q<sub>3</sub>&#9002; &#8712; <i>I</i><sub>&#956;</sub>(p<sub>2</sub>)  <span class="roman">for</span> <span class="roman">some</span>  q<sub>2</sub> &#8712; \mathbbQ<sup>+</sup>  <span class="roman">with</span>  q<sub>1</sub>  &lt;  q<sub>2</sub>}</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+ <font size="-2">NOT</font>(p<sub>1</sub>).[p<sub>2</sub>,p<sub>3</sub>] </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<i>I</i><sub>&#956;</sub>(p<sub>2</sub>   <font size="-2">SEQ</font> p<sub>3</sub>) \<i>I</i><sub>&#956;</sub>(p<sub>2</sub>   <font size="-2">SEQ</font> p<sub>1</sub>   <font size="-2">SEQ</font> p<sub>3</sub>)</td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td></tr></table>
+
+
+#1Definition of extensional interpretation of event patterns. We use p<sub>(x)</sub> for patterns, q<sub>(x)</sub> for rational numbers, t<sub>(x)</sub> for terms and <tt>pr</tt> for predicates. <a name="fig:Imu">
+</a>
+
+<div class="p"><!----></div>
+</ul>
+
+<div class="p"><!----></div>
+Given an interpretation <i>I</i> and some q &#8712; \mathbbQ<sup>+</sup>, we let <i>I</i>&#124;<sub>q</sub> denote the interpretation defined via <i>I</i>&#124;<sub>q</sub>(g)=<i>I</i>(g) &#8745;{&#9001;q1,q2&#9002; | q2&#8722;q1 &#8804; q}.
+
+<div class="p"><!----></div>
+Given two interpretations <i>I</i> and <i>J</i>, we say that <i>I</i> is <i>preferred</i> to <i>J</i> if there exists a q &#8712; \mathbbQ<sup>+</sup> with <i>I</i>&#124;<sub>q</sub> &#8834; <i>J</i>&#124;<sub>q</sub>.
+
+<div class="p"><!----></div>
+A model <i>I</i> is called <i>minimal</i> if there is no other model preferred to <i>I</i>. It is easy to show that for every event stream &#1013; and rule base <i>R</i> there is a unique minimal model <i>I</i><sup>&#1013;,<i>R</i></sup>.
+
+<div class="p"><!----></div>
+Finally, given an atom a and two rational numbers q<sub>1</sub>, q<sub>2</sub>, we say that the event a<sup>[q<sub>1</sub>,q<sub>2</sub>]</sup> is a <i>consequence</i> of the event stream &#1013; and the rule base <i>R</i> (written &#1013;,<i>R</i>\models a<sup>[q<sub>1</sub>,q<sub>2</sub>]</sup>), if &#9001;q<sub>1</sub>,q<sub>2</sub>&#9002;  &#8712; <i>I</i><sup>&#1013;,<i>R</i></sup><sub>&#956;</sub>(a) for some variable assignment &#956;.
+
+<div class="p"><!----></div>
+It can be easily verified that the behavior of the event stream &#1013; beyond the time point q<sub>2</sub> is irrelevant for determining whether &#1013;,<i>R</i>\models a<sup>[q<sub>1</sub>,q<sub>2</sub>]</sup> is the case.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a> This justifies to take the perspective of &#1013; being only partially known (and continuously unveiled along a time line) while the task is to detect event-consequences as soon as possible.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3.2">
+3.2</a>&nbsp;&nbsp;Event processing execution in Prolog</h2> <a name="sec:ETALIS">
+</a>
+
+<div class="p"><!----></div>
+The syntax of <i>ETALIS Language for Events</i> allows for the description of <i>event</i> patterns as event rules of the form: complexEvent&#8592; EventPattern. Events occur over time intervals. Time instants as well as durations are modeled as nonnegative rational numbers q &#8712; \mathbbQ<sup>+</sup>. Events can be atomic or complex, while no distinction is made in their applicability to rules. An <i>atomic event</i> refers to an instantaneous occurrence, i.e., the time interval length is zero. Althought not a requirement, atomic events are ground (i.e. predicates followed by arguments which are terms not containing variables). Intuitively, the arguments of a ground atom describing an atomic event denote information items (i.e. event data) that provide additional information about the event.
+
+<div class="p"><!----></div>
+Events participate in composition rules to trigger complex events. When an <i>event stream</i> of atomic events is fed into the system, all patterns are considered and complex events are triggered. The event stream is formalized as a mapping &#1013;: Ground &#8594; 2<sup>\mathbb</sup>Q<sup>+</sup> from ground predicates into sets of nonnegative rational numbers. It thereby indicates at what time instants what simple events occur. As a side condition, it is required that &#1013; is free of accumulation points, i.e. for every q &#8712; \mathbbQ<sup>+</sup>, the set {q&#8242; &#8712; \mathbbQ<sup>+</sup>  | q&#8242; &lt; q  and  q&#8242; &#8712; &#1013;(g)  for some g &#8712; Ground} is finite.
+
+<div class="p"><!----></div>
+Given an event stream &#1013;, an interpretation <i>I</i> is called a <i>model</i> for a rule set <i>R</i> - written as <i>I</i> \models<sub>&#1013;</sub> <i>R</i> - if the following conditions are satisfied:
+
+<div class="p"><!----></div>
+Given a set of event patterns and a stream of input events, the ETALIS system can compute the final model of all events. To achieve this, ETALIS implements <i>event-driven backward chaining</i> rules. These rules are executed in a <i>data-driven</i> fashion. That is the inference system incrementally furthers the pattern completion as relevant events occur.  As soon as the last event required for a pattern fulfillment is observed, the inference system triggers the complex event. 
+
+<div class="p"><!----></div>
+A user defines event patterns of the form given in the left column of Figure <a href="#fig:Imu">3.2</a>. When submitted, ETALIS automatically transforms these patterns into event-driven backward chaining rules. These are executable rules that enable detection of complex events at run time. The transformation is sketched as follows. 
+
+<div class="p"><!----></div>
+First, an event pattern is binarized left associatively, i.e., operations are coupled to generate only binary formulas, introduce intermediate events for every binary formula and replace these formulas in the original program. This eases the process of automatic construction of <em>event-driven</em> rules and helps in implementation of various event operators defined by the language semantics (Figure <a href="#fig:Imu">3.2</a>). Apart from this, the consideration of events on "two by two" basis enhances the computation sharing in the pattern detection, and hence helps in achieving better run-time performance.
+For instance, a formula: e &#8592; p<sub>1</sub>   <font size="-2">SEQ</font> p<sub>2</sub>   <font size="-2">SEQ</font> p<sub>3</sub>...  <font size="-2">SEQ</font> p<sub>n</sub> (e is detected when an event p<sub>1</sub> is followed by p<sub>2</sub>,.., followed by p<sub>n</sub>) is binarized by introducing intermediate events (goals) as:<br />
+ <a name="bin">
+</a>
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ </td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+e &#8592; temp<sub>n&#8722;1</sub>   <font size="-2">SEQ</font> p<sub>n</sub></td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+temp<sub>n&#8722;1</sub> &#8592; temp<sub>n&#8722;2</sub>   <font size="-2">SEQ</font> p<sub>n&#8722;1</sub></td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+...</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+temp<sub>1</sub> &#8592; p<sub>1</sub>   <font size="-2">SEQ</font> p<sub>2</sub></td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+ </td></tr></table>
+</td><td width="1%">(3.1)</td></tr></table>
+
+<a name="equ4">
+</a>
+
+<div class="p"><!----></div>
+Second, each binary formula is then compiled into a set of event-driven backward chaining rules (i.e., executable rules). Each operator, defined by the language semantics, has a specific transformation which is provided by ETALIS system. Due to the space restriction, only the transformation for the sequential conjunction is sketched below. Implementation of other operators follow similar design patterns.
+
+<div class="p"><!----></div>
+ <b>Sequential conjunction</b>.<br /><a name="serialConj">
+</a>
+<font size="-3">
+<b>Input:</b>  event binary goal e<sub>i</sub>&#8592; a   <font size="-2">SEQ</font> b.<br />
+<b>Output:</b> event-driven backward chaining rules for   <font size="-2">SEQ</font> operator.<br />
+<b>For each</b> event binary goal e<sub>i</sub> &#8592; a   <font size="-2">SEQ</font> b {<br />
+&nbsp;whenever a occurs at some [T<sub>1</sub>,T<sub>2</sub>], apply all rules r(a)<sub>i</sub>:<br />
+&nbsp;r(a)<sub>1</sub>:-  insert goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>);<br />
+&nbsp;whenever b occurs at some [T<sub>3</sub>,T<sub>4</sub>], apply all rules r(b)<sub>j</sub>:<br />
+&nbsp;r(b)<sub>1</sub>:-  <b>if</b> goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) exist and T<sub>2</sub> &lt; T<sub>3</sub> <b>then</b><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete that goal, and trigger event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup>;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>end if</b><br />
+}
+</font>
+
+
+<div class="p"><!----></div>
+The transformation accepts as input a binary sequence e<sub>i</sub>&#8592; a   <font size="-2">SEQ</font> b, and produces event-driven backward chaining rules<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>. These rules are represented by r(a)<sub>1</sub> and r(b)<sub>1</sub> in Transformation 2.1. They belong to two different classes of rules. We refer to the first class as to rules used to <i>generate goals</i>. The second class correspond to <i>checking rules</i>. r(a)<sub>1</sub> is a rule that generates goals of type goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) when an event a occurs (i.e., when the rule head r(a)<sub>1</sub> is satisfied) at some [T<sub>1</sub>,T<sub>2</sub>]. Its interpretation is that "an event a has occurred at [T<sub>1</sub>,T<sub>2</sub>]<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>, and we are waiting for b to happen, in order to detect e<sub>i</sub>". Obviously the goal does not carry information about times for b and e<sub>i</sub>, as we don't know when they will occur. In general, the <i>second</i> event in a goal always denotes an event that has just occurred, whereas the role of the <i><i>first</i></i> event is to specify what we are waiting for, to detect an event that is on the <i>third</i> position. Now when an event b happens at some [T<sub>3</sub>,T<sub>4</sub>], the rule r(b)<sub>1</sub> will execute. The rule  checks whether goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) is true (meaning that an a occurred prior to the occurrence of b, if T<sub>2</sub> &lt; T<sub>3</sub>) in which case it triggers a (more) complex event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup>. Additionally the rule deletes goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) to free up the memory (this is an optional operation, and in certain applications it may be omitted). 
+
+<div class="p"><!----></div>
+Another important issue in event processing is to consider different consumption policies when detecting complex events. Let us assume that we want to detect event a followed by event b, and the stream produces events: a,a,b. It is a question which event a will be taken for the pattern detection, the first or the second instance. In event processing, consumption policies (or event contexts) deal with an issue of selecting particular events occurrences when there are more than one event instance applicable and consuming events after they have been used in patterns. In ETALIS we have implemented <i>recent</i>, <i>chronological</i>, and <i>unrestricted</i> policy; and for practical use with out-of-order events, recent and 
+chronological policies are used.
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc3.3">
+3.3</a>&nbsp;&nbsp;Out-of-order event detection in ETALIS</h2><a name="memory_management">
+</a>
+<a name="out-of-order33">
+</a>
+
+<div class="p"><!----></div>
+To explain our approach which deals with late events let us consider a simple event binary goal: 
+e<sub>i</sub> &#8592; a   <font size="-2">SEQ</font> b (using the binarization, other more complicated examples can also be reduced to this case). The solution slightly modifies the initial Transformation 2.1. by adding additional rules. A rule that generates a goal (i.e., r(a)<sub>1</sub>) is accompanied by a checking rule (i.e., r(a)<sub>2</sub>) and vise versa (the checking rule, r(b)<sub>1</sub>, is now added a rule that generates a goal, r(b)<sub>2</sub>, see also Section ). Therefore we process the sequence in both directions: an in-order direction (as in Transformation <a href="#serialConj">3.2</a>); and an out-of-order direction (with newly added rules in Transformation 3.1.). Although, we show here just the transformation for the sequence operator, we have implemented transformations for all thirteen operators inspired from Allen's Interval Algebra and also our additional various operators dealing with negation, constraints on event rules and aggregates. 
+
+<div class="p"><!----></div>
+Rules r(a)<sub>1</sub> and r(a)<sub>2</sub> will be evaluated when an event a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup> occurs (i.e., at [T<sub>1</sub>,T<sub>2</sub>]). Rule r(a)<sub>1</sub> will insert a goal goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) into the database. Additionally rule r(a)<sub>2</sub> will check whether the event a is an out-of-order event, in which case the system will also trigger an event e<sub>i</sub>. The event a is an out-of-order event if a goal goal_out(a<sup>[_,_]</sup>,b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) exists in the database, and T<sub>2</sub> &lt; T<sub>3</sub>. The latter condition says that although event a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup> just happened (at some [T<sub>1</sub>,T<sub>2</sub>]), there is an event b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup> that has already happened such that its timestamp is bigger that the a's timestamp. This suggests that event a is an out-of-order event, and an event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup> should be indeed triggered. 
+
+<div class="p"><!----></div>
+Rules, that will fire when an event b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup> occurs (at some [T<sub>3</sub>,T<sub>4</sub>]), work similarly as those for a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>. Rule r(b)<sub>1</sub> will check whether an event a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup> has already happened (i.e., goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) exists in the database); and if yes, it will trigger an event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup>. That is an in-order case of processing events a and b. Additionally rule r(b)<sub>2</sub> will insert a goal goal_out(a<sup>[_,_]</sup>,b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>), which will be used by r(a)<sub>2</sub> if an out-of-order event a occurs.
+
+<div class="p"><!----></div>
+ <b>Sequence with Out-of-Order Events</b>.&nbsp;<a name="outSequence">
+</a>
+<font size="-3">
+<b>Input:</b>  event binary goal e<sub>i</sub> &#8592; a   <font size="-2">SEQ</font> b.<br />
+<b>Output:</b> event-driven backward chaining rules for   <font size="-2">SEQ</font>  operator.<br />
+<b>For each</b> event binary goal e<sub>i</sub> &#8592; a   <font size="-2">SEQ</font> b {<br />
+&nbsp;whenever a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup> occurs apply all rules r(a)_i:<br />
+&nbsp;r(a)<sub>1</sub>:-  insert goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>);<br />
+&nbsp;r(a)<sub>2</sub>:-  <b>if</b> goal_out(a<sup>[_,_]</sup>,b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) exist and T<sub>2</sub> &lt; T<sub>3</sub> <b>then</b><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete that goal and trigger event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup>;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>end if</b><br />
+&nbsp;whenever b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup> occurs apply all rules r(b)_j:<br />
+&nbsp;r(b)<sub>1</sub>:-  <b>if</b> goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) exist and T<sub>2</sub> &lt; T<sub>3</sub> <b>then</b><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete that goal and trigger event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup>;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>end if</b><br />
+&nbsp;r(b)<sub>2</sub>:-  insert goal_out(a<sup>[_,_]</sup>,b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>);<br />
+}
+</font>
+
+
+<div class="p"><!----></div>
+Effectively, the price paid for handling out-of-order events is mainly reflected throughout insertion of out-of-order goals (e.g., goal_out(a<sup>[_,_]</sup>,b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>)) and the fact that they need to be cleared up after certain time (to free up the memory). Therefore, in the next section we discuss a solution for the effective garbage collection of outdated out-of-order goals. 
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc3.4">
+3.4</a>&nbsp;&nbsp;Memory management</h2><a name="memory_management">
+</a>
+<a name="memory management34">
+</a> <a name="garbage collection34">
+</a>
+
+<div class="p"><!----></div>
+To deal with out-of-order events safely, no data can ever be purged from memory since event processing assumes processing of infinite streams of data. 
+However, this requirement is an exaggeration in reality and is impracticable due to overuse of memory. 
+Network latencies can be approximated, so it is clear that, at some point, data must be deleted from memory. 
+In the transformation above, occurrences of each event are recorded by inserting a goal in memory. 
+Some of these goals are removed at the time they are "consumed" to build more complex events, while the others can be pruned using a time window<a href="#tthFtNtAAG" name="tthFrefAAG"><sup>6</sup></a>.
+Due to the requirement in CEP that patterns are defined on time windows, we have developed time-based garbage collection strategies and not 
+triggered by the memory consumption ones like in many other fields.
+The time-based garbage collection is the natural approach for CEP
+to release the memory necessary for the execution of events.
+
+<div class="p"><!----></div>
+We have implemented the time guarantees for out-of-order event detection in different ways: pushed constraints; general garbage collection; and event-pattern garbage collection.
+
+<div class="p"><!----></div>
+The common way to deal with garbage collection of overdue events is to define a time window for the event pattern and check this constraint during the composition of the complex event.
+For instance, an event binary goal: <br />
+ruleId([ooo_window(10)]) rule:&nbsp; e<sub>i</sub> &#8592; a   <font size="-2">SEQ</font> b   <font size="-2">SEQ</font> c.<br />
+specifies that the length of a time window for out-of-order events is 10 seconds (i.e., ooo_window(10)). This means the system guarantees that out-of-order events will be processed correctly if their delay is shorter that the specified window.
+
+<div class="p"><!----></div>
+
+     <h3><a name="tth_sEc3.4.1">
+3.4.1</a>&nbsp;&nbsp;Pushed constraints</h3>
+
+<div class="p"><!----></div>
+Our first implementation for out-of-order complex event detection in ETALIS modifies the binarization by pushing the constraints for time guarantees into binary events during binarization, and Transformation 3.1 with checking the constraints before triggering composed events. Pushing the constraints during binarization ensures that time guarantees are checked at each step, so unnecessary intermediary sub-complex events are not generated if the time guarantees are not satisfied. For predicative rules, we push variants for all the terms and variables used in the rule to ensure that all bindings are satisfied during execution (equivalent to a lifting from propositional to predicative logic).
+
+<div class="p"><!----></div>
+ <b>Sequence with constraint checks</b>.<br /><a name="outSequence">
+</a>
+<font size="-3">
+<b>Input:</b>  event binary goal RuleLabelConditions e<sub>i</sub> &#8592; a   <font size="-2">SEQ</font> b.<br />
+<b>Output:</b> event-driven backward chaining rules for   <font size="-2">SEQ</font>  operator.<br />
+<b>For each</b> event binary goal RuleLabelConditions e<sub>i</sub> &#8592; a   <font size="-2">SEQ</font> b {<br />
+&nbsp;whenever a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup> occurs apply all rules r(a)<sub>i</sub>:<br />
+&nbsp;r(a)<sub>1</sub>:-  insert goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>);<br />
+&nbsp;r(a)<sub>2</sub>:-  <b>if</b> goal_out(a<sup>[_,_]</sup>,b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) exist and T<sub>2</sub> &lt; T<sub>3</sub><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>and check_constraints(RuleLabelConditions) then</b><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete that goal and trigger event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup>;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>end if</b><br />
+&nbsp;whenever b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup> occurs apply all rules r(b)<sub>j</sub>:<br />
+&nbsp;r(b)<sub>1</sub>:-  <b>if</b> goal(b<sup>[_,_]</sup>,a<sup>[T<sub>1</sub>,T<sub>2</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>) exist and T<sub>2</sub> &lt; T<sub>3</sub><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>and check_constraints(RuleLabelConditions) then</b><br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete that goal and trigger event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>4</sub>]</sup>;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>end if</b><br />
+&nbsp;r(b)<sub>2</sub>:-  insert goal_out(a<sup>[_,_]</sup>,b<sup>[T<sub>3</sub>,T<sub>4</sub>]</sup>,e<sub>i</sub><sup>[_,_]</sup>);<br />
+}
+</font>
+
+
+<div class="p"><!----></div>
+One advantage of this approach is that any constraints can be verified, not only for out-of-order event detection. Such constraints are common in event processing, e.g., the event detection started after or before a certain time. Moreover, this approach is  declarative, i.e., new constraints can be defined for any rule and the handling of the constraints is defined by writing a user defined check_constraint rule for that constraint type.
+However, the approach also has important disadvantages. First, ETALIS enables sharing of common formulas during binarization (i.e., shared intermediate complex events are computed only once and shared in multiple event formulas). Pushing the constraints and labels for each rule makes sharing not possible anymore. However, a bigger disadvantage is the fact that the time guarantee is checked for each detected event. An efficient solution would clear events when they are overdue, i.e., not every time an event is detected. For instance, if the system detects 100,000 events in two seconds and the time window is set to 2 seconds, then the system is expected to clean the overdue events only once (after two seconds), i.e., without performing 100,000 checks.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.4.2">
+3.4.2</a>&nbsp;&nbsp;General and pattern-based garbage collection</h3>
+
+<div class="p"><!----></div>
+We prune expired goals periodically using alarm predicates. The general approach for garbage collection (GC) is utilized to reduce an event path on which out-of-order events are processed (similarly as in [<a href="#Out-of-orderEvents" name="CITEOut-of-orderEvents">7</a>]). Essentially it enables an out-of-order event to be late for a fixed window of time with respect to system clock, denoted by SystemClock. The GC window W specifies the maximum time range between the first and last event for any pattern detection (i.e., infinitely long complex patterns are of no interest). Every event e<sub>i</sub><sup>[T<sub>1</sub>,T<sub>2</sub>]</sup> should be kept in memory at least the time defined by W, and all events are allowed to be purged if SystemClock  &gt;  [T<sub>1</sub> + W]. GC is applied for all intermediate goals, not only for out-of-order event processing. 
+
+<div class="p"><!----></div>
+We use an alarm rule (<a href="#r:garbage">3.2</a>) to prune unnecessary goals. This, sort of, garbage collector is triggered by the system generated events (defined by the system time SystemClock and the GC window W).
+
+<div class="p"><!----></div>
+<font size="-3">  <a name="r:garbage">
+</a>
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ </td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+garbageCollector(SystemClock) &#8592; </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp; findAll(goal(_,X([T<sub>1</sub>,T<sub>2</sub>],W),_)   <font size="-2">SEQ</font> SystemClock &gt; [T<sub>1</sub>+W],</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp; goal(_,X([T<sub>1</sub>,T<sub>2</sub>]),_,L)),</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; while_do(member(goal(_,X([T<sub>1</sub>,T<sub>2</sub>]),_,L))) (</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; del(goal(_,X([T<sub>1</sub>,T<sub>2</sub>]),_)))</td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp; and  alarm(garbageCollector(SystemClock+W),W). </td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+ </td></tr></table>
+</td><td width="1%">(3.2)</td></tr></table>
+
+
+</font>
+
+<div class="p"><!----></div>
+This means that for a time window of 10 seconds, the following sequence of events will not be detected by the rule (): stock(agent1,"G",110,10), that is triggered and received at time 2; and stock(agent1,"G",100,10), that is triggered at time 1 and received at time 21. The general garbage collection works well when there is a single garbage collection window W for the whole system (e.g., the network delay is the same for all sources).
+
+<div class="p"><!----></div>
+The window essentially specifies what is a guaranteed "minimum" time, ensured by the system, that out-of-order events will be processed correctly: if the GC via alarms is set to W time window, the presented procedure correctly handles  out-of-order events within the window. 
+
+<div class="p"><!----></div>
+Let us consider now a case when different elements in the system have different delays and time guarantees, i.e., there exist different garbage collection times for different patterns. In this case, the garbage collection alarms are defined at the level of each rule. The procedure starts GC alarms for each rule separately, looking for intermediate goals for those rules checking the condition SystemClock  &gt;  [T<sub>1</sub> + Window(e<sub>i</sub>)].
+
+<div class="p"><!----></div>
+Similarly to the pushed constraints case, rules are defined with properties, and the binarization pushes the rule properties to sub-components. However, alarm events for garbage collection are scheduled to happen in Window(e<sub>i</sub>) time. The scheduling of alarms is done right after the compilation of pattern rules in an event program. The approach is conservative: if one writes patterns without garbage collection window, no alarm is generated. However, we also permit dynamic properties by inserting/deleting properties on-the-fly <br />
+ins/del(property(RuleId,PropertyName,PropertyValue)). 
+In this case, the GC is started automatically during the execution (depending on the situation). The model theory is also extended with a augmentation theory for handling rule properties, i.e., we have normal labeled CEP rules and and special predicates defining features of rules can be considered as the the meta-theory over the event logic <br />
+property(RuleId,PropertyName,PropertyValue). This makes the system more extensible: by adding new properties or meta-theories, we do not modify the previous semantic framework.
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc3.5">
+3.5</a>&nbsp;&nbsp;Justification</h2> <a name="sec:just">
+</a> <a name="justification35">
+</a>
+
+<div class="p"><!----></div>
+Debugging is one of the determining issues in the longevity of using any programming language. Efficient debugging tools are needed by every programmer; and event-oriented programming is not an exception. 
+
+<div class="p"><!----></div>
+Justification is done by adding <i>justification edges</i> in a justification-deduction graph. When event b occurs at some [T<sub>3</sub>,T<sub>4</sub>], the third rule will insert jstf_edge. The edge establishes a causal relationship saying that c happened as a consequence of a sequence "a folloed by b". The edge will be inserted only if event a indeed happened prior to event b. This condition is ensured by checking whether the goal goal(<tt>b</tt>,<tt>a</tt>,<tt>c</tt>) and the condition, T<sub>2</sub> &lt; T<sub>3</sub>, are both true (see the third rule); and these will be true if event a happened prior to an occurrence of event b (i.e., the second rule inserts goal goal(<tt>b</tt>,<tt>a</tt>,<tt>c</tt>) when event a happens).   
+
+<div class="p"><!----></div>
+<font size="-3"> 					
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt><tt>c</tt></tt>&#8592; </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;<tt><tt>a</tt></tt>   <font size="-2">SEQ</font> <tt><tt>b</tt></tt>.</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt><tt>a</tt></tt>[T<sub>1</sub>,T<sub>2</sub>] &#8592; </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;insert(goal(<tt><tt>b</tt></tt>[_,_],<tt><tt>a</tt></tt>[T<sub>1</sub>,T<sub>2</sub>],<tt><tt>c</tt></tt>[_,_])).</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt><tt>b</tt></tt>[T<sub>3</sub>,T<sub>4</sub>] &#8592; </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;goal(<tt><tt>b</tt></tt>[T<sub>3</sub>,T<sub>4</sub>],<tt><tt>a</tt></tt>[T<sub>1</sub>,T<sub>2</sub>],<tt><tt>c</tt></tt>[_,_]), T<sub>2</sub> &lt; T<sub>3</sub>,</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;<tt><tt>c</tt></tt>[T<sub>1</sub>,T<sub>4</sub>],insert(</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;jstf_edge(</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; <tt><tt>event</tt></tt>(<tt><tt>c</tt></tt>,[T<sub>1</sub>,T<sub>4</sub>]),</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; <tt><tt>clause</tt><tt>_</tt><tt>body</tt></tt>(</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lbl,<tt><tt>seq</tt></tt>(<tt><tt>event</tt></tt>(a,[T<sub>1</sub>,T<sub>2</sub>]),<tt><tt>event</tt></tt>(b,[T<sub>3</sub>,T<sub>4</sub>]))</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;))).</td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td></tr></table>
+
+
+</font> 
+
+<div class="p"><!----></div>
+<a name="tth_fIg3.2">
+</a>     <center>    <a href="figures/output3.jpeg">Figure</a>
+    
+<center>Figure 3.2: Justification of a successful occurrence of event assignmentCounter</center> 
+<a name="fig:sequence">
+</a>
+</center>
+<div class="p"><!----></div>
+When a user wants to get a justification for a certain event, the following rule will be evaluated.
+
+<div class="p"><!----></div>
+<font size="-3">
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;<tt><tt>jstf</tt><tt>_</tt><tt>ev</tt></tt> (Ev,[T<sub>1</sub>,T<sub>2</sub>],J) &#8592;</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; <tt><tt>jstf</tt><tt>_</tt><tt>edge</tt></tt>(</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt><tt>event</tt></tt>(Ev,[T<sub>1</sub>,T<sub>2</sub>]),</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt><tt>clause</tt><tt>_</tt><tt>body</tt></tt>(</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lbl,<tt><tt>seq</tt></tt>(<tt><tt>event</tt></tt>(I<sub>1</sub>,[T&#8242;<sub>1</sub>,T&#8242;<sub>2</sub>]),<tt><tt>event</tt></tt>(I<sub>2</sub>,[T&#8242;<sub>3</sub>,T&#8242;<sub>4</sub>]))</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp;))</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; <tt><tt>jstf</tt><tt>_</tt><tt>ev</tt></tt> (I<sub>1</sub>,[T&#8242;<sub>1</sub>,T&#8242;<sub>2</sub>],J<sub>2</sub>),</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; <tt><tt>jstf</tt><tt>_</tt><tt>ev</tt></tt> (I<sub>2</sub>,[T&#8242;<sub>3</sub>,T&#8242;<sub>4</sub>],J<sub>3</sub>),</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&nbsp;&nbsp;&nbsp;&nbsp; J = <tt><tt>jstf</tt></tt>(Lbl,<tt><tt>head</tt></tt>(Ev,[T<sub>1</sub>,T<sub>2</sub>]),<tt><tt>seq</tt></tt>(J<sub>2</sub>,J<sub>3</sub>)).</td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td></tr></table>
+
+
+</font> 
+
+<div class="p"><!----></div>
+The rule effectively traverses the justification-deduction graph (that consists of complex events split up into binary events). The graph is traversed top-down starting from the complex event (that needs to be justified). The rule is recursive; it calls itself until all pairs of events that build the complex event are found. Due to space restriction we have shown only the justification rule for the sequence operator.
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp4">
+Chapter 4 </a><br />Interacting with the ETALIS system</h1> <a name="chap:system">
+</a>
+<a name="system">
+</a>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Throughout this chapter, we use <tt>$ETALIS\_DIR</tt> to refer to the
+directory in which ETALIS was installed.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Entering and exiting ETALIS from the command Line</h2>
+After the system has been installed, the emulator's executable code appears 
+in the file:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$ETALIS\_DIR/etalis.bat
+
+</pre>
+or it can be loaded in the Prolog system with: 
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;['$ETALIS\_DIR/src/etalis.P']
+
+</pre>
+
+<div class="p"><!----></div>
+Using the
+<tt>-g</tt> command-line option in Yap or SWI Prolog
+any goal can be can be executed, up to
+1024 characters.  For instance, 
+<a name="execute\_event\_stream\_file/141">
+</a>
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$ETALIS\_DIR/bin/ETALIS&nbsp;-g&nbsp;``compile_event_file('hello-world.event'),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;execute\_event\_stream\_file('-stream.P'),halt.''
+
+</pre>
+loads and event file "hello-world.event", 
+executes all the events from a file
+"stream.P"
+and exits ETALIS.  Within the 1024 character
+limit, any query or command can be executed.
+
+<div class="p"><!----></div>
+There are several ways to exit ETALIS.  A user may issue the
+command <tt>halt.</tt> or <tt>end\_of\_file.</tt>, or simply type
+<tt>CTRL-d</tt> at the ETALIS prompt.  To interrupt ETALIS
+while it is executing a query, strike <tt>CTRL-c</tt>.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;The system and its directories</h2>
+When installed, the ETALIS system resides in a single directory that
+contains several subdirectories.
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> <tt>docs</tt> contains the user manuals and other documentation,
+including the technical documentation manual for developers.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>examples</tt> contains some examples for all features of ETALIS.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>lib</tt> contains links to external libraries used in ETALIS.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>src</tt> The directory <tt>src</tt> contains the sources of ETALIS.
+These files are written in Prolog and are loaded in the main file 
+"etalis.P".
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>www</tt> contains the WWW interface to ETALIS, which is
+written in Java Server Pages (JSP).
+
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;The module system of ETALIS</h2> <a name="Modules">
+</a>
+ETALIS has been designed with a basic module system in mind. Modules
+provide a small step towards <em>logic programming "in the large"</em>
+that facilitates the construction of large programs or projects from
+components that are developed separately and support the principle of 
+information hiding. 
+
+<div class="p"><!----></div>
+Altough, only partially implemented, the Etalis module is similar to that of Prolog systems and is <em>flat</em>, that is modules
+cannot be nested.
+We also allow creation of modules dynamically and updates of data in all modules, including deletion of modules.
+Files are not treated as modules, but are loaded in modules. 
+
+<div class="p"><!----></div>
+<a name="modules+ETALIS syntax43">
+</a> <a name="declarations+\texttt{export/1}43">
+</a><a name="declarations+\texttt{import/2}43">
+</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>:- export sym<sub>1</sub>, ..., sym<sub>l</sub>. </tt>
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>:- import sym<sub>1</sub>, ..., sym<sub>n</sub> from file. </tt>
+
+<div class="p"><!----></div>
+where sym<sub>i</sub> has the form functor/arity, and module is a Prolog
+atom representing a module name.
+
+<div class="p"><!----></div>
+In ETALIS, the declaration
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>:- export sym<sub>1</sub>, ..., sym<sub>l</sub>. </tt>
+
+<div class="p"><!----></div>
+specifies that the current file exports only a certain set of 
+event definitions.
+
+<div class="p"><!----></div>
+The declaration 
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>:- import sym<sub>1</sub>, ..., sym<sub>n</sub> from file. </tt>
+
+<div class="p"><!----></div>
+allows events to be imported from a file.
+These predicates can be used in the main user space without any prefix.
+
+<div class="p"><!----></div>
+All the other event and  <tt>e/n</tt>
+predicate symbols <tt>p/n</tt> are identified as if they were prefixed with
+their module name (i.e. base file name).  Hence the occurrence of <tt>
+  e/n</tt> in two different modules, <tt>m1</tt> and <tt>m2</tt> are distinct
+symbols that can be denoted as <tt>m1:e/n</tt> and <tt>m2:e/n</tt>.  
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Compiling and loading event files</h2> <a name="Consulting">
+</a>
+ETALIS provides for both statically compiled code and
+dynamically asserted code. 
+The standard predicate <tt>compile_even_file/1</tt> <a name="compile\_even\_file/144">
+</a> is the most convenient
+method for entering static source code rules into ETALIS's
+database. 
+Compiling a file <tt>File</tt> consists of the following steps.
+
+<dl compact="compact">
+ <dt><b>Name Resolution:</b></dt>
+	<dd> determine the file that <tt>File</tt> designates.</dd>
+ <dt><b>Parsing:</b></dt>
+	<dd> <a name="parsing44">
+</a> parsing the event file into internal rule representation.</dd>
+ <dt><b>Binarization:</b></dt>
+	<dd> <a name="binarization44">
+</a> binarize the event rules. The result of this step is a set of binary rules where the bodies consist of at most 2 events and one ETALIS operator.</dd>
+ <dt><b>Compilation of event rules:</b></dt>
+	<dd> <a name="compilation44">
+</a> compile the file into a format close to Prolog and Transaction Logic.</dd>
+ <dt><b>Loading:</b></dt>
+	<dd> <a name="loading44">
+</a> load the resulting program into memory.</dd>
+ <dt><b>Event Stream Execution:</b></dt>
+	<dd> <a name="execution44">
+</a> execute an event stream detecting the complex events. The events are considered in the order in which they are provided by the consumption policy module.</dd>
+</dl>
+
+<div class="p"><!----></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>&#124; ?- compile_event_file(Files).</tt> 
+
+<div class="p"><!----></div>
+For a given, <tt>File</tt> to be compiled, the source file name
+corresponding to <tt>File</tt> is obtained by concatenating a directory
+prefix and the extension <tt>.event</tt>. 
+The directory prefix must be in the dynamic loader path.
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc4.5">
+4.5</a>&nbsp;&nbsp;ETALIS options and flags</h2> <a name="flag">
+</a>
+
+<div class="p"><!----></div>
+The ETALIS system has several execution options.
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> <a name="etalis\_justification/145">
+</a> <tt>etalis_justification/1:</tt> enables the justification. Can take the values "on" and "off".
+It is defined in the file "compiler.P".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="event\_consumption\_policy/145">
+</a> <tt>event_consumption_policy/1:</tt> sets the event consumtpion policy. Can be: "recent", "chronological" and "unrestricted" (defined in "event_utils.P").
+The default setting is "event_consumption_policy(recent)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="garbage\_control/145">
+</a> <tt>garbage_control/1:</tt> enables various types of garbage collection, that is goals older than a certain period of time are cleaned.
+Can have the the values defined in "garbage_collection.P". The default setting is "garbage_control(off)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="garbage\_window/145">
+</a> <tt>garbage_window/1:</tt>
+ sets the period of time the general garbage collection looks back.
+The default setting is "garbage_window(-1)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="garbage\_window\_step/145">
+</a> <tt>garbage_window_step/1:</tt>
+sets the period of time when general garbage 
+collection is activated.
+The default setting is "garbage_window_step(-1)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="logging/145">
+</a> <tt>logging/1:</tt>
+enables logging all the events to output.
+ 	Can take the values: "on" or "off" (defined in "utils.P").
+The default setting is "logging(off)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="logging\_to\_file/145">
+</a> <tt>logging_to_file/1:</tt>
+ enables logging to an external file.
+ Can take values: "on" or "off" (defined in "utils.P"). 
+ Use "write_log/2" to log an event to a file
+The default setting is "logging_to_file(off)).
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="output\_temporary\_files/145">
+</a> <tt>output_temporary_files/1:</tt>
+ enables logging compiled event files (after
+       binarization and compilation). Can have the values: "on" or "off"
+       (defined in "event_utils.P").
+The default setting is "output_temporary_files(off)).
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="out\_of\_order/145">
+</a> <tt>out_of_order/1:</tt>
+ enables detection of events out out of order. Can have
+ the values: "on" or "off"  (defined in "compiler.P").
+The default setting is "out_of_order(off)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="prolog\_backend/145">
+</a> <tt>prolog_backend/1:</tt>
+ sets the prolog backend. Can be: "swi", "xsb", "yap"
+ and "sicstus" (defined in "event_utils.P").
+The default setting is "prolog_backend(swi)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="revision\_flag/145">
+</a> <tt>revision_flag/1:</tt>
+   enables revision in detection of events. Can have the
+        values: "on" or "off"  (defined in "compiler.P").
+The default setting is "revision_flag(off)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="rule\_sharing/145">
+</a> <tt>rule_sharing/1:</tt>
+   sets the sharing in execution between rule bodies.
+        Can be: "on" and "off" (defined in "binrizer.P").
+The default setting is "rule_sharing(off)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="rule\_sharing\_debuging/145">
+</a> <tt>rule_sharing_debuging/1:</tt>
+   sets the sharing debuging.
+        Can be: "on" and "off" (defined in "binrizer.P").
+The default setting is "rule_sharing_debuging(off)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="store\_fired\_events/145">
+</a> <tt>store_fired_events/1:</tt>
+   enables storing all the events fired. Can have the
+        values: "on" or "off" (defined in "utils.P").
+The default setting is "store_fired_events(off)".
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="store\_fired\_events\_java/145">
+</a> <tt>store_fired_events_java/1:</tt>
+   enables storing fired events for the Java 
+ 	interface 
+  Can have the values: "on" or "off" (defined in "java_interface.P").
+The default setting is "store_fired_events_java(off)".
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc4.6">
+4.6</a>&nbsp;&nbsp;Foreign language interface</h2> <a name="java46">
+</a> <a name="foreign">
+</a>
+
+<div class="p"><!----></div>
+When ETALIS is used to build real-world systems, a foreign-language
+interface may be necessary to:
+
+<ul>
+<li> combine ETALIS with existing programs and libraries, thereby
+      forming composite systems;
+<div class="p"><!----></div>
+</li>
+
+<li> interface ETALIS with the widely used languages, like Java and C#.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+ETALIS works with different Prolog systems: SWI, Yap,
+XSB and Sicstus Prolog.
+The user should contact these systems mailing lists for how to connect
+from external languages, such as, Java, C, C#.
+For instance, the mailing list SWI Prolog is here:
+<a href="https://mailbox.iai.uni-bonn.de/mailman/listinfo.cgi/swi-prolog"><tt>https://mailbox.iai.uni-bonn.de/mailman/listinfo.cgi/swi-prolog</tt></a>.
+Please also use <a href="news:comp.lang.prolog"><tt>news:comp.lang.prolog</tt></a>
+(google group: <a href="http://groups.google.com/group/comp.lang.prolog/topics"><tt>http://groups.google.com/group/comp.lang.prolog/topics</tt></a>)
+for general Prolog questions.
+
+<div class="p"><!----></div>
+General instructions on how to connect to ETALIS from an external language:
+
+<ul>
+<li>  In the external language (Java), start a SWI Prolog engine and 
+keep it into a list/pool of running engines (sessionID,enginePointer).
+<div class="p"><!----></div>
+</li>
+
+<li> this engine should load ETALIS in Prolog: [&#8242;src/etalis.P&#8242;].
+and set to store fired events:
+set_etalis_flag(store_fired_events_java,on)
+to see what events were triggered in ETALIS.
+Although this flag has "java" in the name, it applies to all external 
+languages.
+<div class="p"><!----></div>
+</li>
+
+<li> To load an event program from the external language into ETALIS, there are two options:
+
+<ul>
+<li>  save the event program into a file and call compile_event_file(File), or
+<div class="p"><!----></div>
+</li>
+
+<li>  send the rules to ETALIS using 
+compile_event_rules( [ RawEventRules ] ).
+<div class="p"><!----></div>
+</li>
+</ul>
+<div class="p"><!----></div>
+</li>
+
+<li> To ensure that the current program is the only one that the current ETALIS engine uses, first, you should call: 
+reset_ETALIS.
+in the Prolog system, which resets ETALIS completely by deleting all event rules and all partial goals from memory.
+<div class="p"><!----></div>
+</li>
+
+<li> To fire a stream of events from the external language into ETALIS, the user should call 
+reset_db 
+in ETALIS to delete all the partial goals from memory.
+
+<div class="p"><!----></div>
+The stream of events should be put in a Prolog list, call:
+fire_event_list_return_external_events([EventList], OutputList)
+and collect the results from OutputList.
+Repeat this operation for all your events and event streams.
+<div class="p"><!----></div>
+</li>
+
+<li> Finish ETALIS with "halt" in Prolog.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Specific instructions for connecting to ETALIS from Java.
+Each one of the Prolog systems that we used 
+has different interfaces from Java:
+
+<ul>
+<li>  SWI has two: JPL and InterProlog
+<div class="p"><!----></div>
+</li>
+
+<li>  Yap has one: InterProlog
+<div class="p"><!----></div>
+</li>
+
+<li>  XSB has one: InterProlog
+<div class="p"><!----></div>
+</li>
+
+<li>  Sicstus has one: PrologBeans
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Notes for Java interfaces for SWI Prolog:
+
+<ul>
+<li>  Interprolog:
+<a href="http://www.declarativa.com/interprolog"><tt>http://www.declarativa.com/interprolog</tt></a>, 
+<a href="interprolog@declarativa.com"><tt>interprolog@declarativa.com</tt></a>
+<div class="p"><!----></div>
+</li>
+
+<li>  JPL (supports a single Prolog engine at a time in Java):
+<a href="http://www.swi-prolog.org/packages/jpl"><tt>http://www.swi-prolog.org/packages/jpl</tt></a>, 
+<a href="http://www.swi-prolog.org/Mailinglist.html"><tt>http://www.swi-prolog.org/Mailinglist.html</tt></a>
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+The simplest way to connect to SWI from Java with Interprolog is to install SWI and add the path to the SWI executable (e.g., in Windows, 
+"c:/Program Files/pl/bin/plcon.exe") in the environment varible PATH.
+In Linux, you can do this by adding the following to your .bashrc file <br />
+export PATH=/path_to_SWIBIN:$PATH<br />
+and<br />
+export SWI_BIN_DIRECTORY=/path_to_SWIBIN
+
+<div class="p"><!----></div>
+For the Eclipse framework, add the path to the directory containing the 
+executable SWI in the current classpath by using the Window 
+menu -&#62; Preferences -&#62; Java -&#62; BuildPath -&#62; ClasspathVariables -&#62; New (give it
+any name and the directories you want to add to classpath).
+
+<div class="p"><!----></div>
+Please also put interprolog.jar in the CLASSPATH variable.
+
+<div class="p"><!----></div>
+
+
+ <h1><a name="tth_chAp5">
+Chapter 5 </a><br />The ETALIS system operands and standard predicates</h1> <a name="standard">
+</a> <a name="sec:standard">
+</a>
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;ETALIS CEP operands</h2>
+The syntax of ETALIS is taken from Prolog.
+The arguments of the ETALIS language are called <em>terms</em>.
+A <em>ETALIS term</em> can be constructed from any logical symbol or a term
+followed by any finite number of arguments. A <em>term</em>
+is either a <em>constant</em>, a <em>variable</em>, or a <em>compound term</em>.
+
+<div class="p"><!----></div>
+A <em>constant</em> is either a <em>number</em> (integer or floating-point) or an
+<em>atom</em>. 
+The printed form of an integer in ETALIS consists of a sequence of digits
+optionally preceded by a minus sign (<tt>'-'</tt>) interpreted as base 10 integers.
+A floating-point number consists of a sequence of digits with an
+embedded decimal point, optionally preceded by a minus sign (<tt>'-'</tt>).
+A atom is identified by its name, which is a sequence of up to 1000
+characters (other than the null character).
+Variables may be written as any sequence of alphanumeric characters
+(including <tt>'_'</tt>) beginning with either a capital letter or <tt>'_'</tt>.
+Like in Prolog, the structured data objects of are <em>compound terms</em>
+(or <em>structures</em>).  The external representation of a compound term
+comprises a <em>functor</em> (called the <em>principal functor</em> or the
+<em>name</em> of the compound term) and a sequence of one or more terms called
+<em>arguments</em>.
+
+<div class="p"><!----></div>
+The operators in ETALIS are simply a notational convenience.
+However, from a practical or a programmer's point of view, the existence of
+operators is highly desirable.
+
+<div class="p"><!----></div>
+Keeping in mind that, in Prolog, 
+the operators of type <tt>'xfy'</tt> are <em>right-associative</em>, that is only the
+first (left-hand) subexpression must be of lower precedence; the right-hand
+subexpression can be of the same precedence as the main operator, and the 
+<em>left-associative</em> operators (type <tt>'yfx'</tt>) are the other way around,
+the operators in ETALIS are:
+<a name="label51">
+</a>
+<a name="seq51">
+</a>
+<a name="forall\_seq51">
+</a>
+<a name="and51">
+</a>
+<a name="par51">
+</a>
+<a name="or51">
+</a>
+<a name="do51">
+</a>
+<a name="equals51">
+</a>
+<a name="meets51">
+</a>
+<a name="during51">
+</a>
+<a name="starts51">
+</a>
+<a name="finishes51">
+</a>
+<a name="where51">
+</a>
+<a name="check51">
+</a>
+<a name="event\_multiply51">
+</a>
+<a name="star\_times51">
+</a>
+<a name="ntimes51">
+</a>
+<a name="cnot51">
+</a>
+<a name="fnot51">
+</a>
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1200,xfy,&nbsp;'rule:'),&nbsp;%&nbsp;rule&nbsp;tags
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1200,xfy,&nbsp;'&lt;-'),&nbsp;%&nbsp;event&nbsp;rules
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'seq'),&nbsp;%&nbsp;sequential&nbsp;conjunction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'forall_seq'),&nbsp;%&nbsp;forall&nbsp;sequential&nbsp;conjunction&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	%&nbsp;(unrestricted&nbsp;consumption&nbsp;seq&nbsp;-&nbsp;can&nbsp;be&nbsp;combined&nbsp;with&nbsp;any&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	%&nbsp;other&nbsp;comsumption&nbsp;policy)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1040,yfx,&nbsp;'and'),&nbsp;%&nbsp;classical&nbsp;conjunction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1045,yfx,&nbsp;'par'),&nbsp;%&nbsp;parallel&nbsp;conjunction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1045,yfx,&nbsp;'#'),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1053,yfx,&nbsp;'or'),&nbsp;%&nbsp;disjunction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'do'),&nbsp;%&nbsp;plugin&nbsp;for&nbsp;actions&nbsp;triggered&nbsp;by&nbsp;events
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'equals'),&nbsp;%&nbsp;Alan's&nbsp;interval&nbsp;operators
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'meets'),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'during'),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'starts'),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'finishes'),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1050,yfx,&nbsp;'where'),&nbsp;%&nbsp;database&nbsp;conditional&nbsp;triggers
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1050,yfx,&nbsp;'check'),&nbsp;%&nbsp;database&nbsp;conditional&nbsp;triggers&nbsp;with&nbsp;times:&nbsp;t1(StartTime)&nbsp;and&nbsp;t2(EndTime)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1050,yfx,&nbsp;'event_multiply'),&nbsp;%&nbsp;CEP&nbsp;event&nbsp;multiplication
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(200,xf,&nbsp;'star_times'),&nbsp;%&nbsp;implementation&nbsp;of&nbsp;*times
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1025,yfx,&nbsp;'ntimes'),&nbsp;%&nbsp;implementation&nbsp;of&nbsp;N&nbsp;times
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1031,yfx,&nbsp;'cnot'),&nbsp;%&nbsp;negation&nbsp;-&nbsp;interval&nbsp;absence
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(1031,yfx,&nbsp;'fnot'),&nbsp;%&nbsp;total&nbsp;negation&nbsp;-&nbsp;``never&nbsp;happened''
+	...&nbsp;(other&nbsp;operators&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;the&nbsp;ETALIS&nbsp;source&nbsp;file&nbsp;``parser.P'')
+
+</pre>
+
+<div class="p"><!----></div>
+
+ <h2><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;ETALIS standard predicates</h2>
+
+<div class="p"><!----></div>
+Whenever ETALIS is invoked, a large set of <em>standard</em> predicates are
+defined and can be called from the interpreter or other
+interfaces.
+Standard predicates are listed in this manual
+under the index heading <em>Standard predicates</em>
+ and at an
+implementation level are declared in the directory
+<tt>
+  $ETALIS_DIR/src/</tt>.
+The ETALIS system has several source files in the src directory.
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> <tt>binarizer.P</tt> <a name="binarizer52">
+</a> contains the predicates to binarize the rules in the event programs.
+The binarization(+EventRules,&#8722;BinaryEventRules) <a name="binarization/152">
+</a> predicate takes a set of event rules and returns a set of binary rules, that is rules with at most two events and one operation in its body.
+Temporary events are created to generate the binary rules and the binarizer also enables sharing between rule bodies.
+Certain operands, like the negation or star_times, are binarized with specialized formulas. 
+This file also contains predicates to log the binarized rules into temporary files: logging_binary_file(+InputFile,+BinaryEventRules).<a name="logging\_binary\_file52">
+</a>
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>compiler.P</tt> <a name="compiler52">
+</a> contains the predicate event2tr_transformation(+BinaryEventRules,&#8722;TRRules) <a name="event2tr\_transformation52">
+</a> to transform event rules into transaction logic code.
+It also contains a set of special flags forspecifying the execution of event files:
+
+<ul>
+<li>dynamic(out_of_order/1) <a name="out\_of\_order/152">
+</a>
+enables or disables out-of-order complex event detection;
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="revision\_flag/152">
+</a>
+dynamic(revision_flag/1): enables or disables revision in complex event detection;
+<div class="p"><!----></div>
+</li>
+
+<li> <a name="etalis\_justification/152">
+</a>
+dynamic(etalis_justification/1): enables or disables justification.
+<div class="p"><!----></div>
+</li>
+</ul>
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>date_time.P</tt> contains the predicates for date ad time manipulation. <a name="date\_time52">
+</a>
+The current_datime(&#8722;D) returns the current date and time. <a name="current\_datime/152">
+</a><br />
+The is_datime(+T) predicate returns true if T is a datime datime(Year,Month,Day,Hour,Min,Sec,?Counter) with or without conter in date. <a name="datime52">
+</a><br />
+The less_datime(T1,T2) predicate compares datimes. <a name="less\_datime/252">
+</a><br />
+The datime_plus_sec(+Datime1,+Seconds,&#8722;Datime2) adds a number of seconds to the Datime1. <a name="datime\_plus\_sec/352">
+</a><br />
+The datime_minus_sec(+Datime1,+Seconds,&#8722;Datime2) subtracts a number of seconds to the Datime1. <a name="datime\_minus\_sec/352">
+</a><br />
+The datime_minus_datime(+Datime,+Datime1,&#8722;Seconds)
+<a name="datime\_minus\_datime(+Datime,+Datime1,-Seconds)52">
+</a> 
+predicate
+computes the number of seconds between two datimes.<br />
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>etalis.P</tt> contains the main predicates for event processing.
+<br />
+The compile_event_file(+File)
+<a name="compile\_event\_file/152">
+</a> 
+predicate
+compiles an event file, parsing, binarization, transformation to
+transaction logic
+.
+<br />
+The event(+E)
+<a name="event/152">
+</a> 
+predicate
+executes one event triggering complex events where this event contributes
+.
+<br />
+The fire_event_list_return_external_events(+EventList,&#8722;OutputList)
+<a name="fire\_event\_list\_return\_external\_events/152">
+</a> 
+predicate
+fires a list of events returning the flagged composed events
+.
+<br />
+The execute_event_stream_file(+EventFile)
+<a name="execute\_event\_stream\_file/252">
+</a> 
+predicate
+executes a stream of events from a file
+.
+<br />
+The ins_event_rule/1
+<a name="ins\_event\_rule/152">
+</a> 
+predicate
+inserts a new event rule
+.
+<br />
+The del_event_rule/1
+<a name="del\_event\_rule/152">
+</a> 
+predicate
+deletes event rules where the attribute can be a rule reference or a rule.
+ The reasons for using only the id in delete are the following:
+
+<ul>
+<li>  event rules are compiled in multiple internal rules, so deleting all
+ rules that resulted from one event rule is quite complicated: we have to
+ compile the rule and extract all rules resulted from this one rule;
+<div class="p"><!----></div>
+</li>
+
+<li>  temporary events are re-named (and also new variables are generated) and
+ these temporary have to be checked at deletion. Simple unification of even
+ variant won't do it because right bindings have to be checked.
+<div class="p"><!----></div>
+</li>
+
+<li>  sharing is enabled and we don't want to delete common bodies that take
+ part in other rules as well as the current one that we delete.
+<div class="p"><!----></div>
+</li>
+
+<li>  when we have rule ids (and properties associated to these ids) these are
+ pushed into all compiled rules. We know exactly what to delete.
+<div class="p"><!----></div>
+</li>
+
+<li>  we can also do bulk deletes with ids: multiple rules can share the same
+ ID (the id doesn't have to be unique), so deleting one ID deletes all rules
+ that share that ID.
+<div class="p"><!----></div>
+</li>
+</ul>
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>event_utils.P</tt> contains the predicates for logging, event consumption policy and spying events for debugging.
+<br />
+The logging_TR_file(+File,+TRRules)
+<a name="logging\_TR\_file/252">
+</a> 
+predicate
+writes the compiled event file to a file.
+<br />
+The spy_event(EventFunctor/Arity)
+<a name="spy\_event/152">
+</a> 
+predicate
+marks EventFunctor/Arity for debuging.
+<br />
+The print_trigger(+EventSymbol/+Arity) 
+predicate
+is a special predicate that the user can put in any event file.
+This predicate will mark the event for logging to the 
+console everytime it is detected.
+This predicate can be used with uninstantiated Event, when it will print all the instances of any event symbol with the same number of arguments as 
+stated in print_trigger/1.
+Another special use of this predicate is 
+print_trigger(all_defined_events)
+which prints all events that are not temporary 
+(that is, created by the binarization step).
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>executor.P</tt> contains the predicates for executing events.
+<br />
+The event_trigger(+Event)
+<a name="event\_trigger/152">
+</a> 
+predicate
+executes all the rules for a given event
+.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>flags.P</tt> contains the predicates for chainging the ETALIS flags.
+<br />
+The set_etalis_flag(+Flag,+Value)
+<a name="set\_etalis\_flag/252">
+</a> 
+predicate
+sets one of the etalis flags
+. See the Section <a href="#flag">4.5</a> for more details.
+<br />
+The get_etalis_flag(+Flag,+Value)
+<a name="get\_etalis\_flag/252">
+</a> 
+predicate
+gets one of the etalis flags
+.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>garbage_collection.P</tt> contains the predicates for goal management.
+<br />
+The start_garbage_collection
+<a name="start\_garbage\_collection52">
+</a> 
+predicate
+starts the garbage collection
+.
+<br />
+The general_garbage_collection
+<a name="general\_garbage\_collection52">
+</a> 
+predicate
+starts the general garbage collection
+.
+<br />
+The pattern_garbage_collection
+<a name="pattern\_garbage\_collection52">
+</a> 
+predicate
+starts the pattern based garbage collection for garbage_control(pattern)
+where
+individual rules have GC time windows.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>java_interface.P</tt> contains the predicates for interfacing with foreign languages.
+The
+set_etalis_flag(store_fired_events<sub>j</sub>ava,on)
+sets storing the return flagged composed events.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>justify_etalis.P</tt> contains the predicates for justification and writing justification trees on the desktop and udraw.
+<br />
+The justify_event(+Event,[T1,T2],&#8722;Justification),
+justify_event_positive and justify_event_negative
+<a name="justify\_event\_negative52">
+</a> <a name="justify\_event\_positive52">
+</a>
+<a name="justify\_event/352">
+</a> 
+predicates
+compute the justification for events.
+<br />
+The write_justification(+J)
+<a name="write\_justification/152">
+</a> 
+predicate
+writes justification keeping some meaningful indentation.
+<br />
+The write_justification_udraw(File,J)
+<a name="write\_justification\_udraw/252">
+</a> 
+predicate
+writes justification keeping some meaningful indentation
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>labeled_event_rules.P</tt> contains the predicates for checking conditions for labeled rules.
+<br />
+The check_event_rule_conditions_internal(+Label,+Head,[+T1,+T2],+ListERProperties)
+<a name="check\_event\_rule\_conditions\_internal/452">
+</a> 
+predicate
+checks all properties for the event rule with the given label and Head.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>logging.P</tt> contains the predicates for logging.
+<br />
+The log(L)
+<a name="log52">
+</a> 
+predicate
+logs an event.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>network_tcp_interface.P</tt> contains the predicates for interfacing with the network
+<br />
+The create_server(Port)
+<a name="create\_server/152">
+</a> 
+predicate
+creates a TCP port.
+<br />
+The dispatch(AcceptFd)
+<a name="dispatch/152">
+</a> 
+predicate
+dispatches a message.
+<br />
+The create_client(Host,Port)
+<a name="create\_client/252">
+</a> 
+predicate
+creates a TCP client on a port of a host server.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>parser.P</tt> contains the predicates for parsing event rules.
+<br />
+The repeat_read(+InputHandle,&#8722;RawEventRules)
+<a name="repeat\_read/252">
+</a> 
+predicate
+reads from a file all the event rules.
+<br />
+The parse_event_rules/2
+<a name="parse\_event\_rules/252">
+</a> 
+predicate
+parses event rules into internal format.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>storage.P</tt> contains the predicates for storing partial goals into memory.
+<br />
+The seeDB
+<a name="seeDB/052">
+</a> 
+predicate
+prints the internal state of the database.
+<br />
+The reset_db
+<a name="reset\_db/052">
+</a> 
+predicate
+deletes all the partial goals in the current state.
+<br />
+The etr_dbf(+Label,+Data), etr_insf(+Label,+Data)
+and etr_delf(+Label,+Data)
+query, insert and delete goals into the database.
+<div class="p"><!----></div>
+</li>
+
+<li> <tt>utils.P</tt> contains the predicates for manipulation of sets, lists and other data structures usedin ETALIS.
+<br />
+The 
+counter(+CounterName,+Value),
+incCounter(+CounterName) and
+resetCounter(+CounterName)
+<a name="counter/252">
+</a>
+<a name="incCounter/152">
+</a>
+<a name="resetCounter/152">
+</a>
+predicates
+handle counters implemented in Prolog.
+<br />
+The set_intersection/3 and set_difference/3
+<a name="set\_intersection/352">
+</a> <a name="set\_difference/352">
+</a>
+predicates
+handle sets implemented in Prolog.
+We assume that the elements are not duplicated inside the sets.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+
+ <h1><a name="tth_chAp6">
+Chapter 6 </a><br />Examples</h1> <a name="examples">
+</a>
+
+<div class="p"><!----></div>
+In this chapter, we enumerate the ETALIS examples from the examples directory in the distribution.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.1">
+6.1</a>&nbsp;&nbsp;flower_delivery</h2> <a name="flower\_delivery61">
+</a>
+
+
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1.1">
+6.1.1</a>&nbsp;&nbsp;flower_delivery_01</h3>
+
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1.2">
+6.1.2</a>&nbsp;&nbsp;flower_delivery_02</h3>
+
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1.3">
+6.1.3</a>&nbsp;&nbsp;flower_delivery_03</h3>
+
+
+
+<div class="p"><!----></div>
+                        <h2><a name="tth_sEc6.2">
+6.2</a>&nbsp;&nbsp;Aggregates</h2>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.2.1">
+6.2.1</a>&nbsp;&nbsp;aggregates_classic_01</h3> <a name="aggregates62">
+</a> <a name="min62">
+</a>  <a name="max62">
+</a> <a name="sum62">
+</a> <a name="count62">
+</a> <a name="average62">
+</a>
+
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.2.2">
+6.2.2</a>&nbsp;&nbsp;aggregates_01</h3>
+
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.2.3">
+6.2.3</a>&nbsp;&nbsp;aggregates_02</h3>
+
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.2.4">
+6.2.4</a>&nbsp;&nbsp;aggregates_03</h3>
+
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.2.5">
+6.2.5</a>&nbsp;&nbsp;aggregates_04</h3>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.3">
+6.3</a>&nbsp;&nbsp;alarm_01</h2> <a name="alarm63">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.4">
+6.4</a>&nbsp;&nbsp;and_01</h2> <a name="and64">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.5">
+6.5</a>&nbsp;&nbsp;channel_01</h2> <a name="channel65">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.6">
+6.6</a>&nbsp;&nbsp;cnot_01</h2> <a name="cnot66">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.7">
+6.7</a>&nbsp;&nbsp;during_01</h2> <a name="during67">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.8">
+6.8</a>&nbsp;&nbsp;dynamic_updates_01</h2> <a name="dynamic\_updates68">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.9">
+6.9</a>&nbsp;&nbsp;equals_01</h2> <a name="equals69">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.10">
+6.10</a>&nbsp;&nbsp;event_multiply_01</h2> <a name="event\_multiply610">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.11">
+6.11</a>&nbsp;&nbsp;finishes_01</h2> <a name="finishes611">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.12">
+6.12</a>&nbsp;&nbsp;fnot_01</h2> <a name="fnot612">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.13">
+6.13</a>&nbsp;&nbsp;forall_seq_01</h2> <a name="forall613">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.14">
+6.14</a>&nbsp;&nbsp;garbage_collection_general_01</h2> <a name="garbage\_collection\_general614">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.15">
+6.15</a>&nbsp;&nbsp;garbage_collection_pattern_01</h2> <a name="garbage\_collection\_pattern615">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.16">
+6.16</a>&nbsp;&nbsp;java_interface_01</h2> <a name="java\_interface616">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.17">
+6.17</a>&nbsp;&nbsp;justification_01</h2> <a name="justification617">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.18">
+6.18</a>&nbsp;&nbsp;justification_02</h2> <a name="justification618">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.19">
+6.19</a>&nbsp;&nbsp;justification_03</h2> <a name="justification619">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.20">
+6.20</a>&nbsp;&nbsp;justification_04</h2> <a name="justification620">
+</a>
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.21">
+6.21</a>&nbsp;&nbsp;meets_01</h2> <a name="meets621">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.22">
+6.22</a>&nbsp;&nbsp;or_01</h2> <a name="or622">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.23">
+6.23</a>&nbsp;&nbsp;out_of_order_01</h2> <a name="out\_of\_order623">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.24">
+6.24</a>&nbsp;&nbsp;par_01</h2> <a name="par624">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.25">
+6.25</a>&nbsp;&nbsp;projection_01</h2> <a name="projection625">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.26">
+6.26</a>&nbsp;&nbsp;projection_join_02</h2> <a name="projection626">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.27">
+6.27</a>&nbsp;&nbsp;prolog_01</h2> <a name="prolog627">
+</a>
+
+
+
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.28">
+6.28</a>&nbsp;&nbsp;revision_01</h2> <a name="revision628">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.29">
+6.29</a>&nbsp;&nbsp;selection_01</h2> <a name="selection629">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.30">
+6.30</a>&nbsp;&nbsp;selection_join_02</h2> <a name="selection630">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.31">
+6.31</a>&nbsp;&nbsp;sequence_01</h2> <a name="sequence631">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.32">
+6.32</a>&nbsp;&nbsp;sequence_02</h2> <a name="sequence632">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.33">
+6.33</a>&nbsp;&nbsp;sequence_03</h2> <a name="sequence633">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.34">
+6.34</a>&nbsp;&nbsp;sequence_04</h2> <a name="sequence634">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.35">
+6.35</a>&nbsp;&nbsp;sequence_05</h2> <a name="sequence635">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.36">
+6.36</a>&nbsp;&nbsp;sharing_01</h2> <a name="sharing636">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.37">
+6.37</a>&nbsp;&nbsp;sharing_02</h2> <a name="sharing637">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.38">
+6.38</a>&nbsp;&nbsp;star_goal_01</h2> <a name="star638">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.39">
+6.39</a>&nbsp;&nbsp;starts_01</h2> <a name="starts639">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.40">
+6.40</a>&nbsp;&nbsp;transitive_closure_01</h2> <a name="transitive640">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.41">
+6.41</a>&nbsp;&nbsp;transitive_closure_02</h2> <a name="transitive641">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.42">
+6.42</a>&nbsp;&nbsp;where_01</h2> <a name="where642">
+</a>
+
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6.43">
+6.43</a>&nbsp;&nbsp;windows_01</h2> <a name="windows643">
+</a>
+
+
+
+<div class="p"><!----></div>
+
+
+ <h1><a name="tth_chAp7">
+Chapter 7 </a><br />Event Processing SPARQL (EP-SPARQL)</h1> <a name="epsparql">
+</a>
+
+<div class="p"><!----></div>
+To enable ETALIS system to handle real time Semantic Web applications we have developed Event Processing SPARQL (EP-SPARQL) language. This extension enables a user to specify event patterns in a SPARQL-like language. Event streams are expected to be in an RDF format (i.e., RDF streaming triples additionally accompanied with timestamps). The background (contextual) knowledge can be specified as an RDFS ontology. 
+
+<div class="p"><!----></div>
+Syntactically, we defined EP-SPARQL to be SPARQL extended by the binary operators  <font size="-2">SEQ</font>, <font size="-2">EQUALS</font>, <font size="-2">OPTIONALSEQ</font>, and  <font size="-2">EQUALSOPTIONAL</font> used to combine graph patterns in the same way as  <font size="-2">UNION</font> and  <font size="-2">OPTIONAL</font> in pure SPARQL. Intuitively, all those operators act like a (left, right or full) join, but they do so in a selective way depending on how the constituents are temporally interrelated, as indicated by their naming: P<sub>1</sub>   <font size="-2">SEQ</font> P<sub>2</sub> joins P<sub>1</sub> and P<sub>2</sub> only if P<sub>2</sub> occurs strictly after P<sub>1</sub>, whereas P<sub>1</sub>   <font size="-2">EQUALS</font> P<sub>2</sub> performs the join if P<sub>1</sub> and P<sub>2</sub> are exactly simultaneous.  <font size="-2">OPTIONALSEQ</font> and  <font size="-2">EQUALSOPTIONAL</font> are temporal-sensitive variants of  <font size="-2">OPTIONAL</font>.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<a name="tth_fIg7.1">
+</a>     <center>    <a href="figures/EP-SPARQL_diagram_short_version">Figure</a>
+    
+<center>Figure 7.1: System Diagram: EP-SPARQL</center> <a name="fig:sd_ep_sparql">
+</a>
+</center>
+<div class="p"><!----></div>
+Moreover, we added the function <tt>getDURATION()</tt> to be used inside filter expressions. This function yields a literal of type <tt>xsd:duration</tt> giving the length of the time interval associated to the graph pattern the FILTER condition is placed in. Likewise, we added functions <tt>getSTARTTIME()</tt> and <tt>getENDTIME()</tt> to retrieve the time stamps (of type <tt>xsd:dateTime</tt>) of the start and end of the currently described interval.
+
+<div class="p"><!----></div>
+
+     <h3><a name="tth_sEc7.0.1">
+7.0.1</a>&nbsp;&nbsp;Examples with EP-SPARQL</h3>
+<a name="subsec:ep_example">
+</a>
+
+<div class="p"><!----></div>
+We provide a few examples to give some intuition on EP-SPARQL operators supported by ETALIS system. The following EP-SPARQL query is supposed to search for companies whose stock price has decreased by over 30% and subsequently risen by more than 5% within a time frame of 30 days.
+
+<div class="p"><!----></div>
+<font size="-3">
+<pre>
+SELECT&nbsp;?company
+WHERE
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;?company&nbsp;hasStockPrice&nbsp;?price1&nbsp;}&nbsp;
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;?company&nbsp;hasStockPrice&nbsp;?price2&nbsp;}
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;?company&nbsp;hasStockPrice&nbsp;?price3&nbsp;}
+FILTER&nbsp;(&nbsp;?price2&nbsp;&lt;&nbsp;?price1&nbsp;*&nbsp;0.7&nbsp;&amp;&amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?price3&nbsp;&#62;&nbsp;?price1&nbsp;*&nbsp;1.05&nbsp;&amp;&amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getDURATION()&nbsp;&lt;&nbsp;"P30D"^^xsd:duration)
+
+</pre></font>
+
+<div class="p"><!----></div>
+The next EP-SPARQL query will identify companies with a more than 50% stock price drop and - in case some rating agency previously downrated this company, this rating agency will be indicated as well.
+
+<div class="p"><!----></div>
+<font size="-3">
+<pre>
+SELECT&nbsp;?company&nbsp;?ratingagency
+WHERE
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;?company&nbsp;downratedby&nbsp;?ratingagency}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OPTIONALSEQ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;{&nbsp;?company&nbsp;hasStockPrice&nbsp;?price1&nbsp;}&nbsp;
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;?company&nbsp;hasStockPrice&nbsp;?price2&nbsp;}&nbsp;}
+FILTER&nbsp;(&nbsp;?price2&nbsp;&lt;&nbsp;?price1&nbsp;*&nbsp;0.5)
+
+</pre></font>
+
+<div class="p"><!----></div>
+It is worth mentioning that - just like for pure SPARQL - negation (i.e., requiring the <em>absence</em> of some triple pattern instead of its <em>presence</em>) is not an explicit part of the formalism, but can be expressed via  <font size="-2">OPTIONAL</font> and  <font size="-2">FILTER</font>. For instance, the following query asks for companies having a larger than 50% stock price increase in less than 15 days without having acquired another company during that period.
+
+<div class="p"><!----></div>
+<font size="-3">
+<pre>
+SELECT&nbsp;?company
+WHERE
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;?company&nbsp;hasStockprice&nbsp;?price1&nbsp;}
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;{&nbsp;?company&nbsp;hasAcquired&nbsp;?othercompany&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OPTIONALSEQ																		&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;?company&nbsp;hasStockPrice&nbsp;?price2&nbsp;}&nbsp;}
+FILTER&nbsp;(&nbsp;?price2&nbsp;&lt;&nbsp;?price1&nbsp;*&nbsp;1.5&nbsp;&amp;&amp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;!BOUND(?othercompany)&nbsp;&amp;&amp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getDURATION()&nbsp;&lt;&nbsp;"P15D"^^xsd:duration&nbsp;)
+
+</pre></font>
+
+<div class="p"><!----></div>
+Moreover, we allow for recursion by employing  CONSTRUCT queries, conceiving them as a kind of production rule. Thereby, the result graph of such a query is assumed to be added to the RDF stream. For instance, the following statement gathers "temporally distributed" rating information to create a triple indicating an event of being downrated, which in turn can be used in other  <font size="-2">CONSTRUCT</font> or  SELECT queries.
+
+<div class="p"><!----></div>
+<font size="-3">
+<pre>
+CONSTRUCT&nbsp;?company&nbsp;downratedby&nbsp;?ratingagency
+WHERE&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;?rating1&nbsp;rater&nbsp;?ratingagency&nbsp;;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rated&nbsp;?company&nbsp;;&nbsp;score&nbsp;?score1&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;?rating2&nbsp;rater&nbsp;?ratingagency&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(4)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rated&nbsp;?company&nbsp;;&nbsp;score&nbsp;?score2&nbsp;}
+FILTER&nbsp;(&nbsp;?score2&nbsp;&lt;&nbsp;?score1&nbsp;)
+
+</pre></font>
+
+<div class="p"><!----></div>
+Finally, the forthcoming extended SPARQL standard<a href="#tthFtNtAAH" name="tthFrefAAH"><sup>7</sup></a> featuring <em>subqueries</em> and <em>expressions</em> allows for as complex mechanisms as aggregation over <i>sliding windows</i>. As an example we present a query monitoring the average stock price of a company ACME Inc.&nbsp;over the last 10 days. First, we use a construct rule that aggregates counts and sums of stock prices within the given time frame and feeds this information back into the stream. Thereby, the  <font size="-2">EQUALSOPTIONAL</font> and filter part make sure that no price signal is left out.
+
+<div class="p"><!----></div>
+<font size="-3">
+<pre>
+CONSTRUCT&nbsp;&nbsp;_:aaa&nbsp;&nbsp;&nbsp;:hasCount&nbsp;?count&nbsp;.&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_:aaa&nbsp;&nbsp;&nbsp;:hasSum&nbsp;&nbsp;&nbsp;?sum&nbsp;.
+{&nbsp;SELECT&nbsp;&nbsp;&nbsp;?count&nbsp;AS&nbsp;?prevcount&nbsp;+&nbsp;1
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?sum&nbsp;&nbsp;&nbsp;AS&nbsp;?prevsum&nbsp;+&nbsp;?price
+&nbsp;WHERE&nbsp;{{&nbsp;?point&nbsp;:hasCount&nbsp;?prevcount&nbsp;.&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?point&nbsp;:hasSum&nbsp;&nbsp;?prevsum&nbsp;&nbsp;.&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;:ACME&nbsp;&nbsp;:hasStockPrice&nbsp;&nbsp;?price&nbsp;.&nbsp;}}
+&nbsp;&nbsp;&nbsp;EQUALSOPTIONAL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(5)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{&nbsp;?point&nbsp;:hasCount&nbsp;?prevcount&nbsp;.&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?point&nbsp;:hasSum&nbsp;&nbsp;?prevsum&nbsp;&nbsp;.&nbsp;}
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;:ACME&nbsp;&nbsp;:hasStockPrice&nbsp;&nbsp;?inbetween&nbsp;.&nbsp;}
+&nbsp;&nbsp;&nbsp;SEQ&nbsp;{&nbsp;:ACME&nbsp;&nbsp;:hasStockPrice&nbsp;&nbsp;?price&nbsp;.&nbsp;}}
+FILTER&nbsp;(&nbsp;!BOUND(?inbetween)&nbsp;&amp;&amp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getDURATION()&nbsp;&lt;&nbsp;"P10D"^^xsd:duration&nbsp;)}
+
+</pre></font>
+
+<div class="p"><!----></div>
+
+     <h3><a name="tth_sEc7.0.2">
+7.0.2</a>&nbsp;&nbsp;Internals of EP-SPARQL Implementation</h3>
+<a name="subsec:ep_sparql_internals">
+</a>
+
+<div class="p"><!----></div>
+EP-SPARQL is implemented as an extension to ETALIS system, described in Section . A system diagram of our EP-SPARQL engine is shown in Figure <a href="#fig:sd_ep_sparql">7.1</a>. 
+
+<div class="p"><!----></div>
+A user is expected to write EP-SPARQL queries and to deploy them in the engine. These queries act similarly as <i>continuous</i> queries in Database Stream Management Systems (DSMS), i.e., once registered the queries are continuously evaluated with respect to streaming data. In our implementation, the engine <i>incrementally</i> matches incoming data (events) and produce complex events that satisfy queries as soon as they occur (see Section ).    
+
+<div class="p"><!----></div>
+Since event streams and the background knowledge are represented in the RDF format, we use an RDF/XML parser to convert inputs into internal ETALIS format (see Figure <a href="#fig:sd_ep_sparql">7.1</a>). For event streams the conversion is applied on-the-fly. It is a straight forward mapping, and typically does not case a significant overhead at run time. The background knowledge (RDFS ontologies) can be converted in Prolog representation at design time. Similarly, we have also implemented a parser for EP-SPARQL syntax and a compiler which produces EDBC rules out of EP-SPARQL expressions. All three inputs (EP-SPARQL queries, event streams and the domain ontology) are then fed into ETALIS system where the processing, as described in Section , takes place.
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<h2>Bibliography</h2>
+
+<dl compact="compact">
+ <dt><a href="#CITEALLEN83" name="ALLEN83">[1]</a></dt><dd>
+J.&nbsp;F. Allen.
+ Maintaining knowledge about temporal intervals.
+ In <em>Communications of the ACM 26, 11, 832-843</em>, 1983.
+
+<div class="p"><!----></div>
+</dd>
+ <dt><a href="#CITE2009_anicic_debs_short" name="2009_anicic_debs_short">[2]</a></dt><dd>
+D.&nbsp;Anicic, P.&nbsp;Fodor, R.&nbsp;Stühmer, and N.&nbsp;Stojanovic.
+ An approach for data-driven and logic-based complex event processing,
+  abstract paper.
+ In <em>DEBS</em>, 2009.
+
+<div class="p"><!----></div>
+</dd>
+ <dt><a href="#CITE2009_anicic_debs_demo" name="2009_anicic_debs_demo">[3]</a></dt><dd>
+D.&nbsp;Anicic, P.&nbsp;Fodor, R.&nbsp;Stühmer, and N.&nbsp;Stojanovic.
+ Computing complex events in an event-driven and logic-based approach.
+  system demo.
+ In <em>DEBS</em>, 2009.
+
+<div class="p"><!----></div>
+</dd>
+ <dt><a href="#CITEtechRep" name="techRep">[4]</a></dt><dd>
+D.&nbsp;Anicic, P.&nbsp;Fodor, R.&nbsp;Stühmer, and N.&nbsp;Stojanovic.
+ Efficient logic-based complex event processing and reactivity
+  handling.
+ In <em>Technical Report</em>, 2009.
+ <a href="http://code.google.com/p/etalis/wiki/TechnicalReport"><tt>http://code.google.com/p/etalis/wiki/TechnicalReport</tt></a>.
+
+<div class="p"><!----></div>
+</dd>
+ <dt><a href="#CITE2009_anicic_cse" name="2009_anicic_cse">[5]</a></dt><dd>
+D.&nbsp;Anicic, P.&nbsp;Fodor, R.&nbsp;Stühmer, and N.&nbsp;Stojanovic.
+ Event-driven approach for logic-based complex event processing.
+ In <em>CSE</em>, 2009.
+
+<div class="p"><!----></div>
+</dd>
+ <dt><a href="#CITEour-flower-site" name="our-flower-site">[6]</a></dt><dd>
+P.&nbsp;Fodor and D.&nbsp;Anicic.
+ The Fast Flower Delivery Use Case in ETALIS.
+
+  <a href="http://code.google.com/p/etalis/wiki/\Fast\_Flower\_Delivery\_Use\_Case"><tt>http://code.google.com/p/etalis/wiki/\\Fast\_Flower\_Delivery\_Use\_Case</tt></a>.
+
+<div class="p"><!----></div>
+</dd>
+ <dt><a href="#CITEOut-of-orderEvents" name="Out-of-orderEvents">[7]</a></dt><dd>
+M.&nbsp;Li, M.&nbsp;Liu, L.&nbsp;Ding, E.&nbsp;A. Rundensteiner, and M.&nbsp;Mani.
+ Event stream processing with out-of-order data arrival.
+ In <em>ICDCSW</em>, 2007.
+
+<div class="p"><!----></div>
+</dd>
+ <dt><a href="#CITEetalis-site" name="etalis-site">[8]</a></dt><dd>
+The ETALIS Team.
+ The ETALIS Web site.
+ <a href="http://code.google.com/p/etalis"><tt>http://code.google.com/p/etalis</tt></a>.</dd>
+</dl>
+
+
+<div class="p"><!----></div>
+<a name="tth_sEcindex"></a>
+
+<h2> Index (showing section)</h2>
+
+<table width="100%"><tr><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>aggregates, <a href="#aggregates62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>alarm, <a href="#alarm63">6.3</a></dd>
+ <dt><b></b></dt>
+	<dd>and, <a href="#and51">5.1</a>, <a href="#and64">6.4</a></dd>
+ <dt><b></b></dt>
+	<dd>average, <a href="#average62">6.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>binarization, <a href="#binarization44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>binarization/1, <a href="#binarization/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>binarizer, <a href="#binarizer52">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>channel, <a href="#channel65">6.5</a></dd>
+ <dt><b></b></dt>
+	<dd>check, <a href="#check51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>check_event_rule_conditions_internal/4, 
+		<a href="#check\_event\_rule\_conditions\_internal/452">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>cnot, <a href="#cnot51">5.1</a>, <a href="#cnot66">6.6</a></dd>
+ <dt><b></b></dt>
+	<dd>compilation, <a href="#compilation44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>compile_even_file/1, <a href="#compile\_even\_file/144">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>compile_event_file/1, <a href="#compile\_event\_file/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>compiler, <a href="#compiler52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>count, <a href="#count62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>counter/2, <a href="#counter/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>create_client/2, <a href="#create\_client/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>create_server/1, <a href="#create\_server/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>current_datime/1, <a href="#current\_datime/152">5.2</a></dd>
+</dl></td><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>date_time, <a href="#date\_time52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime, <a href="#datime52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime_minus_datime(+Datime,+Datime1,-Seconds), 
+		<a href="#datime\_minus\_datime(+Datime,+Datime1,-Seconds)52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime_minus_sec/3, <a href="#datime\_minus\_sec/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime_plus_sec/3, <a href="#datime\_plus\_sec/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>declarations</dd>
+<dd>&nbsp;&nbsp;&nbsp;&nbsp; <tt>export/1</tt>, 
+		<a href="#declarations+\texttt{export/1}43">4.3</a></dd>
+<dd>&nbsp;&nbsp;&nbsp;&nbsp; <tt>import/2</tt>, 
+		<a href="#declarations+\texttt{import/2}43">4.3</a></dd>
+ <dt><b></b></dt>
+	<dd>del_event_rule/1, <a href="#del\_event\_rule/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>dispatch/1, <a href="#dispatch/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>do, <a href="#do51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>during, <a href="#during51">5.1</a>, <a href="#during67">6.7</a></dd>
+ <dt><b></b></dt>
+	<dd>dynamic_updates, <a href="#dynamic\_updates68">6.8</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>equals, <a href="#equals51">5.1</a>, <a href="#equals69">6.9</a></dd>
+ <dt><b></b></dt>
+	<dd>etalis_justification/1, <a href="#etalis\_justification/145">4.5</a>, 
+		<a href="#etalis\_justification/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>event/1, <a href="#event/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>event2tr_transformation, 
+		<a href="#event2tr\_transformation52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>event_consumption_policy/1, 
+		<a href="#event\_consumption\_policy/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>event_multiply, <a href="#event\_multiply51">5.1</a>, 
+		<a href="#event\_multiply610">6.10</a></dd>
+ <dt><b></b></dt>
+	<dd>event_trigger/1, <a href="#event\_trigger/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>execute_event_stream_file/1, 
+		<a href="#execute\_event\_stream\_file/141">4.1</a></dd>
+ <dt><b></b></dt>
+	<dd>execute_event_stream_file/2, 
+		<a href="#execute\_event\_stream\_file/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>execution, <a href="#execution44">4.4</a></dd>
+</dl></td></tr><tr><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>finishes, <a href="#finishes51">5.1</a>, <a href="#finishes611">6.11</a></dd>
+ <dt><b></b></dt>
+	<dd>fire_event_list_return_external_events/1, 
+		<a href="#fire\_event\_list\_return\_external\_events/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>flower_delivery, <a href="#flower\_delivery61">6.1</a></dd>
+ <dt><b></b></dt>
+	<dd>fnot, <a href="#fnot51">5.1</a>, <a href="#fnot612">6.12</a></dd>
+ <dt><b></b></dt>
+	<dd>forall, <a href="#forall613">6.13</a></dd>
+ <dt><b></b></dt>
+	<dd>forall_seq, <a href="#forall\_seq51">5.1</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>garbage collection, <a href="#garbage collection34">3.4</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_collection_general, 
+		<a href="#garbage\_collection\_general614">6.14</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_collection_pattern, 
+		<a href="#garbage\_collection\_pattern615">6.15</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_control/1, <a href="#garbage\_control/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_window/1, <a href="#garbage\_window/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_window_step/1, <a href="#garbage\_window\_step/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>general_garbage_collection, 
+		<a href="#general\_garbage\_collection52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>get_etalis_flag/2, <a href="#get\_etalis\_flag/252">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>incCounter/1, <a href="#incCounter/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>ins_event_rule/1, <a href="#ins\_event\_rule/152">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>java, <a href="#java46">4.6</a></dd>
+ <dt><b></b></dt>
+	<dd>java_interface, <a href="#java\_interface616">6.16</a></dd>
+ <dt><b></b></dt>
+	<dd>justification, <a href="#justification35">3.5</a>, 
+		<a href="#justification617">6.17</a>, 
+		<a href="#justification618">6.18</a>, 
+		<a href="#justification619">6.19</a>, 
+		<a href="#justification620">6.20</a></dd>
+ <dt><b></b></dt>
+	<dd>justify_event/3, <a href="#justify\_event/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>justify_event_negative, 
+		<a href="#justify\_event\_negative52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>justify_event_positive, 
+		<a href="#justify\_event\_positive52">5.2</a></dd>
+</dl></td><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>label, <a href="#label51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>less_datime/2, <a href="#less\_datime/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>loading, <a href="#loading44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>log, <a href="#log52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>logging/1, <a href="#logging/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>logging_binary_file, <a href="#logging\_binary\_file52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>logging_to_file/1, <a href="#logging\_to\_file/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>logging_TR_file/2, <a href="#logging\_TR\_file/252">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>max, <a href="#max62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>meets, <a href="#meets51">5.1</a>, <a href="#meets621">6.21</a></dd>
+ <dt><b></b></dt>
+	<dd>memory management, <a href="#memory management34">3.4</a></dd>
+ <dt><b></b></dt>
+	<dd>min, <a href="#min62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>modules</dd>
+<dd>&nbsp;&nbsp;&nbsp;&nbsp; ETALIS syntax, <a href="#modules+ETALIS syntax43">4.3</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>notational conventions, <a href="#notational conventions11">1.1</a></dd>
+ <dt><b></b></dt>
+	<dd>ntimes, <a href="#ntimes51">5.1</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>or, <a href="#or51">5.1</a>, <a href="#or622">6.22</a></dd>
+ <dt><b></b></dt>
+	<dd>out-of-order, <a href="#out-of-order33">3.3</a></dd>
+ <dt><b></b></dt>
+	<dd>out_of_order, <a href="#out\_of\_order623">6.23</a></dd>
+ <dt><b></b></dt>
+	<dd>out_of_order/1, <a href="#out\_of\_order/145">4.5</a>, 
+		<a href="#out\_of\_order/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>output_temporary_files/1, 
+		<a href="#output\_temporary\_files/145">4.5</a></dd>
+</dl></td></tr><tr><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>par, <a href="#par51">5.1</a>, <a href="#par624">6.24</a></dd>
+ <dt><b></b></dt>
+	<dd>parse_event_rules/2, <a href="#parse\_event\_rules/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>parsing, <a href="#parsing44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>pattern_garbage_collection, 
+		<a href="#pattern\_garbage\_collection52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>projection, <a href="#projection625">6.25</a>, 
+		<a href="#projection626">6.26</a></dd>
+ <dt><b></b></dt>
+	<dd>prolog, <a href="#prolog627">6.27</a></dd>
+ <dt><b></b></dt>
+	<dd>prolog_backend/1, <a href="#prolog\_backend/145">4.5</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>repeat_read/2, <a href="#repeat\_read/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>reset_db/0, <a href="#reset\_db/052">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>resetCounter/1, <a href="#resetCounter/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>revision, <a href="#revision628">6.28</a></dd>
+ <dt><b></b></dt>
+	<dd>revision_flag/1, <a href="#revision\_flag/145">4.5</a>, 
+		<a href="#revision\_flag/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>rule_sharing/1, <a href="#rule\_sharing/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>rule_sharing_debuging/1, 
+		<a href="#rule\_sharing\_debuging/145">4.5</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>seeDB/0, <a href="#seeDB/052">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>selection, <a href="#selection629">6.29</a>, 
+		<a href="#selection630">6.30</a></dd>
+ <dt><b></b></dt>
+	<dd>seq, <a href="#seq51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>sequence, <a href="#sequence631">6.31</a>, <a href="#sequence632">6.32</a>, 
+		<a href="#sequence633">6.33</a>, <a href="#sequence634">6.34</a>, 
+		<a href="#sequence635">6.35</a></dd>
+ <dt><b></b></dt>
+	<dd>set_difference/3, <a href="#set\_difference/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>set_etalis_flag/2, <a href="#set\_etalis\_flag/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>set_intersection/3, <a href="#set\_intersection/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>sharing, <a href="#sharing636">6.36</a>, <a href="#sharing637">6.37</a></dd>
+ <dt><b></b></dt>
+	<dd>spy_event/1, <a href="#spy\_event/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>star, <a href="#star638">6.38</a></dd>
+ <dt><b></b></dt>
+	<dd>star_times, <a href="#star\_times51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>start_garbage_collection, 
+		<a href="#start\_garbage\_collection52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>starts, <a href="#starts51">5.1</a>, <a href="#starts639">6.39</a></dd>
+ <dt><b></b></dt>
+	<dd>store_fired_events/1, <a href="#store\_fired\_events/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>store_fired_events_java/1, 
+		<a href="#store\_fired\_events\_java/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>sum, <a href="#sum62">6.2</a></dd>
+</dl></td><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>transitive, <a href="#transitive640">6.40</a>, 
+		<a href="#transitive641">6.41</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>where, <a href="#where51">5.1</a>, <a href="#where642">6.42</a></dd>
+ <dt><b></b></dt>
+	<dd>windows, <a href="#windows643">6.43</a></dd>
+ <dt><b></b></dt>
+	<dd>write_justification/1, <a href="#write\_justification/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>write_justification_udraw/2, 
+		<a href="#write\_justification\_udraw/252">5.2</a></dd>
+</dl></td></tr></table>
+
+
+<a name="tth_sEcindex"></a>
+
+<h2> Index (showing section)</h2>
+
+<table width="100%"><tr><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>aggregates, <a href="#aggregates62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>alarm, <a href="#alarm63">6.3</a></dd>
+ <dt><b></b></dt>
+	<dd>and, <a href="#and51">5.1</a>, <a href="#and64">6.4</a></dd>
+ <dt><b></b></dt>
+	<dd>average, <a href="#average62">6.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>binarization, <a href="#binarization44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>binarization/1, <a href="#binarization/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>binarizer, <a href="#binarizer52">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>channel, <a href="#channel65">6.5</a></dd>
+ <dt><b></b></dt>
+	<dd>check, <a href="#check51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>check_event_rule_conditions_internal/4, 
+		<a href="#check\_event\_rule\_conditions\_internal/452">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>cnot, <a href="#cnot51">5.1</a>, <a href="#cnot66">6.6</a></dd>
+ <dt><b></b></dt>
+	<dd>compilation, <a href="#compilation44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>compile_even_file/1, <a href="#compile\_even\_file/144">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>compile_event_file/1, <a href="#compile\_event\_file/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>compiler, <a href="#compiler52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>count, <a href="#count62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>counter/2, <a href="#counter/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>create_client/2, <a href="#create\_client/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>create_server/1, <a href="#create\_server/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>current_datime/1, <a href="#current\_datime/152">5.2</a></dd>
+</dl></td><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>date_time, <a href="#date\_time52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime, <a href="#datime52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime_minus_datime(+Datime,+Datime1,-Seconds), 
+		<a href="#datime\_minus\_datime(+Datime,+Datime1,-Seconds)52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime_minus_sec/3, <a href="#datime\_minus\_sec/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>datime_plus_sec/3, <a href="#datime\_plus\_sec/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>declarations</dd>
+<dd>&nbsp;&nbsp;&nbsp;&nbsp; <tt>export/1</tt>, 
+		<a href="#declarations+\texttt{export/1}43">4.3</a></dd>
+<dd>&nbsp;&nbsp;&nbsp;&nbsp; <tt>import/2</tt>, 
+		<a href="#declarations+\texttt{import/2}43">4.3</a></dd>
+ <dt><b></b></dt>
+	<dd>del_event_rule/1, <a href="#del\_event\_rule/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>dispatch/1, <a href="#dispatch/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>do, <a href="#do51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>during, <a href="#during51">5.1</a>, <a href="#during67">6.7</a></dd>
+ <dt><b></b></dt>
+	<dd>dynamic_updates, <a href="#dynamic\_updates68">6.8</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>equals, <a href="#equals51">5.1</a>, <a href="#equals69">6.9</a></dd>
+ <dt><b></b></dt>
+	<dd>etalis_justification/1, <a href="#etalis\_justification/145">4.5</a>, 
+		<a href="#etalis\_justification/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>event/1, <a href="#event/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>event2tr_transformation, 
+		<a href="#event2tr\_transformation52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>event_consumption_policy/1, 
+		<a href="#event\_consumption\_policy/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>event_multiply, <a href="#event\_multiply51">5.1</a>, 
+		<a href="#event\_multiply610">6.10</a></dd>
+ <dt><b></b></dt>
+	<dd>event_trigger/1, <a href="#event\_trigger/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>execute_event_stream_file/1, 
+		<a href="#execute\_event\_stream\_file/141">4.1</a></dd>
+ <dt><b></b></dt>
+	<dd>execute_event_stream_file/2, 
+		<a href="#execute\_event\_stream\_file/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>execution, <a href="#execution44">4.4</a></dd>
+</dl></td></tr><tr><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>finishes, <a href="#finishes51">5.1</a>, <a href="#finishes611">6.11</a></dd>
+ <dt><b></b></dt>
+	<dd>fire_event_list_return_external_events/1, 
+		<a href="#fire\_event\_list\_return\_external\_events/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>flower_delivery, <a href="#flower\_delivery61">6.1</a></dd>
+ <dt><b></b></dt>
+	<dd>fnot, <a href="#fnot51">5.1</a>, <a href="#fnot612">6.12</a></dd>
+ <dt><b></b></dt>
+	<dd>forall, <a href="#forall613">6.13</a></dd>
+ <dt><b></b></dt>
+	<dd>forall_seq, <a href="#forall\_seq51">5.1</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>garbage collection, <a href="#garbage collection34">3.4</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_collection_general, 
+		<a href="#garbage\_collection\_general614">6.14</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_collection_pattern, 
+		<a href="#garbage\_collection\_pattern615">6.15</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_control/1, <a href="#garbage\_control/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_window/1, <a href="#garbage\_window/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>garbage_window_step/1, <a href="#garbage\_window\_step/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>general_garbage_collection, 
+		<a href="#general\_garbage\_collection52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>get_etalis_flag/2, <a href="#get\_etalis\_flag/252">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>incCounter/1, <a href="#incCounter/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>ins_event_rule/1, <a href="#ins\_event\_rule/152">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>java, <a href="#java46">4.6</a></dd>
+ <dt><b></b></dt>
+	<dd>java_interface, <a href="#java\_interface616">6.16</a></dd>
+ <dt><b></b></dt>
+	<dd>justification, <a href="#justification35">3.5</a>, 
+		<a href="#justification617">6.17</a>, 
+		<a href="#justification618">6.18</a>, 
+		<a href="#justification619">6.19</a>, 
+		<a href="#justification620">6.20</a></dd>
+ <dt><b></b></dt>
+	<dd>justify_event/3, <a href="#justify\_event/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>justify_event_negative, 
+		<a href="#justify\_event\_negative52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>justify_event_positive, 
+		<a href="#justify\_event\_positive52">5.2</a></dd>
+</dl></td><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>label, <a href="#label51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>less_datime/2, <a href="#less\_datime/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>loading, <a href="#loading44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>log, <a href="#log52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>logging/1, <a href="#logging/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>logging_binary_file, <a href="#logging\_binary\_file52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>logging_to_file/1, <a href="#logging\_to\_file/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>logging_TR_file/2, <a href="#logging\_TR\_file/252">5.2</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>max, <a href="#max62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>meets, <a href="#meets51">5.1</a>, <a href="#meets621">6.21</a></dd>
+ <dt><b></b></dt>
+	<dd>memory management, <a href="#memory management34">3.4</a></dd>
+ <dt><b></b></dt>
+	<dd>min, <a href="#min62">6.2</a></dd>
+ <dt><b></b></dt>
+	<dd>modules</dd>
+<dd>&nbsp;&nbsp;&nbsp;&nbsp; ETALIS syntax, <a href="#modules+ETALIS syntax43">4.3</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>notational conventions, <a href="#notational conventions11">1.1</a></dd>
+ <dt><b></b></dt>
+	<dd>ntimes, <a href="#ntimes51">5.1</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>or, <a href="#or51">5.1</a>, <a href="#or622">6.22</a></dd>
+ <dt><b></b></dt>
+	<dd>out-of-order, <a href="#out-of-order33">3.3</a></dd>
+ <dt><b></b></dt>
+	<dd>out_of_order, <a href="#out\_of\_order623">6.23</a></dd>
+ <dt><b></b></dt>
+	<dd>out_of_order/1, <a href="#out\_of\_order/145">4.5</a>, 
+		<a href="#out\_of\_order/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>output_temporary_files/1, 
+		<a href="#output\_temporary\_files/145">4.5</a></dd>
+</dl></td></tr><tr><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>par, <a href="#par51">5.1</a>, <a href="#par624">6.24</a></dd>
+ <dt><b></b></dt>
+	<dd>parse_event_rules/2, <a href="#parse\_event\_rules/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>parsing, <a href="#parsing44">4.4</a></dd>
+ <dt><b></b></dt>
+	<dd>pattern_garbage_collection, 
+		<a href="#pattern\_garbage\_collection52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>projection, <a href="#projection625">6.25</a>, 
+		<a href="#projection626">6.26</a></dd>
+ <dt><b></b></dt>
+	<dd>prolog, <a href="#prolog627">6.27</a></dd>
+ <dt><b></b></dt>
+	<dd>prolog_backend/1, <a href="#prolog\_backend/145">4.5</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>repeat_read/2, <a href="#repeat\_read/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>reset_db/0, <a href="#reset\_db/052">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>resetCounter/1, <a href="#resetCounter/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>revision, <a href="#revision628">6.28</a></dd>
+ <dt><b></b></dt>
+	<dd>revision_flag/1, <a href="#revision\_flag/145">4.5</a>, 
+		<a href="#revision\_flag/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>rule_sharing/1, <a href="#rule\_sharing/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>rule_sharing_debuging/1, 
+		<a href="#rule\_sharing\_debuging/145">4.5</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>seeDB/0, <a href="#seeDB/052">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>selection, <a href="#selection629">6.29</a>, 
+		<a href="#selection630">6.30</a></dd>
+ <dt><b></b></dt>
+	<dd>seq, <a href="#seq51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>sequence, <a href="#sequence631">6.31</a>, <a href="#sequence632">6.32</a>, 
+		<a href="#sequence633">6.33</a>, <a href="#sequence634">6.34</a>, 
+		<a href="#sequence635">6.35</a></dd>
+ <dt><b></b></dt>
+	<dd>set_difference/3, <a href="#set\_difference/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>set_etalis_flag/2, <a href="#set\_etalis\_flag/252">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>set_intersection/3, <a href="#set\_intersection/352">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>sharing, <a href="#sharing636">6.36</a>, <a href="#sharing637">6.37</a></dd>
+ <dt><b></b></dt>
+	<dd>spy_event/1, <a href="#spy\_event/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>star, <a href="#star638">6.38</a></dd>
+ <dt><b></b></dt>
+	<dd>star_times, <a href="#star\_times51">5.1</a></dd>
+ <dt><b></b></dt>
+	<dd>start_garbage_collection, 
+		<a href="#start\_garbage\_collection52">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>starts, <a href="#starts51">5.1</a>, <a href="#starts639">6.39</a></dd>
+ <dt><b></b></dt>
+	<dd>store_fired_events/1, <a href="#store\_fired\_events/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>store_fired_events_java/1, 
+		<a href="#store\_fired\_events\_java/145">4.5</a></dd>
+ <dt><b></b></dt>
+	<dd>sum, <a href="#sum62">6.2</a></dd>
+</dl></td><td width="48%" valign="top"><hr />
+<dl compact="compact">
+ <dt><b></b></dt>
+	<dd>transitive, <a href="#transitive640">6.40</a>, 
+		<a href="#transitive641">6.41</a><br /><br /></dd>
+ <dt><b></b></dt>
+	<dd>where, <a href="#where51">5.1</a>, <a href="#where642">6.42</a></dd>
+ <dt><b></b></dt>
+	<dd>windows, <a href="#windows643">6.43</a></dd>
+ <dt><b></b></dt>
+	<dd>write_justification/1, <a href="#write\_justification/152">5.2</a></dd>
+ <dt><b></b></dt>
+	<dd>write_justification_udraw/2, 
+		<a href="#write\_justification\_udraw/252">5.2</a></dd>
+</dl></td></tr></table>
+[pred]
+
+<div class="p"><!----></div>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Apart from this task (also known as pattern matching), CEP further addresses other issues like event filtering, routing, transformation etc.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Note that also comparison operators like =, &lt;  and  &gt;  can be seen as boolean-typed binary functions and, hence, fit well into the framework.
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>More formally, for any two event streams &#1013;<sub>1</sub> and &#1013;<sub>2</sub> with &#1013;<sub>1</sub>(g)&#8745;{&#9001;q,q&#8242;&#9002; | q&#8242; &#8804; q<sub>2</sub>} = &#1013;<sub>2</sub>(g)&#8745;{&#9001;q,q&#8242;&#9002; | q&#8242; &#8804; q<sub>2</sub>} we have that &#1013;<sub>1</sub>,<i>R</i>\models a<sup>[q<sub>1</sub>,q<sub>2</sub>]</sup> exactly if &#1013;<sub>2</sub>,<i>R</i>\models a<sup>[q<sub>1</sub>,q<sub>2</sub>]</sup>.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>Here we assume that the process of binarization (which is trivial) has already been completed so that Transformation 2.1 accepts as input only binary patterns.
+<div class="p"><!----></div>
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>Apart from the time stamp, an event may carry other data parameters that are omitted here in order to make rules more readable.
+<div class="p"><!----></div>
+<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>When specified time elapses, goals from unfulfilled patterns can be deleted.
+<div class="p"><!----></div>
+<a name="tthFtNtAAH"></a><a href="#tthFrefAAH"><sup>7</sup></a><a href="http://www.w3.org/TR/2009/WD-sparql-features-20090702/"><tt>http://www.w3.org/TR/2009/WD-sparql-features-20090702/</tt></a>
+</body></html>

@@ -1,0 +1,5 @@
+print_trigger(_/_).
+
+d(X,Y) <- a(X) 'seq' b(Y) 'where' (Y>X).
+
+% we will trigger: a(1),b(1),b(2) -> it should fail for b(1), but succeed for b(2) => d(1,2)

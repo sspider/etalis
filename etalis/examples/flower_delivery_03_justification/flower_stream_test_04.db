@@ -1,0 +1,74 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Scenario 2:
+% In the following scenarios we assume that there are 3 stores (numbered 1,2,3).
+% The map, hence, is divided into three regions.
+%
+% Pre-conditions:
+% Drivers E,F,G,H,I,J,K are in region 3
+% Driver F had 10 delivery alerts during previous 19 deliveries.
+%
+% 00:00 Store 3 receives an order (System receives "delivery request" event).
+%
+% 00:01 System matches drivers F,G,H,I,J,K  by location and ranking (Driver E
+%       is filtered out due     to his low rating).
+%
+% 00:02 Bid request is sent to drivers F,G,H,I,J,K .
+%
+% 00:03 Drivers F,G,H,I,J,K  respond with "delivery bid", provide their current
+%       location and commit a pick-up time.
+%
+% 00:03-00:05.Store doesn't perform manual assignment (Alert is sent both to
+%       the store and the system manager).
+%
+% 00:06 Driver F is chosen by the store (manual assignment is finally performed
+%       after a  3 minute delay). Assignment is sent to driver F. Pick-up time
+%       and delivery time is set.
+%
+% 00:10 Driver F arrives to the store while exceeding pick-up time by 6 minutes
+%       (Pick-Up Alert expected). Pick-up confirmation is set.
+%
+% 00:25 F delivers the flowers to the customer while exceeding delivery time by
+%       10 minutes (Delivery Alert expected). Delivery confirmation is provided.
+%
+% 00:31 Rank of F is decreased by one.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Flags and configuration parameters
+start_assignment_time(2). % start assignment in sec
+                                % (2 min. in the specification)
+check_manual_assignment_time(3). % check manual assignment in sec
+                                % (1 min. in the specification)
+check_pick_up_time(2). % check pickup after in sec
+                                % (5 min. in the specification)
+check_delivery_time(3). % check delivery after in sec
+                                % (10 min. in the specification)
+ranking_threshold(20). % increment/decrement ranking for drivers after N deliv.
+                                % (20 deliveries in the specification)
+delivery_alarm_threshold(5).
+                                % (5 delivery alerts in the specification)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Database for scenarion 01:
+store_record('store1',2,manual).
+
+driver_record('driverE',1).
+driver_record('driverF',3).
+driver_record('driverG',3).
+driver_record('driverH',3).
+driver_record('driverI',3).
+driver_record('driverJ',3).
+driver_record('driverK',3).
+
+gps_to_region(coordinates('N',X,'W',Y),'Region_01') :-
+        0=<X,X<100,
+        0=<Y,Y<100,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'Region_02') :-
+        100=<X,X<200,
+        0=<Y,Y<100,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'Region_03') :-
+        200=<X,X<300,
+        0=<Y,Y<100,
+        !.

@@ -1,0 +1,39 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Scenario 1:
+%       see flower_test_03.db
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Drivers location: all three drivers are located in the first region
+event(gps_location(driverA,coordinates('N',10.000,'W',10.000))).
+event(gps_location(driverB,coordinates('N',20.000,'W',20.000))).
+event(gps_location(driverC,coordinates('N',30.000,'W',30.000))).
+
+% Delivery request creation
+event(delivery_request(store1,coordinates('N',10.000,'W',10.000),
+        datime(2010,12,24,0,0,0))).
+
+% Drivers send their bids
+event(delivery_bid(1,driverA,coordinates('N',10.000,'W',10.000),
+        datime(2010,12,24,0,4,0))).
+event(delivery_bid(1,driverB,coordinates('N',20.000,'W',20.000),
+        datime(2010,12,24,0,4,0))).
+
+% Assignment of driverA is automatic at second 5
+%event(assignment(1,store1,coordinates('N',50.000,'W',50.000),
+%       datime(2010,12,24,0,15,0),driverA,datime(2010,12,24,0,10,0))).
+
+% We leave enough time for the assignment to take place
+sleep(6).
+
+% DriverA picks up the delivery
+event(pick_up_confirmation(1,driverA,datime(2010, 12, 24, 0, 10, 0))).
+
+sleep(1).
+
+% DriverA delivered in time
+event(delivery_confirmation(1,driverA,datime(2010, 12, 24, 0, 15, 0))).
+
+% Note: The ranking of the driverA is increased after just one delivery
+
+
+%halt.

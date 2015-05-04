@@ -1,0 +1,349 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% $Rev$:     Revision of last commit
+% $Author$:  Author of last commit
+% $Date$:    Date of last commit
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Unique Count
+:- dynamic(count/1).
+:- assert(count(0)).
+incCount :- count(Y) , X is Y+1, retractall(count(_)), assert(count(X)), !.
+resetCount :- retractall(count(_)), assert(count(0)), !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% counter
+:- dynamic(counter_internal/2). % counter_internal(CounterName,Value)
+
+% resetCounter/1
+% resetCounter(+Name)
+resetCounter(Name):-
+	retractall(counter_internal(Name,_)),
+	assert(counter_internal(Name,0)),
+	!.
+
+% incCounter/1
+% incCounter(+Name)
+incCounter(Name):-
+	counter_internal(Name,Value),
+	Value1 is Value+1,
+	retractall(counter_internal(Name,_)),
+	assert(counter_internal(Name,Value1)),
+	!.
+incCounter(Name):-
+	resetCounter(Name),
+	incCounter(Name),
+	!.
+
+% counter/2
+% counter(+CounterName,-Value)
+counter(CounterName,Value):-
+	counter_internal(CounterName,Value),
+	!.
+counter(Name,0):- % the counter doesn't exist yet
+	resetCounter(Name),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% global flag - variable with name and value
+:- dynamic(flag_internal/2).
+
+% set_flag/2
+% set_flag(+Name,+Value)
+set_flag(Name,Value):- % same value was set before
+	flag_internal(Name,Value),
+	!.
+set_flag(Name,Value):- % a different value was set before
+	flag_internal(Name,OldValue),
+	retract(flag_internal(Name,OldValue)),
+	assert(flag_internal(Name,Value)),
+	!.
+set_flag(Name,Value):- % no value was set before
+	assert(flag_internal(Name,Value)),
+	!.
+
+% get_flag/2
+% get_flag(+Name,-Value)
+get_flag(Name,Value):-
+	flag_internal(Name,Value),
+	!.
+get_flag(_Name,nil).
+
+for(I,I,J) :- I =< J.
+for(K,I,J) :- I < J,
+	   I1 is I + 1,
+	   for(K,I1,J).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% predicate used by N-times
+% trans_ntime/4
+% trans_ntime(+Temp,+Event,+N,-Out)
+trans_ntime(Temp, Event, N, Out) :-
+	N > 1,
+	NTime is N-1,
+	Temp1 =.. [seq, Temp, Event],
+	trans_ntime(Temp1, Event, NTime, Out),
+	!.
+trans_ntime(Temp, Event, 1, Out) :-
+	Out =.. [seq, Temp, Event],
+	!.
+trans_ntime(Temp, _Event, 0, Out) :-
+	Out = Temp,
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% my_member/2
+% my_member(+Element,+List)
+my_member(H,[H|_T]).
+my_member(H,[_|T]):-
+	my_member(H,T).
+
+% my_length/2
+% my_length(+List,-Length)
+my_length([],0).
+my_length([_|T],N):- my_length(T,N1), N is N1+1.
+
+% my_append/3
+% my_append(+L1,+L2,-L3)
+my_append([],L,L).
+my_append([H|T],L,[H|R]):-
+	my_append(T,L,R).
+
+% my_select/3
+% my_select(+Element,+List,-RestList)
+my_select(H,[H|T],T).
+my_select(X,[H|T],[H|T1]) :- my_select(X,T,T1).
+
+% my_member_variant/2
+% my_member_variant(+Element,+List)
+my_member_variant(H1,[H2|_T]):-
+	prolog_backend(swi),
+	variant(H1,H2).
+my_member_variant(H,[_|T]):-
+	my_member_variant(H,T).
+
+% retract all members of a list
+% retract_list/1
+% retract_list(+L)
+retract_list([H|T]):-
+	del(H) ,
+	write('LOG: delete form database : '),
+	write(H),nl,
+	retract_list(T);
+	true.
+retract_list([]).
+
+% my_reverse/2
+% my_reverse(+L,-RL)
+my_reverse(L,RL):-
+	my_reverse(L,[],RL).
+my_reverse([],Temp,Temp).
+my_reverse([H|T],Temp,TT):-
+	my_reverse(T,[H|Temp],TT).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% min/3
+% min(+T1,+T2,-T3)
+min(T1,T2,T3) :- ( number(T1), number(T2), T1<T2 ) -> T3 = T1 ; T3 = T2.
+min(T1,T2,T3) :- ( is_datime(T1), is_datime(T2), less_datime(T1,T2) )
+	-> T3 = T1 ; T3 = T2.
+
+% max/3
+% max(+T1,+T2,-T3)
+max(T1,T2,T3) :- ( number(T1), number(T2), T2<T1 ) -> T3 = T1 ; T3 = T2.
+max(T1,T2,T3) :- ( is_datime(T1), is_datime(T2), less_datime(T2,T1) )
+	-> T3 = T1 ; T3 = T2.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% mycputime/1
+% mycputime(-T)
+mycputime(T0):- % XSB, Sicstus, Prolog standard
+	statistics(runtime,[T0,_T0]),
+	!.
+%mycputime(T0):- T0 is cputime, !. %Yap
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% set_intersection/3
+% set_intersection(+S1,+S2,-S3)
+%  we assume that the elements are not duplicated inside the sets
+set_intersection([],_S2,[]):-
+	!.
+set_intersection([H1|T1],S2,[H1|R]):-
+	my_member(H1,S2),
+	!,
+	set_intersection(T1,S2,R).
+set_intersection([_H1|T1],S2,R):-
+	!,
+	set_intersection(T1,S2,R).
+
+% set_insert/3
+% set_insert(+Elem,+Set,-NewSet)
+%  we assume that the elements are not duplicated inside the sets
+set_insert(Elem,Set,NewSet):-
+	\+(my_member(Elem,Set)),
+	!,
+	NewSet=[Elem|Set].
+set_insert(_,Set,Set):-
+	!.
+
+% set_delete/3
+% set_delete(+Elem,+Set,-NewSet)
+%  we assume that the elements are not duplicated inside the sets
+set_delete(Elem,Set,NewSet):-
+	my_select(Elem,Set,NewSet),
+	!.
+set_delete(_,Set,Set):-
+	!.
+
+% set_union/3
+% set_union(+S1,+S2,-S3)
+%  we assume that the elements are not duplicated inside the sets
+set_union([],S2,S2):-
+	!.
+set_union([H1|T1],S2,[H1|R]):-
+	\+(my_member(H1,S2)),
+	!,
+	set_union(T1,S2,R).
+set_union([_H1|T1],S2,R):-
+	!,
+	set_union(T1,S2,R).
+
+% set_difference/3
+% set_difference(+S1,+S2,-S3)
+set_difference([],_S2,[]):-
+	!.
+set_difference([H1|T1],S2,[H1|R]):-
+	\+( my_member(H1,S2) ),
+	!,
+	set_difference(T1,S2,R).
+set_difference([_H1|T1],S2,R):-
+	!,
+	set_difference(T1,S2,R).
+
+% set_equal/2
+% set_equal(+S1,+S2)
+%  we assume that the elements are not duplicated inside the sets
+set_equal(S1,S2):-
+	set_equal(S1,S1,S2),
+	!.
+% set_equal/3
+% set_equal(+CS1,+S1,+S2)
+set_equal([],_,[]):-
+	!.
+set_equal([H|CS1],S1,S2):-
+	my_member(H,S2),
+	!,
+	set_equal(CS1,S1,S2).
+set_equal([],S1,[H|S2]):-
+	my_member(H,S1),
+	!,
+	set_equal([],S1,S2).
+
+% list_to_set/2
+% list_to_set(+L,-S)
+list_to_set(L,S):-
+	list_to_set(L,[],S),
+	!.
+% list_to_set/3
+% list_to_set(+L,+Temp,-S)
+list_to_set([],Temp,Temp):-
+	!.
+list_to_set([H|T],Temp,S):-
+	my_member(H,Temp),
+	!,
+	list_to_set(T,Temp,S).
+list_to_set([H|T],Temp,S):-
+	!,
+	list_to_set(T,[H|Temp],S).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% write_list/1
+% write_list(+X)
+write_list([]):-
+	write([]).
+write_list([H]):-
+	!,
+	write('['),
+	write(H),
+	write(']').
+write_list([H|T]):-
+	write('['),
+	nl,
+	write_list_intern([H|T]),
+	write(']'),
+	!.
+
+% write_list_intern/1
+% write_list_intern(+X)
+write_list_intern([H]):-
+	write('	'),
+	write(H),
+	nl,
+	!.
+write_list_intern([H|T]):-
+	write('	'),
+	write(H),
+	write(','),
+	nl,
+	write_list_intern(T),
+	!.
+write_list_intern([]):-
+	!.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% empty_list/2
+% empty_list(+Size,-List)
+empty_list(Size,List):-
+	number(Size),
+	Size>=0,
+	empty_list_internal(Size,List),
+	!.
+% empty_list_internal/2
+% empty_list_internal(+Size,-List)
+empty_list_internal(Size,[_|List]):-
+	Size>0,
+	!,
+	NewSize is Size-1,
+	empty_list_internal(NewSize,List).
+empty_list_internal(_,[]):-
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% create_new_term_same_arity/2
+% create_new_term_same_arity(+X,-NewX)
+%  form a predicate with arguments we get a predicate with empty arguments
+create_new_term_same_arity(X,NewX):-
+	X =.. [FName|Args],
+	my_length(Args,Arity),
+	empty_list(Arity,ArityList),
+	NewX =.. [FName|ArityList],
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% assert_list(+List,+PredicateName)
+assert_list(List,PredicateName):-
+	atom(PredicateName),
+	dynamic(PredicateName/1),
+	assert_list_internal(List,PredicateName),
+	!.
+
+% assert_list_internal(+List,+PredicateName)
+assert_list_internal([],_):-
+	!.
+assert_list_internal([H|T],PredicateName):-
+	W=..[PredicateName,H],
+	assert(W),
+	assert_list_internal(T,PredicateName),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% retractall_except(+Pattern1,+Pattern2)
+retractall_except(Pattern1,Pattern2):-
+	copy_term(Pattern1,Pattern3),
+	call(Pattern3),
+	\+( Pattern3 = Pattern2 ),
+	retractall(Pattern3),
+	retractall_except(Pattern1,Pattern2),
+	!.
+retractall_except(_Pattern1,_Pattern2):-
+	!.	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

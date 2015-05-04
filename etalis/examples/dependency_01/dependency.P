@@ -1,0 +1,363 @@
+% create_engines/2
+% create_engines(+Rules,-Engines)
+create_engines(Rules,Engines):-
+	complex_events(Rules,ComplexEvents),
+	resetCounter(create_engines),
+	create_engines2(ComplexEvents,Engines),
+	!.
+
+% create_engines2/2
+% create_engines2(+ComplexEvents,-Engines)
+create_engines2([],[]):-
+	!.
+create_engines2([H|ComplexEvents],[engine(C,H)|Engines]):-
+	incCounter(create_engines),
+	counter(create_engines,C),
+	create_engines2(ComplexEvents,Engines),
+	!.
+
+% base_events/2
+% base_events(+Rules,-BaseEvents)
+base_events(Rules,BaseEvents):-
+	break_events(Rules,[],[],BodyEvents,DerivedEvents),
+	set_difference(BodyEvents,DerivedEvents,BaseEvents),
+	!.
+
+% complex_events/2
+% complex_events(+Rules,-DerivedEvents)
+complex_events(Rules,ComplexEvents):-
+	break_events(Rules,[],[],_BaseEvents,DerivedEvents),
+	filter_temp_events(DerivedEvents,ComplexEvents),
+	!.
+
+% filter_temp_events(+DerivedEvents,-ComplexEvents)
+filter_temp_events([],[]).
+filter_temp_events([H|T],[H|R]):-
+	H=..[EventSymbol|_],
+	\+( atom_codes(EventSymbol,[116,101,109,112,95|_]) ),
+	!,
+	filter_temp_events(T,R).
+filter_temp_events([_H|T],R):-
+	!,
+	filter_temp_events(T,R).
+	
+% break_events/5
+% break_events(+Rules,+TempBaseEvents,+TempDerivedEvents,
+%		-BaseEvents,-DerivedEvents)
+break_events([],BaseEvents,DerivedEvents,
+		BaseEvents,DerivedEvents):-
+	!.
+break_events([[eventClause(_,Head,Body)|T]],TempBaseEvents,TempDerivedEvents,
+		BaseEvents,DerivedEvents):-
+	!,
+	break_events([eventClause(_,Head,Body)|T],TempBaseEvents,TempDerivedEvents,
+		BaseEvents,DerivedEvents).
+break_events([eventClause(_,Head,Body)|T],TempBaseEvents,TempDerivedEvents,
+		BaseEvents,DerivedEvents):-
+	Head =.. [EventName|Args],
+	args_arity(Args,Arity),
+	NewHead =.. [EventName|Arity], % this is a derived event
+	( my_member(NewHead,TempDerivedEvents) 
+		-> NewTempDerivedEvents = TempDerivedEvents
+		; NewTempDerivedEvents = [NewHead|TempDerivedEvents]
+	),
+	break_body(Body,TempBaseEvents,NewTempBaseEvents),
+	break_events(T,NewTempBaseEvents,NewTempDerivedEvents,
+		BaseEvents,DerivedEvents),
+	!.
+
+% break_body/3
+% break_body(+Body,+TempBaseEvents,-NewTempBaseEvents)
+break_body(seqf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(andf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(orf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(checkf(X,_Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents).
+break_body(wheref(X,_Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents).
+break_body(cnotf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(X,TempBaseEvents,NewTempBaseEvents):-
+	X =.. [EventName|Args],
+	args_arity(Args,Arity),
+	NewX =.. [EventName|Arity],
+	( my_member(NewX,TempBaseEvents) 
+		-> NewTempBaseEvents = TempBaseEvents
+		; NewTempBaseEvents = [NewX|TempBaseEvents]
+	),
+	!.
+
+% transform_args_arity(+Args,-Arity)
+args_arity([],[]).
+args_arity([_|Args],[_|Arity]):-
+	args_arity(Args,Arity),
+	!.	
+
+% distribute(DependencyGraph,Engines,Distribution)
+distribute(DependencyGraph,Engines,Distribution):-
+	distribute2(DependencyGraph,Engines,Engines,Distribution).
+
+% distribute2(DependencyGraph,RestEngines,Engines,Distribution)
+distribute2(_DependencyGraph,[],_Engines,[]):-
+	!.
+distribute2(DependencyGraph,[engine(EngineId,ComplexEvent)|RestEngines],Engines,[engine(EngineId,Children2)|Distribution]):-
+	fixed_point_reachability(DependencyGraph,FixedPoint),
+	findall(TempChild,my_member(edge(ComplexEvent,TempChild),FixedPoint),Children),
+	my_select(engine(EngineId,ComplexEvent),Engines,RestEngines2),
+	descendants_parents_children(RestEngines2,RestEngines2Children,DependencyGraph,Children),
+	set_difference(Children,RestEngines2Children,Children2),
+	distribute2(DependencyGraph,RestEngines,Engines,Distribution),
+	!.
+
+% descendants_parents_children(+Engines,-Children,+DependencyGraph,+PrincipalChildren)
+descendants_parents_children([],[],_DependencyGraph,_PrincipalChildren).
+descendants_parents_children([engine(EngineId,ComplexEvent)|Engines],Children,DependencyGraph,PrincipalChildren):-
+	my_member(ComplexEvent,PrincipalChildren),
+	fixed_point_reachability(DependencyGraph,FixedPoint),
+	findall(TempChild,my_member(edge(ComplexEvent,TempChild),FixedPoint),Children2),
+	descendants_parents_children(Engines,Children3,DependencyGraph,PrincipalChildren),
+	my_append(Children2,Children3,Children),
+	!.
+descendants_parents_children([engine(EngineId,ComplexEvent)|Engines],Children,DependencyGraph,PrincipalChildren):-
+	descendants_parents_children(Engines,Children,DependencyGraph,PrincipalChildren),
+	!.
+
+% parent_direct_child/3
+% parent_direct_child(?Parent,?Child,+Rules)
+parent_direct_child(Parent,Child,Rules):-
+	dependancy_graph(Rules,Graph),
+	my_member(edge(Parent,Child),Graph).
+
+% fixed_point_reachability/2
+% fixed_point_reachability(+Graph,-FixedPoint)
+fixed_point_reachability(Graph,FixedPoint):-
+	fixed_point_reachability(Graph,Graph,FixedPoint).
+
+% fixed_point_reachability/3
+% fixed_point_reachability(+Graph,+TempFixedPoint,-FixedPoint)
+fixed_point_reachability(Graph,TempFixedPoint,FixedPoint):-
+	extend_graph_once(Graph,Graph,NewGraph),
+	set_union(NewGraph,TempFixedPoint,NewTempFixedPoint),
+	( set_equal(TempFixedPoint,NewTempFixedPoint)
+		-> FixedPoint=TempFixedPoint
+		; fixed_point_reachability(NewTempFixedPoint,
+			NewTempFixedPoint,
+			FixedPoint)
+	),
+	!.
+
+% parent_child/3
+% parent_child(?Parent,?Child,+Rules)
+parent_child(Parent,Child,Rules):-
+	dependancy_graph(Rules,Graph),
+	fixed_point_reachability(Graph,FixedPoint),
+	my_member(edge(Parent,Child),FixedPoint).
+
+% parent_children/3
+% parent_children(+Parent,?Children,+Rules)
+parent_children(Parent,Children,Rules):-
+	dependancy_graph(Rules,Graph),
+	fixed_point_reachability(Graph,FixedPoint),
+	findall(Child,my_member(edge(Parent,Child),FixedPoint),Children).
+
+% extend_graph_once/3
+% extend_graph_once(+CGraph,+Graph,-NewGraph)	
+extend_graph_once([],_,[]):-
+	!.
+extend_graph_once([edge(X,Y)|Rest],Graph,NewGraph):-
+	findall(edge(X,Z),my_member(edge(Y,Z),Graph),Extended),
+	list_to_set(Extended,ExtendedSet),
+	extend_graph_once(Rest,Graph,NewGraph2),
+	set_union(ExtendedSet,NewGraph2,NewGraph),
+	!.
+
+% parent_direct_children/3
+% parent_direct_children(+Parent,?Children,+Rules)
+parent_direct_children(Parent,Children,Rules):-
+	dependancy_graph(Rules,Graph),
+	findall(Child,my_member(edge(Parent,Child),Graph),Children).
+
+% dependancy_graph/2
+% dependancy_graph(Rules,Graph)
+dependancy_graph(Rules,Graph):-
+	dependancy_graph_2(Rules,[],Graph).
+
+% dependancy_graph_2/3
+% dependancy_graph_2(+Rules,+TempGraph,-Graph)
+dependancy_graph_2([],Graph,Graph):-
+	!.
+dependancy_graph_2([eventClause(_,Head,Body)|T],TempGraph,Graph):-
+	transform_pred(Head,NewHead),
+	break_body_list(Body,[],BodyEvents),
+	pair_x_y(NewHead,BodyEvents,Pairs),
+	set_union(Pairs,TempGraph,TempGraph2),
+	dependancy_graph_2(T,TempGraph2,Graph),
+	!.
+	
+% pair_x_y/3
+% pair_x_y(+Head,+BodyEvents,-Pairs)
+pair_x_y(_Head,[],[]):-
+	!.
+pair_x_y(Head,[H|BodyEvents],[edge(Head,H)|Pairs]):-
+	pair_x_y(Head,BodyEvents,Pairs),
+	!.
+
+% break_body_list/3
+% break_body_list(+Body,+TempEvents,-Events)
+break_body_list(seqf(X,Y),TempEvents,Events):-
+	!,
+	break_body_list(Y,TempEvents,Events2),
+	break_body_list(X,Events2,Events).
+break_body_list(andf(X,Y),TempEvents,Events):-
+	!,
+	break_body_list(Y,TempEvents,Events2),
+	break_body_list(X,Events2,Events).
+break_body_list(orf(X,Y),TempEvents,Events):-
+	!,
+	break_body_list(Y,TempEvents,Events2),
+	break_body_list(X,Events2,Events).
+break_body_list(checkf(X,_Y),TempEvents,Events):-
+	!,
+	break_body_list(X,TempEvents,Events).
+break_body_list(wheref(X,_Y),TempEvents,Events):-
+	!,
+	break_body_list(X,TempEvents,Events).
+break_body_list(cnotf(X,Y),TempEvents,Events):-
+	!,
+	break_body_list(Y,TempEvents,Events2),
+	break_body_list(X,Events2,Events).
+break_body_list(X,TempEvents,Events):-
+	transform_pred(X,NewX),
+	( my_member(NewX,TempEvents) 
+		-> Events = TempEvents
+		; Events = [NewX|TempEvents]
+	),
+	!.
+
+% transform_pred/2
+% transform_pred(+X,-NewX)
+transform_pred(X,NewX):-
+	X =.. [EventName|Args],
+	args_arity(Args,Arity),
+	NewX =.. [EventName|Arity],
+	!.
+
+% transform_args_arity/2
+% transform_args_arity(+Args,-Arity)
+args_arity([],[]).
+args_arity([_|Args],[_|Arity]):-
+	args_arity(Args,Arity),
+	!.
+
+% my_write_list(+L)
+my_write_list(L):-
+	write('['), nl,
+	write_list2(L),
+	write(']'), nl.
+
+% write_list2(+L)
+write_list2([]).
+write_list2([H1,H2|T]):-
+	!,
+	write(H1), write(', '), nl,
+	write_list2([H2|T]).
+write_list2([H1]):-
+	!,
+	write(H1), nl.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% my_member/2
+% my_member(+Element,+List)
+my_member(H,[H|_T]).
+my_member(H,[_|T]):-
+	 my_member(H,T).
+
+% my_length/2
+% my_length(+List,-Length)
+my_length([],0).
+my_length([_|T],N):- my_length(T,N1), N is N1+1.
+
+% my_append/3
+% my_append(+L1,+L2,-L3)
+my_append([],L,L).
+my_append([H|T],L,[H|R]):-
+	 my_append(T,L,R).
+
+% set_union/3
+% set_union(+S1,+S2,-S3)
+%  we assume that the elements are not duplicated inside the sets
+set_union([],S2,S2):-
+	!.
+set_union([H1|T1],S2,[H1|R]):-
+	\+(my_member(H1,S2)),
+	!,
+	set_union(T1,S2,R).
+set_union([_H1|T1],S2,R):-
+	!,
+	set_union(T1,S2,R).
+
+% set_equal/2
+% set_equal(+S1,+S2)
+%  we assume that the elements are not duplicated inside the sets
+set_equal(S1,S2):-
+	set_equal(S1,S1,S2),
+	!.
+% set_equal/3
+% set_equal(+CS1,+S1,+S2)
+set_equal([],_,[]):-
+	!.
+set_equal([H|CS1],S1,S2):-
+	my_member(H,S2),
+	!,
+	set_equal(CS1,S1,S2).
+set_equal([],S1,[H|S2]):-
+	my_member(H,S1),
+	!,
+	set_equal([],S1,S2).
+
+% list_to_set/2
+% list_to_set(+L,-S)
+list_to_set(L,S):-
+	list_to_set(L,[],S),
+	!.
+% list_to_set/3
+% list_to_set(+L,+Temp,-S)
+list_to_set([],Temp,Temp):-
+	!.
+list_to_set([H|T],Temp,S):-
+	my_member(H,Temp),
+	!,
+	list_to_set(T,Temp,S).
+list_to_set([H|T],Temp,S):-
+	!,
+	list_to_set(T,[H|Temp],S).
+
+% my_select/3
+% my_select(+Element,+List,-RestList)
+my_select(H,[H|T],T).
+my_select(X,[H|T],[H|T1]) :- my_select(X,T,T1).
+
+% set_difference/3
+% set_difference(+S1,+S2,-S3)
+set_difference([],_S2,[]):-
+	!.
+set_difference([H1|T1],S2,[H1|R]):-
+	\+( my_member(H1,S2) ),
+	!,
+	set_difference(T1,S2,R).
+set_difference([_H1|T1],S2,R):-
+	!,
+	set_difference(T1,S2,R).

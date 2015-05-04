@@ -1,0 +1,3 @@
+print_trigger(_).
+
+d(X) <- (a(X) seq b(Y) ) seq c(Z) where (Z>1) .

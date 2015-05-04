@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\Yap\bin\yap.exe" -g "['src/etalis.P'],set_etalis_flag(prolog_backend,yap),set_etalis_flag(logging,on),set_etalis_flag(output_temporary_files,on),compile_events('testPattern.event')."

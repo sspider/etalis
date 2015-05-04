@@ -1,0 +1,28 @@
+#summary Publications related to ETALIS project.
+#labels Publications
+
+= Publications =
+
+  * Darko Anicic, Sebastian Rudolph, Paul Fodor, Nenad Stojanovic. Retractable Complex Event Processing and Stream Reasoning, RuleML 2011: Proceedings of the 5th International Symposium on Rules, Spain.
+
+  * Darko Anicic, Sebastian Rudolph, Paul Fodor, Nenad Stojanovic. A Declarative Framework for Matching Iterative and Aggregative Patterns against Event Streams, RuleML 2011: Proceedings of the 5th International Symposium on Rules, Spain.
+
+  * Darko Anicic, Paul Fodor, Sebastian Rudolph, Nenad Stojanovic. _EP-SPARQL: A Unified Language for Event Processing and Stream Reasoning_, WWW 2011: Proceedings of the Twentieth International World Wide Web Conference, India.
+
+  * Paul Fodor, Darko Anicic, Sebastian Rudolph. _Results on Out-of-Order Event Processing_, PADL 2011: Proceedings of the Thirteenth International Symposium on Practical Aspects of Declarative Languages, USA.
+
+  * Darko Anicic, Paul Fodor, Sebastian Rudolph, Roland Stühmer, Nenad Stojanovic, Rudi Studer. _ETALIS: Rule-Based Reasoning in Event Processing_, Chapter in _Reasoning in Event-based Distributed Systems_, Series in Studies in Computational Intelligence, Sven Helmer, Alex Poulovassilis and Fatos Xhafa. 2010. Springer.
+
+  * Darko Anicic, Paul Fodor, Sebastian Rudolph, Roland Stühmer, Nenad Stojanovic, Rudi Studer. _A Rule-Based Language for Complex Event Processing and Reasoning_, RR 2010: Proceedings of the International Conference on Web Reasoning and Rule Systems, Italy.
+
+  * Darko Anicic, Paul Fodor, Roland Stühmer, Nenad Stojanovic. _Event-driven Approach for Logic-based Complex Event Processing_, The IEEE International Conference on Computational Science and Engineering (CSE09), Vancouver, Canada.
+
+  * Darko Anicic, Paul Fodor, Roland Stühmer, Nenad Stojanovic. _An Approach for Data-driven and Logic-based Complex Event Processing_ - Abstract, 3rd ACM International Conference on Distributed Event-Based Systems (DEBS 2009), Nashville, TN, USA.
+
+  * Darko Anicic, Nenad Stojanovic. Expressive Logical Framework for Reasoning about Complex Events and Situations, Intelligent Event Processing - AAAI Spring Symposium 2009, Stanford University, California.
+
+= Posters/Demos =
+
+  * Darko Anicic. _A Framework for Logic-based Event Processing and Adaptive Reactivity Handling_, CANOE and EuroSys Summer School, 2009, Oslo, Norway.
+
+  * Darko Anicic, Paul Fodor, Roland Stühmer, Nenad Stojanovic. _Computing Complex Events in an Event-driven and Logic-based Approach_ - Demo, 3rd ACM International Conference on Distributed Event-Based Systems (DEBS 2009), Nashville, TN, USA.

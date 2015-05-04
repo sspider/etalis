@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xsi:schemaLocation="http://www.w3schools.com http://etalis.googlecode.com/files/XmlConfig.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3schools.com">
+
+	<flags>
+		<flag>
+			<name>save_ruleId</name>
+			<value>on</value>
+		</flag>
+	</flags>
+
+	<eventTriggers>
+		<trigger>_/_</trigger>
+	</eventTriggers>
+
+	<compileEventFiles>
+		<file>rule01.event</file>
+	</compileEventFiles>
+
+	<providers>
+		<provider type="input" class="com.jtalis.activemq.ActiveMQInputProvider">
+			<parameters>
+				<parameter name="url">tcp://localhost:61616</parameter>
+				<parameter name="topic">JtalisInputEvent</parameter>
+			</parameters>
+		</provider>
+		
+		<provider regex="a|b" type="output" class="com.jtalis.activemq.ActiveMQXMLOutputProvider">
+			<parameters>
+				<parameter name="url">tcp://localhost:61616</parameter>
+				<parameter name="topic">JtalisAtomicEvent</parameter>
+			</parameters>
+		</provider>
+		
+		<provider regex="c" type="output" class="com.jtalis.activemq.ActiveMQXMLOutputProvider">
+			<parameters>
+				<parameter name="url">tcp://localhost:61616</parameter>
+				<parameter name="topic">JtalisComplexEvent</parameter>
+			</parameters>
+		</provider>
+
+	</providers>
+
+</config>

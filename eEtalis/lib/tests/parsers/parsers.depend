@@ -1,0 +1,36 @@
+# depslib dependency file v1.0
+1353228316 source:c:\hafsi\workspace\eetalis\lib\tests\parsers\main.c
+
+1354103509 source:c:\hafsi\workspace\eetalis\lib\tests\parsers\syntax.tab.c
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<libintl.h>
+	<alloca.h>
+	<malloc.h>
+	<stdlib.h>
+	<stdlib.h>
+	<stdio.h>
+
+1353233111 c:\hafsi\workspace\eetalis\lib\tests\parsers\lex.yy.c
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<io.h>
+	<stdlib.h>
+	<stdio.h>
+	<stdlib.h>
+
+1354103507 source:c:\hafsi\workspace\eetalis\lib\tests\parsers\lex.yy.c
+	<stdio.h>
+	<stdlib.h>
+	<unistd.h>
+	<io.h>
+	<stdlib.h>
+	"syntax.tab.h"
+	<stdlib.h>
+	<stdlib.h>
+
+1354103280 c:\hafsi\workspace\eetalis\lib\tests\parsers\syntax.tab.h
+

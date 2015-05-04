@@ -1,0 +1,20 @@
+:- dynamic(printing_on_1/1), assert(printing_on_1(on)).
+
+print_trigger(Event) :- 
+	printing_on_1(on),
+	(
+		( functor(Event,Functor,Arity),
+			Functor\='/',
+			Functor\=all_defined_events,
+			EventSymbol=Functor/Arity,
+			! );
+		EventSymbol=Event
+	),
+	EventSymbol \= all_defined_events,
+	EventSymbol \= d/1,
+	EventSymbol \= e/1.
+
+d(X) <- a(X).
+e(X) <- a(X).
+f(X) <- a(X).
+g(X) <- a(X).

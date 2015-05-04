@@ -1,0 +1,10 @@
+ce1(X,Y,Z) <- a(X) and b(Y) and c(Z) check((rules(1,[X,Y]))).
+ce2(Z,R,M) <- ce1(X,Y,Z) seq d(R) and e(M) cnot f(Z) seq g(H).
+ce3(U,V,M) <- ce2(Z,R,M) and c(M) or x(P).
+ce4 <- r(Z) or v(W) check((rules(2,[Z,W]))).
+ce5 <- y(Y) and b(B) and c(C) cnot d(D) or e(E).
+ce6 <- y(Y) seq ce5 and r(R) check((rules(1,[Y,B]))).
+ce7 <- y(Y) and ce5 cnot m(M) and r(R) or w(W).
+ce8 <- y(Y) or ce7 and ce(6) cnot a(A).
+ce9 <- y(Y) cnot r(R) or z(Z) and q(Q) and c(C).
+ce10 <- y(Y) and ce9 or a(A) and b(B) and c(C) cnot d(D) or e(E) check((rules(3,[Y,B]))).

@@ -1,0 +1,35 @@
+% correctness_02 test: a bid window is defined by a predetermined time offset.
+	
+e3 'rule:' enrichedCreditBid(Id,Price,Status) <- 
+			creditBid(Id,Price)	where credit_status(Id,Status).
+	
+e4 'rule:' confirmedCreditBid(Id,Price) <- 
+			enrichedCreditBid(Id,Price,Status) where credit_status(_,'OK').
+
+a3 'rule:' newBid(Id,Price) 	<- 	confirmedCreditBid(Id,Price) or cashBid(Id,Price).
+
+bidTmpWinner(-1,-1) 			<- 	bidStart.								
+bidTmpWinner(Id2,Price2) 		<- 	bidTmpWinner(Id1,Price1) seq newBid(Id2,Price2)
+									where (Price1 < Price2).
+									
+% trigger bidWindow event 60 seconds after bidStart event.									
+exceptionAlarm(bidWindow,60)		<- 	bidStart.
+
+e5 'rule:' bidWinner(Id,Price)	<- 	bidTmpWinner(Id,Price) during bidWindow.
+
+% Credit store
+credit_status(2,'OK').
+credit_status(56,'OK').
+credit_status(66,'OK').
+
+
+
+% When test is running, print following events in console:
+print_trigger(bidStart/0).
+print_trigger(bidWindow/0).
+print_trigger(creditBid/2).
+print_trigger(enrichedCreditBid/3).
+print_trigger(confirmedCreditBid/2).
+print_trigger(cashBid/2).
+print_trigger(newBid/2).
+print_trigger(bidWinner/2).

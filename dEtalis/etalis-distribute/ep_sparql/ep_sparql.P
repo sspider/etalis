@@ -1,0 +1,194 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EP-SPARQL
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- style_check(-atom). % required by SWI Prolog for long atoms
+:- ['../etalis.P'].
+:- ['rdf_xml_parser.P'].
+:- ['ep_sparql_parser.P'].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ep_sparql_parse(EPQuery,ParsedEPQuery) % defined in ep_sparql_parser.P
+% ep_sparql_parse(EPQuery,ParsedEPQuery,Win) % defined in ep_sparql_parser.P
+
+% ep_sparql_compile(ParsedEPQuery,CEPRules,ResultComplexEvent)
+% compile_internal_event_rules(main,CEPRules). % defined in ../etalis.P
+
+ep_sparql_compile(select(List,ParsedEPQuery),
+		CEPRules,
+		select_event(Head),
+		Within):-
+	trace,
+	ep_sparql_compile(select(List,ParsedEPQuery,Within),
+		CEPRules,select_event(Head)),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ep_sparql_compile/3
+% ep_sparql_compile(+ParsedEPQuery,-CEPRules,-ResultComplexEvent)
+ep_sparql_compile(select(List,ParsedEPQuery),CEPRules,select_event(Head)):-
+	cep_rule(List,Head,[],L1),
+	cep_rule(ParsedEPQuery,CEPRuleBody,L1,_L2),
+	( CEPRuleBody = [CEPRuleBody1] -> CEPRuleBody2=CEPRuleBody1 
+		; CEPRuleBody2=CEPRuleBody),
+	CEPRules =[eventClause(unlabeled,select_event(Head),CEPRuleBody2)],
+	!.
+
+ep_sparql_compile(select(List,ParsedEPQuery,Within),
+		CEPRules,select_event(Head)):-
+	cep_rule(List,Head,[],L1),
+	cep_rule(ParsedEPQuery,CEPRuleBody,L1,_L2),
+	( CEPRuleBody = [CEPRuleBody1] -> CEPRuleBody2=CEPRuleBody1 
+		; CEPRuleBody2=CEPRuleBody),
+	incCounter(ep_sparql),
+	counter(ep_sparql,Counter),
+	Within = literal(type(xsd:integer,Window)),
+	atom_number(Window,W),
+	assert(event_rule_property(ep_sparql(Counter),
+		event_rule_window,W)),
+	CEPRules =[
+		eventClause(ep_sparql(Counter),
+			select_event(Head),CEPRuleBody2)],	
+	!.
+
+ep_sparql_compile(construct([rdf(X,Y,Z)],ParsedEPQuery),CEPRules,
+		rdf(X1,Y1,Z1)):-
+	cep_rule(rdf(X,Y,Z),rdf(X1,Y1,Z1),[],L1),
+	cep_rule(ParsedEPQuery,CEPRuleBody,L1,_L2),
+	( CEPRuleBody = [CEPRuleBody1] -> CEPRuleBody2=CEPRuleBody1 
+		; CEPRuleBody2=CEPRuleBody),
+	CEPRules =[eventClause(unlabeled,rdf(X1,Y1,Z1),CEPRuleBody2)],
+	!.
+
+ep_sparql_compile(construct([rdf(X,Y,Z)],ParsedEPQuery,Within),CEPRules,
+		rdf(X1,Y1,Z1)):-
+	cep_rule(rdf(X,Y,Z),rdf(X1,Y1,Z1),[],L1),
+	cep_rule(ParsedEPQuery,CEPRuleBody,L1,_L2),
+	( CEPRuleBody = [CEPRuleBody1] -> CEPRuleBody2=CEPRuleBody1 
+		; CEPRuleBody2=CEPRuleBody),
+	incCounter(ep_sparql),
+	counter(ep_sparql,Counter),
+	Within = literal(type(xsd:integer,Window)),
+	atom_number(Window,W),
+	assert(event_rule_property(ep_sparql(Counter),
+		event_rule_window,W)),
+	CEPRules =[eventClause(ep_sparql(Counter),
+		rdf(X1,Y1,Z1),CEPRuleBody2)],
+	!.
+
+% cep_rule/4
+% cep_rule(+ParsedEPQuery,-CEPRules,+L1,-L2)
+cep_rule(function(FU,AR),CEPRules,L1,L2):-
+	!, %trace,
+	cep_rule(AR,X2,L1,L2),
+	CEPRules=..[FU|X2].
+cep_rule([X|Y],CEPRules,L1,L2):-
+	!,
+	cep_rule(X,X2,L1,L3),
+	cep_rule(Y,Y2,L3,L2),
+	CEPRules=[X2|Y2].
+
+
+cep_rule(ParsedEPQuery,ParsedEPQuery,L,L):-
+	atom(ParsedEPQuery),
+	!.
+cep_rule(ParsedEPQuery,ParsedEPQuery,L,L):-
+	number(ParsedEPQuery),
+	!.
+cep_rule(ParsedEPQuery,ParsedEPQuery,L,L):-
+	var(ParsedEPQuery),
+	!.
+cep_rule(ParsedEPQuery,CEPRules,L1,L2):-
+	ParsedEPQuery=rdf(X,Y,Z),
+	!,
+	cep_rule(X,X2,L1,L3),
+	cep_rule(Y,Y2,L3,L4),
+	cep_rule(Z,Z2,L4,L2),
+	( ( nonvar(Z2),Z2=[Z3] ) -> CEPRules=rdf(X2,Y2,Z3)
+	; CEPRules=rdf(X2,Y2,Z2)).
+cep_rule(ParsedEPQuery,CEPRules,L1,L2):-
+	ParsedEPQuery=var(X),
+	!,
+	associate(X,Y,L1,L2),
+	CEPRules=Y.
+cep_rule(ParsedEPQuery,N,L,L):-
+	ParsedEPQuery=literal(type(xsd:decimal,X)),
+	atom_number(X,N),
+	!.
+cep_rule(ParsedEPQuery,N,L,L):-
+	ParsedEPQuery=literal(type(xsd:integer,X)),
+	atom_number(X,N),
+	!.
+cep_rule(ParsedEPQuery,CEPRules,L1,L2):-
+	ParsedEPQuery=..['is',X,Y],
+	!,
+	cep_rule(X,X2,L1,L3),
+	cep_rule(Y,Y2,L3,L2),
+	CEPRules='is'(X2,Y2).
+cep_rule(ParsedEPQuery,CEPRules,L1,L2):-
+	ParsedEPQuery=..[Op,X,Y],
+	relational_op(Op),
+	!,
+	cep_rule(X,X2,L1,L3),
+	cep_rule(Y,Y2,L3,L2),
+	CEPRule1='is'(A,X2),
+	CEPRule2='is'(B,Y2),
+	CEPRule3=..[Op,A,B],
+	CEPRules=','(CEPRule1,','(CEPRule2,CEPRule3)).
+cep_rule(ParsedEPQuery,CEPRules,L1,L2):-
+	ParsedEPQuery=..[Z,X,Y],
+	atom(Z),
+	!,
+	cep_rule(X,X2,L1,L3),
+	cep_rule(Y,Y2,L3,L2),
+	( (nonvar(X2),X2=[X3]) -> X4=X3 ; X4=X2 ),
+	( (nonvar(Y2),Y2=[Y3]) -> Y4=Y3 ; Y4=Y2 ),
+	 CEPRules=..[Z,X4,Y4].
+cep_rule(ParsedEPQuery,CEPRules,L1,L2):-
+	ParsedEPQuery=..[Z|T],
+	atom(Z),
+	!,
+	cep_rule_list(T,T2,L1,L2),
+	CEPRules=..[Z|T2].
+
+% cep_rule_list/4
+% cep_rule_list(+L,-CEPRules,+L1,-L2)
+cep_rule_list([],[],L1,L1):-
+	!.
+cep_rule_list([ParsedEPQuery|T],[CEPRules|TCEPRules],L1,L2):-
+	cep_rule(ParsedEPQuery,CEPRules,L1,L3),
+	cep_rule_list(T,TCEPRules,L3,L2).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+associate(X,Y,L,L):-
+	member(a(X,Y),L),
+	!.
+associate(X,Y,L,[a(X,Y)|L]):-
+	!.
+
+relational_op(=).
+relational_op(\=).
+relational_op(=<).
+relational_op(>=).
+relational_op(<).
+relational_op(>).
+relational_op(is).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% rdf_xml_event/1
+% rdf_xml_event(+RDF_XML_Triples)
+rdf_xml_event(RDF_XML_Triples):-
+	parse_RDF_XML(RDF_XML_Triples,ListTriples), % in rdf_xml_parser.P
+	fire_triples(ListTriples),
+	!.
+
+% fire_triples/1
+% fire_triples(+T)
+fire_triples([]):-
+	!.
+fire_triples([t(S,P,V)|ListTriples]):-
+	event(t(S,P,V)),
+	fire_triples(ListTriples),
+	!.
+		
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,0 +1,4 @@
+print_trigger(_).
+
+temp1(Y) <- a(X) seq b(Y) where (Y>X).
+d(Z) <- temp1(Y) seq c(Z) where (Z>Y).

@@ -1,0 +1,21 @@
+%syntaxic notes
+% 1) window size must be a floating number. 2 must be written as 2.0
+
+%test 1: using a sliding window of ^0.1 sec
+e1 <- a(X) seq b(Y) seq c(Z) where(X>1) within (2.0).
+
+
+%test 2: argument processing
+%e1(X,Y,Z,E) <- (a1(X,Y) seq d1(Z,E)) where(X>10) within (2.0).
+
+%e2(X,Y,Z,E) <- (a2(X,Y) seq d2(Z,E)) within (2.0).
+
+%e3 <- (a(X) seq b) where (X>2).
+
+%
+%test 3: where clause
+
+%e2(X,Y,Z,E) <- (c(X,Y) seq f(Z,E)) within (2.0) where (X>5).
+
+%print_trigger(e1).
+%print_trigger(e2).

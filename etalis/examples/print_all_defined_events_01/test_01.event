@@ -1,0 +1,4 @@
+print_trigger(all_defined_events).
+
+d(X) <- a(X) 'seq' b(X) 'par' c(X).
+

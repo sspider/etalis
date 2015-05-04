@@ -1,0 +1,5 @@
+print_trigger(_/0).
+
+ce1 iff a seq b.
+ce2 iff ce1 seq d.
+

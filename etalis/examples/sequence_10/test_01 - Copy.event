@@ -1,0 +1,27 @@
+print_trigger(_).
+
+d(X,Z) <- a(X) seq b(Y) seq c(Z) where (1<X, 1<Y, X<Y, 1<Z, Y<Z).
+
+e1(X) <- a(X) where (1<X).
+e2(Y) <- b(X) where (1<Y).
+% e3(X,Y) <- e1(X) seq e2(Y) where (X<Y).
+e3(X,Y) <- e1(X) seq e2(Y).
+e4(X,Y) <- e3(X,Y) where (X<Y).
+e5(Z) <- c(Z) where (1<Z).
+% d(X,Z) <- e4(X,Y) seq e5(Z) where (Y<Z).
+e6(X,Y,Z) <- e4(X,Y) seq e5(Z).
+d(X,Z) <- e6(X,Y,Z) where (Y<Z).
+
+
+d(X,Z) <- a(X) seq b(Y) par c(Z) where (1<X, 1<Z, Y<Z).
+
+e1(X) <- a(X) where (1<X).
+e3(X,Y) <- e1(X) seq b(Y).
+e5(Z) <- c(Z) where (1<Z).
+% d(X,Z) <- e3(X,Y) seq e5(Z) where (Y<Z).
+e6(X,Y,Z) <- e3(X,Y) par e5(Z).
+d(X,Z) <- e6(X,Y,Z) where (Y<Z).
+
+%Parse:
+%a(X) seq b(Y) par c(Z) where (1<X, 1<Z, Y<Z).
+

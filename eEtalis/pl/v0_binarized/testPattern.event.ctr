@@ -1,0 +1,4 @@
+trClause(unlabeled,event(a,[_132210,_132212]),buffer(event(a,[_132210,_132212]))).
+
+trClause(unlabeled,event(d,[_132210,_132212]),lateExecution(event(d,[_132210,_132212]),event(a,[_132210,_132212]),win(2),e)).
+

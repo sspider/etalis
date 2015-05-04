@@ -1,0 +1,45 @@
+
+
+
+
+tc(EventFile):-
+	load_event_stream_file(EventFile,EventList),
+	my_cputime1(T0),
+	repeat_loadRules(EventList),
+	my_cputime1(T1),
+	DT1 is T1-T0,
+	nl,
+	write(EventFile),write(' '),
+	write(DT1),
+	nl,
+	nl.
+
+repeat_loadRules([H|T]):-
+	addsr(H),
+	repeat_loadRules(T).
+repeat_loadRules([]).
+
+my_cputime1(T):-
+	cputime(T),
+	!.
+my_cputime1(T):-
+	T is cputime.
+
+addsr(r(X,Y)) :-
+	assert(r(X,Y)),checktc(r(X,Y)).
+
+checktc(r(Y,Z)) :-
+	findall(r(X,Y),r(X,Y),RuleList),
+	repeat_tcRules(Z,RuleList).
+	%r(Z,X),
+	%addsr(r(Z,Y)),
+	%!.
+checktc(_) :- !.
+
+
+repeat_tcRules(Z,[r(X,_)|T]):-
+	assert(r(X,Z)),
+	repeat_tcRules(Z,T).
+repeat_tcRules(_,[]).
+
+

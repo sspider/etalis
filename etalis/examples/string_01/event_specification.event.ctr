@@ -1,0 +1,4 @@
+trClause(unlabeled,event(b(_G1371),[_G1570,_G1573]),seqf(etr_dbf(unlabeled,goal(event(b(_G1371)),event(a(_G1369),[_G1591,_G1594]),event(stop))),seqf(less(_G1594,_G1570),seqf(check_event_rule_conditions(unlabeled,stop,[_G1591,_G1573]),seqf(prolog(contains(_G1369,_G1371)),seqf(etr_delf(unlabeled,goal(event(b(_G1371)),event(a(_G1369),[_G1591,_G1594]),event(stop))),event(stop,[_G1591,_G1573]))))))).
+
+trClause(unlabeled,event(a(_G1369),[_G1537,_G1540]),etr_insf(unlabeled,goal(event(b(_G1371)),event(a(_G1369),[_G1537,_G1540]),event(stop)))).
+

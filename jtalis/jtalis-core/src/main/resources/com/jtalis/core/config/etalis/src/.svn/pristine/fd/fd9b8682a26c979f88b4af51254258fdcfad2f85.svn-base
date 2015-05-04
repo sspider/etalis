@@ -1,0 +1,698 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% $Rev$:     Revision of last commit
+% $Author$:  Author of last commit
+% $Date$:    Date of last commit
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Modules:
+:- ensure_loaded('binarizer.P').
+:- ensure_loaded('compiler.P').
+:- ensure_loaded('date_time.P').
+:- ensure_loaded('event_utils.P').
+:- ensure_loaded('executor.P').
+:- ensure_loaded('flags.P').
+:- ensure_loaded('garbage_collection.P').
+:- ensure_loaded('java_interface.P').
+:- ensure_loaded('justify_etalis.P').
+:- ensure_loaded('labeled_event_rules.P').
+:- ensure_loaded('logging.P').
+%:- ensure_loaded('network_tcp_interface.P').
+:- ensure_loaded('parser.P').
+%:- ensure_loaded('parallelism.P').
+:- ensure_loaded('storage.P').
+:- ensure_loaded('string.P').
+:- ensure_loaded('utils.P').
+:- ensure_loaded('java_communication.P').
+
+% compile_event_file/1
+%  compiles an event file, parsing, binarization, transformation to
+%  transaction logic
+%?- compile_event_file('examples/event_test_01.event').
+% Parses the "event_test_01.event" file according to the syntax
+% Binarization (and also saves a file "event_test_01.event.bin" if the flag
+%       "logging(on)" is set)
+% Transformation to TR (and also saves a file "event_test_01.event.ctr" if
+%       the flag "logging(on)" is set)
+compile_event_file(InputFile):-
+	open(InputFile,read,InputHandle),
+	repeat_read(InputHandle,RawEventRules),
+	compile_event_rules(InputFile,RawEventRules),
+	close(InputHandle),
+	!.
+
+% backward compatibility with Etalis version of 2011
+compile_events(X):-
+	compile_event_file(X).
+
+% compile_event_rules/1
+compile_event_rules(RawEventRules):-
+	\+ ( list(RawEventRules)),
+	nl,nl,write('Error: the input to the predicate '), 
+	write(compile_event_rules(RawEventRules)), 
+	write(' has to be a list!'), nl,nl,
+	!.
+compile_event_rules(RawEventRules):-
+	compile_event_rules('main',RawEventRules),
+	!.
+
+% compile_event_rules/2
+compile_event_rules(ModuleFileName,RawEventRules):-
+	( etalis_module(OldModule,ExternalPred) ->
+		retractall(etalis_module(_,_)) ; OldModule=main ),
+	% parser.P
+	parse_event_rules1(RawEventRules,ParsedEventRules),
+	% binarizer.P
+	(
+		binarization_flag(on)-> binarization(ParsedEventRules,BinaryEventRules)
+		; BinaryEventRules = ParsedEventRules
+	),
+	logging_binary_file(ModuleFileName,BinaryEventRules),
+	assert_binary_event_rules(BinaryEventRules),
+	% compiler.P
+	event2tr_transformation(BinaryEventRules,TRRules),
+	logging_TR_file(ModuleFileName,TRRules),
+	assert_trRules(TRRules),
+	% start garbage collector
+	start_garbage_collection,
+	( OldModule = main -> true ;
+		assert(etalis_module(OldModule,ExternalPred)) ),
+	!.
+
+% compile_event_rules/2 
+% no parsing is necessary, CEP rules already in internal format
+compile_internal_event_rules(ModuleFileName,ParsedEventRules):-
+	( etalis_module(OldModule,ExternalPred) ->
+		retractall(etalis_module(_,_)) ; OldModule=main ),
+	% binarizer.P
+	binarization(ParsedEventRules,BinaryEventRules),
+	logging_binary_file(ModuleFileName,BinaryEventRules),
+	assert_binary_event_rules(BinaryEventRules),
+	% compiler.P
+	event2tr_transformation(BinaryEventRules,TRRules),
+	logging_TR_file(ModuleFileName,TRRules),
+	assert_trRules(TRRules),
+	% start garbage collector
+	start_garbage_collection,
+	( OldModule = main -> true ;
+		assert(etalis_module(OldModule,ExternalPred)) ),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% query_planner/2
+query_planner(InputFile,OutputFile):-
+	open(InputFile,read,InputHandle),
+	repeat_read(InputHandle,RawEventRules),
+	close(InputHandle),
+	parse_event_rules1(RawEventRules,ParsedEventRules),
+	% query planner
+	query_planner1(ParsedEventRules,EventRules),
+	% output
+	logging_qp_file(OutputFile,EventRules),
+	!.
+
+% query_planner1(+ParsedEventRules,-EventRules)
+%  query planning for multiple rules
+query_planner1([],[]):-
+	!.
+query_planner1([H|ParsedEventRules],EventRules):-
+	query_planner2(H,EventRulesH),
+	query_planner1(ParsedEventRules,EventRules2),
+	append(EventRulesH,EventRules2,EventRules),
+	!.
+
+% query_planner2(+OneEventRule,-EventRules)
+%  query planning for one rule
+query_planner2(eventClause(_,H,wheref(SeqBody,Constraints)),EventRules):-
+	flatten1(SeqBody,SeqList), 
+	SeqList = [CurrentEvent|TSeqList],
+	flatten2(Constraints,ConstraintList),
+  query_planner3(CurrentEvent,TSeqList,ConstraintList,LastEvent,TEventRules),
+  EventRules = [
+  	eventClause(unlabelled,H,LastEvent)
+  	| TEventRules
+  ],
+	!.
+query_planner2(X,[X]):-
+	!.
+
+% generate new predicate name
+generateNewPredName(NewEventPred):-
+	incCounter(binarizationCounter),
+	counter(binarizationCounter,Counter),
+	number_codes(Counter,CounterList),
+	atom_codes(NewEventPred,[116,101,109,112,95,101,95|CounterList]),
+	!.
+
+% query_planner3(+CurrentEvent,+TSeqList,+ConstraintList,-LastEvent,-EventRules)
+query_planner3(CurrentEvent,[],[],CurrentEvent,[]):-
+	!.
+query_planner3(CurrentEvent,[],ConstraintList,LastEvent,EventRules):-
+	ConstraintList \= [],
+	% generate a new temporary event for the "CurrentEvent where ConstraintList"
+	generateNewPredName(NewEventPred),
+	collect_vars(CurrentEvent,[],CurrentEventVarList),
+	NewEvent =.. [NewEventPred | CurrentEventVarList],
+	LastEvent = NewEvent,
+	EventRules = [
+		eventClause(unlabelled,NewEvent,wheref(CurrentEvent,ConstraintList))
+	].
+%  collect all vars for the current event in the seq
+%  collect all vars for each constraint
+%   select the constraints that have a subset of the variables in the current event
+%  generate the intermediary event that has the current event + constraints
+%  cuple the current event with the next event in the sequence 
+%  call recursivelly query_planner3
+query_planner3(CurrentEvent,TSeqList,ConstraintList,LastEvent,EventRules):-
+	collect_vars(CurrentEvent,[],CurrentEventVarList),
+	% findall constraints with vars subsets of the variables of the current Event
+	%  eliminate those constraints from the list of constraints
+	selectConstraints(ConstraintList, CurrentEventVarList, SelectedConstraints, RestConst),
+	(SelectedConstraints=[]
+		-> A = CurrentEvent
+		; (
+				generateNewPredName(NewEventPred),
+				A =.. [NewEventPred | CurrentEventVarList],
+				ARule = eventClause(unlabelled,A,wheref(CurrentEvent,SelectedConstraints))
+			)
+	),
+	(TSeqList=[]
+		-> (
+				LastEvent = A,
+				EventRules = [ARule]
+			)
+		; (
+				TSeqList= [B|TTSeqList],
+				collect_vars(B,[],BVarList),
+				selectConstraints(RestConst, BVarList, SelectedConstraints2, RestConst2),
+				(SelectedConstraints2=[]
+					-> B2 = B
+					; (
+							generateNewPredName(NewEventPred2),
+							B2 =.. [NewEventPred2 | BVarList],
+							BRule = eventClause(unlabelled,B2,wheref(B,SelectedConstraints2))
+						)
+				),
+				generateNewPredName(NewEventPred3),
+				union_vars(CurrentEventVarList,BVarList,CVarList),
+				C =.. [NewEventPred3 | CVarList],
+				CRule = eventClause(unlabelled,C,seqf(A,B2)),
+				query_planner3(C,TTSeqList,RestConst2,LastEvent,TEventRules),
+				EventRules = [ARule,BRule,CRule|TEventRules]				
+			)
+	).
+	
+% selectConstraints(+ConstraintList, +CurrentEventVarList, -SelectedConstraints, -RestConst)
+%  findall constraints with vars subsets of the variables of the current Event
+%  eliminate those constraints from the list of constraints
+selectConstraints([], _, [], []):-
+	!.
+selectConstraints([H|T], CurrentEventVarList, [H|SelectedConstraints], RestConst):- 
+	collect_vars(H,[],HVarList),
+	subset_set_vars(HVarList,CurrentEventVarList),
+	selectConstraints(T, CurrentEventVarList, SelectedConstraints, RestConst),
+	!.
+selectConstraints([H|T], CurrentEventVarList, SelectedConstraints, [H|RestConst]):- 
+	selectConstraints(T, CurrentEventVarList, SelectedConstraints, RestConst),
+	!.
+	
+%%%
+
+% subset_set_vars(+VarList1,+VarList2)
+%  check if a list of vars is a subset of another list of vars
+subset_set_vars([],_):-
+	!.
+subset_set_vars([H|VarList1],VarList2):-
+	select_set_vars(H,VarList2,VarList3),
+	subset_set_vars(VarList1,VarList3),
+	!.
+
+% union_vars(+V1,+V2,-V3)
+%  union var list
+union_vars([],V2,V2).
+union_vars([H|T],V2,V3):-
+	member_var(H,V2),
+	union_vars(T,V2,V3),
+	!.
+union_vars([H|T],V2,[H|V3]):-
+	union_vars(T,V2,V3),
+	!.
+
+% equal_set_vars(+VarList1,+VarList2)
+equal_set_vars([],[]):-
+	!.
+equal_set_vars([H|VarList1],VarList2):-
+	select_set_vars(H,VarList2,VarList3),
+	equal_set_vars(VarList1,VarList3),
+	!.
+
+% select_set_vars(+H,+VarList2,-VarList3)
+select_set_vars(H,[H2|VarList2],VarList2):-
+	H == H2,
+	!.
+select_set_vars(H,[H3|VarList2],[H3|VarList3]):-
+	select_set_vars(H,VarList2,VarList3),
+	!.
+
+% collect_vars(+H,+VarList1,-VarList2)
+collect_vars(H,VarList1,VarList1):-
+	var(H),
+	member_var(H,VarList1),
+	!.
+collect_vars(H,VarList1,VarList1):-
+	atomic(H),
+	!.
+collect_vars(H,VarList1,[H|VarList1]):-
+	var(H),
+	!.
+collect_vars(H,VarList1,VarList2):-
+	H =.. [_|T],
+	collectVarsList(T,VarList1,VarList2),
+	!.
+collect_vars(_,VarList1,VarList1):-
+	!.
+
+% collectVarsList(+T,+VarList1,-VarList2)
+collectVarsList([],VarList1,VarList1):-
+	!.
+collectVarsList([H|T],VarList1,VarList2):-
+	collect_vars(H,VarList1,VarList3),
+	collectVarsList(T,VarList3,VarList2),
+	!.
+
+% member_var(+H,+VarList1)
+member_var(H,[H2|_]):-
+	H == H2,
+	!.
+member_var(H,[_|T]):-
+	member_var(H,T),
+	!.
+
+% flatten1(+SeqBody,-ListSeqBody)
+flatten1(seqf(X,Y),L):-
+	flatten1(X,L1),
+	flatten1(Y,L2),
+	append(L1,L2,L),
+	!.
+flatten1(X,[X]):-
+	!.
+
+% flatten2(+Constraints,-ListConstraints)
+flatten2(H,[C|L]):-
+	H =.. [',',C,T],
+	flatten2(T,L),
+	!.
+flatten2(X,[X]):-
+	!.
+
+% logging_qp_file(+OutputFile,+EventRules)
+logging_qp_file(OutputFile,EventRules):-
+	open(OutputFile,write,OutputFileHandle),
+	write(OutputFileHandle,'print_trigger(_).\n\n'),
+	writeQPFile(OutputFileHandle,EventRules,[],_),
+	close(OutputFileHandle).
+
+% writeQPFile(+OutputFileHandle,+EventRules,+D1,-D2)
+writeQPFile(OutputFileHandle,[H|T],D1,D2):-
+	!,
+	resetCounter(dictv),
+	writeEventRule(OutputFileHandle,H,D1,D3),	
+	write(OutputFileHandle,'.\n\n'),
+	writeQPFile(OutputFileHandle,T,D3,D2).
+writeQPFile(_OutputFileHandle,[],D1,D1).
+
+% writeEventRule(+OutputFileHandle,+H,+D1,-D2)
+writeEventRule(OutputFileHandle,eventClause(_,H,wheref(X,Y)),D1,D2):-
+	writeTerm(OutputFileHandle,H,D1,D3),
+	write(OutputFileHandle,' <- '),
+	writeTerm(OutputFileHandle,X,D3,D4),
+	write(OutputFileHandle,' where ( '),
+	writeTermList(OutputFileHandle,Y,D4,D2),
+	write(OutputFileHandle,' )'),
+	!.
+writeEventRule(OutputFileHandle,eventClause(_,H,seqf(X,Y)),D1,D2):-
+	writeTerm(OutputFileHandle,H,D1,D3),
+	write(OutputFileHandle,' <- '),
+	writeTerm(OutputFileHandle,X,D3,D4),
+	write(OutputFileHandle,' seq '),
+	writeTerm(OutputFileHandle,Y,D4,D2),
+	write(OutputFileHandle,''),
+	!.
+writeEventRule(OutputFileHandle,eventClause(_,H,B),D1,D2):-
+	writeTerm(OutputFileHandle,H,D1,D3),
+	write(OutputFileHandle,' <- '),
+	writeTerm(OutputFileHandle,B,D3,D2),
+	!.
+writeEventRule(OutputFileHandle,X,D1,D2):-
+	writeTerm(OutputFileHandle,X,D1,D2),
+	!.
+	
+%%%
+:- resetCounter(dictv).
+
+% add_check(+K,-V,+D,-D2)
+add_check(K,V,[],[p(K,V)]):-
+	incCounter(dictv),
+	counter(dictv,VN),
+	atom_concat('X',VN,V),
+	!.
+add_check(K,V,[p(K2,V)|T],[p(K2,V)|T]):-
+	K == K2,
+	!.
+add_check(K,V,[H|T],[H|T2]):-
+	add_check(K,V,T,T2),
+	!.
+
+% writeTerm(+OHandler,+H,+D,-D2)
+writeTerm(OHandler,H,D1,D2):-
+	var(H),
+	add_check(H,V1,D1,D2),
+	write(OHandler,V1),
+	!.
+writeTerm(OHandler,H,D1,D1):-
+	atomic(H),
+	write(OHandler,H),
+	!.
+writeTerm(OHandler,H,D1,D2):-
+	H =.. [P|T],
+	write(OHandler,P),
+	write(OHandler,'('),
+	writeTermList(OHandler,T,D1,D2),
+	write(OHandler,')'),
+	!.
+  
+% writeTermList(+OHandler,+L,+D1,-D2)
+writeTermList(_OHandler,[],D1,D1):-
+	!.
+writeTermList(OHandler,[H],D1,D2):-
+	writeTerm(OHandler,H,D1,D2),
+	!.
+writeTermList(OHandler,[H|T],D1,D2):-
+	writeTerm(OHandler,H,D1,D3),
+	write(OHandler,', '),
+	writeTermList(OHandler,T,D3,D2),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Execution:
+% event/1
+event(event(E,D)):-
+	!,
+	event(E,D).
+event(E):-
+	label_time_stamp(Datime),
+	event(E,[Datime,Datime]).
+
+% event/2
+event(E,[datime(Y1,M1,D1,H1,Min1,Sec1,Counter1),
+		datime(Y2,M2,D2,H2,Min2,Sec2,Counter2)]):-
+	 % event_trigger is defined in executer.P
+	event_trigger(event(E,[datime(Y1,M1,D1,H1,Min1,Sec1,Counter1), 
+		datime(Y2,M2,D2,H2,Min2,Sec2,Counter2)])).
+event(E,[datime(Y1,M1,D1,H1,Min1,Sec1),datime(Y1,M1,D1,H1,Min1,Sec1)]):-
+	incCounter(timeCounter(datime(Y1,M1,D1,H1,Min1,Sec1))),
+	counter(timeCounter(datime(Y1,M1,D1,H1,Min1,Sec1)),Counter1),
+	Datime1 = datime(Y1,M1,D1,H1,Min1,Sec1,Counter1),
+	event_trigger(event(E,[Datime1,Datime1])).
+event(E,[datime(Y1,M1,D1,H1,Min1,Sec1),datime(Y2,M2,D2,H2,Min2,Sec2)]):-
+	incCounter(timeCounter(datime(Y1,M1,D1,H1,Min1,Sec1))),
+	counter(timeCounter(datime(Y1,M1,D1,H1,Min1,Sec1)),Counter1),
+	Datime1 = datime(Y1,M1,D1,H1,Min1,Sec1,Counter1),
+	incCounter(timeCounter(datime(Y2,M2,D2,H2,Min2,Sec2))),
+	counter(timeCounter(datime(Y2,M2,D2,H2,Min2,Sec2)),Counter2),
+	Datime2 = datime(Y2,M2,D2,H2,Min2,Sec2,Counter2),
+	event_trigger(event(E,[Datime1,Datime2])).
+event(E,[T1,T2]):-
+	event_trigger(event(E,[T1,T2])).
+event(E,T):-
+	number(T),
+	current_datime(datime(Y,M,D,H,Min,Sec)),
+	event_trigger(event(E,[datime(Y,M,D,H,Min,Sec,T),
+		datime(Y,M,D,H,Min,Sec,T)])).
+
+load_static_rules(InputFile):- consult(InputFile).
+
+load_database(InputFile):-
+	open(InputFile,read,InputHandle),
+	repeat_read_database(InputHandle),
+	close(InputHandle),
+	!.
+
+repeat_read_database(InputHandle):-
+	read_term(InputHandle,Term,[]),
+	Term \= end_of_file,
+	assert(Term),
+	repeat_read_database(InputHandle).
+repeat_read_database(_InputHandle).
+
+label_time_stamp(Datime):-
+	current_datime(DTdef),
+	DTdef=datime(Y,M,D,H,Min,Sec),
+	incCounter(timeCounter(datime(Y,M,D,H,Min,Sec))),
+	counter(timeCounter(datime(Y,M,D,H,Min,Sec)),Counter),
+	Datime = datime(Y,M,D,H,Min,Sec,Counter),
+	!.
+
+% fire_event_list_return_external_events(EventList,OutputList)
+fire_event_list_return_external_events(EventList,OutputList):-
+	is_list(EventList),
+	fire_events_java(EventList,OutputList),
+	!.
+fire_event_list_return_external_events(EventList,OutputList):-
+	write('Warning: fire_event_list_return_external_events(EventList,OutputList) the EventList is not a list.\n We will fire a single event EventList.'),
+	fire_events_java([EventList],OutputList),
+	!.
+
+% execute_event_stream_file(+EventFile)
+execute_event_stream_file(EventFile):-
+	load_event_stream_file(EventFile,EventList),
+	%mycputime(T0),
+	repeat_fire_event_list(EventList),
+	%mycputime(T1), DT is T1-T0,
+	%nl, write('Cputime for execute_event_stream_file: '), write(DT),
+	%write('ms'), nl,
+	!.
+% load_event_stream_file(+InputHandle,-Events)
+load_event_stream_file(EventFile,EventList):-
+	open(EventFile,read,InputHandle),
+	repeat_read_event(InputHandle,EventList),
+	close(InputHandle).
+% repeat_read_event(+InputHandle,-Events)
+repeat_read_event(InputHandle,[Term|RestEvents]):-
+	read_term(InputHandle,Term,[]),
+	Term \= end_of_file,
+	repeat_read_event(InputHandle,RestEvents),
+	!.
+repeat_read_event(_InputHandle,[]).
+
+% fire_event_list(+EventList)
+fire_event_list(EventList):-
+	is_list(EventList),
+	repeat_fire_event_list(EventList),
+	!.
+fire_event_list(EventList):-
+	write('Warning: fire_event_list(EventList) the EventList is not a list.\n We will fire a single event EventList.'),
+	event(EventList),
+	!.
+	
+% repeat_fire_event_list(-Events)
+repeat_fire_event_list([sleep(_H)|T]):-
+	prolog_backend(yap), % YAP prolog does not have the sleep predicate
+	repeat_fire_event_list(T).
+repeat_fire_event_list([H|T]):-
+	call(H),
+	repeat_fire_event_list(T).
+repeat_fire_event_list([]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ins_event_rule/1
+%  the attribute can be a rule
+ins_event_rule(Term):-
+	tr_operators,
+	parse_event_rule(Term,EventRule),
+	binarization([EventRule],BinaryEventRules),
+	logging_binary_file('dynamic_rules',BinaryEventRules),
+	event2tr_transformation(BinaryEventRules,TRRules),
+	logging_TR_file('dynamic_rules',TRRules),
+	assert_trRules(TRRules),
+	!.
+
+% del\_event\_rule/1
+%  deletes event rules: the attribute can be a rule reference or a rule
+% The reasons for using only the id in delete are the following:
+% 1. event rules are compiled in multiple internal rules, so deleting all
+% rules that resulted from one event rule is quite complicated: we have to
+% compile the rule and extract all rules resulted from this one rule;
+% 2. temporary events are re-named (and also new variables are generated) and
+% these temporary have to be checked at deletion. Simple unification of even
+% variant won't do it because right bindings have to be checked.
+% 3. sharing is enabled and we don't want to delete common bodies that take
+% part in other rules as well as the current one that we delete.
+% Example 1:
+% d<- a seq b seq c.
+% e<- a seq b seq c.
+% Sharing is enabled by default, then the two bodies are represented by a same
+% internal events. After binarization we have:
+% temp1<- a seq b.
+% temp2<- temp1 seq c.
+% d<- temp2.
+% e<- temp2.
+% If we delete the rule for d, we don't want to delete the rules for temp1 and
+% temp2 because they are shared in the definition of e.
+% Example 2: however, we don't want to delete only the rule for "d<- temp2."
+% and leave all the intermediary internal rules inside without checking that
+% other rules are using it.
+% f<- a seq b seq c seq ... seq z.
+% Just deleting the root rule: f<- tempX. leaves inside a lot of internal
+% events.
+% 4. when we have rule ids (and properties associated to these ids) these are
+% pushed into all compiled rules. We know exactly what to delete.
+% 5. we can also do bulk deletes with ids: multiple rules can share the same
+% ID (the id doesn't have to be unique), so deleting one ID deletes all rules
+% that share that ID.
+del_event_rule(Label):-
+	Label \= '<-'(_H,_B),
+	Label \= 'rule:'(_L,_R),
+	retractall(trClause(Label,_Head,_Body)),
+	!.
+del_event_rule(Term):-
+	tr_operators,
+	parse_event_rule(Term,EventRule),
+	binarization([EventRule],BinaryEventRules),
+	event2tr_transformation(BinaryEventRules,TRRules),
+	retractall_internal(TRRules),
+	!.
+
+% retractall_stored_events/0
+retractall_stored_events :-
+	retractall(stored_event(_)),
+	retractall(fired_event(_,_)),
+	retractall(stored_event_java(_)),
+	!.	
+
+% reset_etalis_state/0
+reset_etalis_state :-
+	retractall_stored_events,
+	retractall(etr_db(_,_,_,_,_)),
+	retractall(etr_db(_,_,_,_,_,_)),
+	retractall(etr_db(_)),
+	!.
+
+% reset_etalis/0
+reset_etalis:-
+	retractall(trClause(_Label,_Head,_Body)),
+	reset_db,
+	% reset etalis state
+	retractall(fired_event(_,_)),
+	retractall(etr_db(_,_,_,_,_)),
+	retractall(etr_db(_,_,_,_,_,_)),
+	retractall(etr_db(_)),
+	retractall(logging(_)),
+	retractall(stored_event(_)),
+	retractall(logging_to_file(_)),
+	retractall(stored_event_java(_)),
+	% reset Etalis static state and engine
+	retractall(event_rule_property(_,_,_)),
+	retractall(garbage_control(_)),
+	retractall(garbage_window(_)),
+	retractall(garbage_window_step(_)),
+	retractall(binary_event_rule(_,_,_)),
+	retractall(event_consumption_policy(_)),
+	retractall(external_trigger(_)),
+	retractall(print_trigger(_)),
+	retractall(spy_event_pattern(_)),
+	retractall(out_of_order(_)),
+	retractall(revision_flag(_)),
+	retractall(justification_edge(_,_)),
+	retractall(rule_sharing(_)),
+	retractall(rule_sharing_debuging(_)),
+	retractall(event_clause_debuging(_)),
+	retractall(counter_internal(_,_)),
+	retractall(count(_,_)),
+	retractall(flag_internal(_,_)),
+	retractall(db(_)),
+	retractall(trClause(_,_,_)),
+	!.
+
+reset_etalis_static_state_and_engine :-
+	retractall(event_rule_property(_,_,_)),
+	retractall(garbage_control(_)),
+	retractall(garbage_window(_)),
+	retractall(garbage_window_step(_)),
+	retractall(binary_event_rule(_,_,_)),
+	retractall(event_consumption_policy(_)),
+	retractall(external_trigger(_)),
+	retractall(print_trigger(_)),
+	retractall(spy_event_pattern(_)),
+	retractall(out_of_order(_)),
+	retractall(revision_flag(_)),
+	retractall(justification_edge(_,_)),
+	retractall(rule_sharing(_)),
+	retractall(rule_sharing_debuging(_)),
+	retractall(event_clause_debuging(_)),
+	retractall(counter_internal(_,_)),
+	retractall(count(_,_)),
+	retractall(flag_internal(_,_)),
+	retractall(db(_)),
+	retractall(trClause(_,_,_)),
+	!.
+
+% retractall_internal/1
+retractall_internal([]).
+retractall_internal([H|T]):-
+	rename_temp_events(H,H2),
+	retractall_trClause(H2),
+	retractall_internal(T).
+
+% rename_temp_events/2
+rename_temp_events(H,H):-
+	var(H),
+	!.
+rename_temp_events([H|T],[H2|T2]):-
+	rename_temp_events(H,H2),
+	rename_temp_events(T,T2),
+	!.
+rename_temp_events(H,H):-
+	number(H),
+	!.
+rename_temp_events(H,H2):-
+	atom(H),
+	non_temp_event(H,H2),
+	!.
+rename_temp_events(H,H2):-
+	H =.. L,
+	rename_temp_events(L,H2),
+	!.
+
+% retractall_trClause/1
+retractall_trClause(H2):-
+	trClause(Label,Head,Body),
+	rename_temp_events(trClause(Label,Head,Body),H3),
+	H2=H3,
+	retractall(trClause(Label,Head,Body)),
+	!.
+retractall_trClause(_H2).
+
+% non_temp_event/2
+non_temp_event(X,_X2):-
+	atom_codes(X,[116, 101, 109, 112, 95, 101, 95|_]),
+	!.
+non_temp_event(unlabeled,_). % unlabeled rules match all rules
+non_temp_event(X,X).
+
+% del_all_event_rules/1
+%  delete all rules whose head is d (this doesn't delete temporary  events of
+%  compiled rules, since we don't know what were the original rules
+del_all_event_rules(Head):-
+	retractall(trClause(_Label,Head,_Body)),
+	!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ins_static_rule/1
+ins_static_rule(Term):-
+	assert(Term).
+
+% del_static_rule/1
+del_static_rule(Term):-
+	retractall(Term).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

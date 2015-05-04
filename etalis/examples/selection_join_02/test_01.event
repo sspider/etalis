@@ -1,0 +1,8 @@
+print_trigger(a/5).
+print_trigger(b/5).
+print_trigger(ce/5).
+
+ce(ID,A1,A2,A3,TS) <- 
+        a(ID,A1,A2,A3,TS) 'seq'
+        b(ID,A1,A2,A3,TS) 'where'
+        ID =< 2.

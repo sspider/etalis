@@ -1,0 +1,4 @@
+swipl -g "open('../results.txt',append,FH), ['../../src/etalis.P'], set_etalis_flag(output_temporary_files,on), set_etalis_flag(logging_to_file,on), set_etalis_flag(store_fired_events,on), compile_event_file('test_01.event'), event(a(1)), event(b(1)), event(b(2)), halt."
+
+
+swipl -g "open('../results.txt',append,FH), ['../../src/etalis.P'], set_etalis_flag(output_temporary_files,on), set_etalis_flag(logging_to_file,on), set_etalis_flag(store_fired_events,on), compile_event_file('test_01.event'), event(a(1)), event(b(1)), event(b(2)), findall(stored_event(event(d(X,Y),T)),stored_event(event(d(X,Y),T)),List), ( List = [stored_event(event(d(_,_),[datime(_,_,_,_,_,_,_),datime(_,_,_,_,_,_,_)]))] -> write(FH,'where_02\t\t\tpassed\n'),write('where_02\t\t\tpassed\n') ; write(FH,'where_02\t\t\tfailed\n'),write('where_02\t\t\tfailed\n') ),halt."

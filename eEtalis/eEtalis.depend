@@ -1,0 +1,149 @@
+# depslib dependency file v1.0
+1342113005 source:c:\hafsi\workspace\eetalis\lib\btree.c
+	"btree.h"
+
+1341234650 c:\hafsi\workspace\eetalis\lib\btree.h
+	<stdlib.h>
+	<stdio.h>
+	<strings.h>
+
+1342114866 source:c:\hafsi\workspace\eetalis\lib\fifo.c
+	"fifo.h"
+
+1342114932 c:\hafsi\workspace\eetalis\lib\fifo.h
+
+1341327186 source:c:\hafsi\workspace\eetalis\lib\kbtest.c
+	<stdio.h>
+	<assert.h>
+	<time.h>
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	"kbtree.h"
+
+1341325364 c:\hafsi\workspace\eetalis\lib\kbtree.h
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+
+1342802821 source:c:\hafsi\workspace\eetalis\lib\red_black_tree.c
+	"red_black_tree.h"
+
+1344975063 c:\hafsi\workspace\eetalis\lib\red_black_tree.h
+	<dmalloc.h>
+	"rb_misc.h"
+	"stack.h"
+
+1342151196 c:\hafsi\workspace\eetalis\src\misc.h
+	<stdio.h>
+	<stdlib.h>
+
+1344975074 c:\hafsi\workspace\eetalis\lib\stack.h
+	"rb_misc.h"
+
+1341328077 source:c:\hafsi\workspace\eetalis\lib\stack.c
+	"stack.h"
+
+1341327939 source:c:\hafsi\workspace\eetalis\lib\test_red_black_tree.c
+	"red_black_tree.h"
+	<stdio.h>
+	<ctype.h>
+
+1345525414 source:c:\hafsi\workspace\eetalis\src\cep_core.c
+	"cep_core.h"
+	"events.h"
+
+1344975590 c:\hafsi\workspace\eetalis\src\cep_core.h
+	<stdlib.h>
+
+1345526440 source:c:\hafsi\workspace\eetalis\src\events.c
+	"events.h"
+
+1345579471 c:\hafsi\workspace\eetalis\src\events.h
+	<SWI-Prolog.h>
+	<time.h>
+	"lib/uthash.h"
+	"red_black_tree.h"
+	"lib/stack.h"
+	"ETALIS_conf.h"
+	"cep_core.h"
+	<assert.h>
+
+1330870548 c:\hafsi\workspace\eetalis\dep\swi-32\pl\include\swi-prolog.h
+	<stdarg.h>
+	<stdlib.h>
+	<stddef.h>
+	<inttypes.h>
+
+1334854072 c:\hafsi\workspace\eetalis\\lib\uthash.h
+	<string.h>
+	<stddef.h>
+	<stdlib.h>
+	<inttypes.h>
+
+1345030064 c:\hafsi\workspace\eetalis\src\etalis_conf.h
+
+1342153313 source:c:\hafsi\workspace\eetalis\src\execution.c
+
+1345029666 source:c:\hafsi\workspace\eetalis\src\main.c
+	<stdio.h>
+	<SWI-Prolog.h>
+	"ETALIS_conf.h"
+	"storage_conf.h"
+	"memory.h"
+	"events.h"
+
+1341326295 c:\hafsi\workspace\eetalis\src\storage_conf.h
+
+1342126434 c:\hafsi\workspace\eetalis\src\memory.h
+
+1342126451 source:c:\hafsi\workspace\eetalis\src\memory.c
+	<SWI-Prolog.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	<assert.h>
+	"red_black_tree.h"
+	"storage_conf.h"
+	"memory.h"
+
+1342126846 source:c:\hafsi\workspace\eetalis\src\misc.c
+
+1342130647 source:c:\hafsi\workspace\eetalis\src\term.c
+	"term.h"
+
+1342010171 c:\hafsi\workspace\eetalis\src\term.h
+	<SWI-Prolog.h>
+
+1345029997 source:c:\hafsi\workspace\eetalis\src\utils.c
+	<SWI-Prolog.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+
+1344690680 c:\hafsi\workspace\eetalis\\src\events.h
+	<SWI-Prolog.h>
+	"lib/uthash.h"
+	"red_black_tree.h"
+	"ETALIS_conf.h"
+	"cep_core.h"
+	<assert.h>
+
+1342711483 c:\hafsi\workspace\eetalis\\src\etalis_conf.h
+
+1344969796 c:\hafsi\workspace\eetalis\\src\cep_core.h
+	<stdlib.h>
+	"src/events.h"
+
+1342151196 c:\hafsi\workspace\eetalis\lib\rb_misc.h
+	<stdio.h>
+	<stdlib.h>
+
+1344975074 c:\hafsi\workspace\eetalis\\lib\stack.h
+	"rb_misc.h"
+
+1342151196 c:\hafsi\workspace\eetalis\\lib\rb_misc.h
+	<stdio.h>
+	<stdlib.h>
+

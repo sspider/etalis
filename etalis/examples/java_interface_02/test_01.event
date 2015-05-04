@@ -1,0 +1,17 @@
+external_trigger(a/0).
+external_trigger(b/0).
+external_trigger(c/0).
+
+c <- a 'seq' b.
+
+filter1([],[]):- !.
+filter1([event(E,[T1,T2])|OutputList],[Return|OutputList2]):-
+     % put your filters here
+     E =.. [EventName|Args],
+     EventName  = c,
+     !,
+     Return = event(E,[T1,T2]),
+     filter1(OutputList,OutputList2).
+filter1([_|OutputList],OutputList2):-
+     !,
+     filter1(OutputList,OutputList2).

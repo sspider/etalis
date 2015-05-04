@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.w3schools.com" 
+	elementFormDefault="qualified" 
+	targetNamespace="http://www.w3schools.com"
+>
+	<xsd:complexType name="user">
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string" />
+			<xsd:element name="age" type="xsd:integer" />
+			<xsd:element name="address" type="address" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="address">
+		<xsd:sequence>
+			<xsd:element name="street" type="xsd:string"></xsd:element>
+			<xsd:element name="number" type="xsd:integer"></xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+</xsd:schema>

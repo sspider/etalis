@@ -1,0 +1,481 @@
+%% A proposed solution for the DEBS 11 Challenge.
+%% http://debschallenge.event-processing.org/index.php/upcoming-challenge
+%% -------------------------------------------------------------------------
+
+%% 10-04-2011
+%% Author: Ahmed K. Hafsi <ahmed@hafsi.org>, Forschungszentrum Informatik (FZI)
+%% version 0.52 
+
+%% Readme.txt provides an easy entry to the code. Read the comments for more information.
+
+% Every 30 sec, there is a new question
+% You can't answer until a new question is there
+% You may change your mind within 10 seconds of submission
+% Players can ask for the frequent answer of the current question.
+
+% Events are classified by their complexity, a Level 6 event means that it has a depth-complexity of 6
+
+%% Level 0 events
+%print_trigger(newUser/1).
+%print_trigger(userRemoved/1).
+print_trigger(questionEvent/2).
+%print_trigger(questionEvent/3).
+%print_trigger(answerEvent/3).
+print_trigger(ruleChanged/1).
+%print_trigger(onGoingTen/2).
+
+
+%% Level 1 events
+print_trigger(answered/4).
+print_trigger(canceled/4).
+print_trigger(answerAfterCancel/4).
+%print_trigger(askedForMFAA/2).
+%print_trigger(currentMFAA/3).
+%print_trigger(mfaa/3).
+%print_trigger(newQuestionEvent/4).
+
+%% Level 2 events
+print_trigger(firstCorrectAnswer/2).
+
+
+%% Level 3 events
+%print_trigger(updateScore/3).
+print_trigger(userScoreIs/3).
+
+%% Level 4 events
+print_trigger(scoringRule3/1).
+%print_trigger(scoringRule4/1).
+%print_trigger(scoringRule6/1).
+
+%% Level 5 events
+%print_trigger(updateAbsoluteScore/2).
+print_trigger(absoluteScoreIs/2).
+
+%% Level 6 events
+%print_trigger(dailyScoreUpdate/2).
+print_trigger(dailyScoreBoard/1).
+%print_trigger(weeklyScoreUpdate/2).
+%print_trigger(weeklyScoreBoard/1).
+
+
+%%%% Level 0 Rules %%%%
+
+% Register a user
+newUser(UserID) <- registerUser(UserID) 'do' (users(UserID) -> write('Err : User is already registered, please choose another ID.'),nl,fail;assertz(users(UserID))).
+
+% User ends his session
+userRemoved(UserID) <- removeUser(UserID) 'do' (users(UserID) -> retractall(users(UserID));write('Err : User is not in the Database.'),nl,fail).
+
+%Multiply question events to all users
+%users are stored in a dynamic db.
+questionEvent(UserID,QID,QText) <- questionEvent(QID,QText) 'event_multiply' (users(UserID)).
+
+% initialise most frequently answered answer for this particular Question
+currentMFAA(QID,[],0) <- questionEvent(QID,QText).
+
+% We are allowed to change the scoring rules on the fly.
+ruleChanged(RuleXID) <- changeRule(RuleXID, Points) 'do' 
+						(functor(F,RuleXID,1),retract(F) -> R =.. [RuleXID,Points],asserta(R);write('Error changing the rule ! Rule does not exist !'),nl).
+
+% Derive a weekly tick from the daily tick.
+goingWeek(Count) <- goingWeek(OldCount) par dailyTick do (Count is OldCount +1).
+weeklyTick <- goingWeek(Count) where (0 is Count mod 7).
+
+%Initialize rule 5
+onGoingTen(UserID,0) <- newUser(UserID).
+
+
+%%%% Level 1 Rules %%%%
+
+% Event flow diagram : 
+% 
+%
+%
+%                         +-----------------------------------------+
+%                         |                                         |
+%                         |               questionEvent\3           |
+%                         |                                         |
+%                         +-------------------+---------------------+
+%                                             |
+%                                             |
+%                                             |
+%                   +-------------------------+-------------------------------+
+%                   |                                                         |
+%                   v                                                         v
+%      +----------------------------+                             +--------------------------+
+%      |                            |                             |                          |
+%      |       answered\4           |<----------------------------+     askedForMFAA\2       |
+%      |                            |                             |                          |
+%      +------------+---------------+                             +--------------------------+
+%                   |
+%                   v
+%      +----------------------------+ 
+%      |                            | 
+%      |        canceled/4          | 
+%      |                            | 
+%      +----------------------------+ 
+%
+
+% User must answer in 30 s
+r1([property(event_rule_window,30)]) 'rule:' answered(UserID,QID,DT,Ans) <-
+			((questionEvent(UserID,QID,QText) seq answerEvent(UserID, QID, Answer)) ) timestamp
+			(
+				t1(TQ),%write('Q : '),write(TQ),nl,
+				t2(TA),%write('A : '),write(TA),nl,
+				datime_minus_datime(TA,TQ,DT),%write('DT : '),write(DT),nl,
+				DT<30,
+				answer(QID,RightAnswer),						
+				(Answer == RightAnswer ->			
+				Ans = 'correct';
+				Ans = 'wrong')			
+			).
+
+% User can cancel after 10 s of answering			
+% User can not answer after he cancels			
+
+% The time window does not work when the client time is used, e.g., answerAnnulmentEvent(2,1)-datime(2011, 6, 28, 15, 0, 21).
+%r2([property(event_rule_window,10)]) 'rule:' canceled(UserID,QID,DT,Ans) <-
+canceled(UserID,QID,DT,Ans) <-
+			answered(UserID,QID,DT0,Ans) seq answerAnnulmentEvent(UserID,QID) timestamp
+			(
+				t1(TQ),%write('Q : '),write(TQ),nl,
+				t2(TC),%write('C : '),write(TC),nl,
+				datime_minus_datime(TC,TQ,DT),%write('DT : '),write(DT),nl,
+				DT<30,
+				X is DT - DT0,
+				X<10
+			).
+
+% Added feature: a user can re-answer after canceling the previous answer
+questionEvent(UserID,QID,QText) <- canceled(UserID,QID,DT,Ans) where
+			(
+				X is 30 - DT
+			).
+
+			
+% User can ask for MFAA if he didn't answer.
+askedForMFAA(UserID,QID) <- (questionEvent(UserID,QID,QText) seq requestAnswerEvent(UserID, QID)) cnot answerEvent(UserID, QID, Answer).
+
+currentMFAA(QID,AnsList,MFAA)  <- 
+							currentMFAA(QID,OldAnsList,_) seq answerEvent(UserID, QID, Ans)
+								do
+								(
+									getMFAA(Ans,OldAnsList,AnsList,MFAA)	
+								).
+mfaa(UserID,QID,MFAA)  <- 
+						currentMFAA(QID,_,MFAA) seq requestAnswerEvent(UserID, QID).
+	
+%%%% Level 2 Rules %%%%
+
+firstCorrectAnswer(UserID,QID) <-
+				answered(UserID,QID,_,'correct') fnot answered(UserID2,QID,_,'correct').
+
+
+answerAfterCancel(UserID,QID,DT,'correct') <-
+			answered(UserID,QID,_,A) and canceled(UserID,QID,_,A) and answered(UserID,QID,_,'correct') timestamp
+			(
+				t1(TQ),%write('Q : '),write(TQ),nl,
+				t2(TA),%write('A : '),write(TA),nl,
+				datime_minus_datime(TA,TQ,DT)%write('DT : '),write(DT),nl
+				%DT<30							
+			).
+
+answerAfterCancel(UserID,QID,DT,'wrong') <-
+			answered(UserID,QID,_,A) seq canceled(UserID,QID,_,A) seq answered(UserID,QID,_,'wrong') timestamp
+			(
+				t1(TQ),%write('Q : '),write(TQ),nl,
+				t2(TA),%write('A : '),write(TA),nl,
+				datime_minus_datime(TA,TQ,DT)%write('DT : '),write(DT),nl
+				%DT<30							
+			).			
+
+%Correct answers to 10 questions within 30 minutes* during late night hours (1:00 – 5:00)	
+							
+onGoingTen(UserID,CorrectAnsweres) <- onGoingTen(UserID,OldAns) and answered(UserID,_,_,'correct') timestamp
+										
+										(
+											t1(_),
+											t2(datime(_,_,_,H,_,_,_)),H < 5, H > 1,
+											(	OldAns is 10 -> 
+												CorrectAnsweres = 0;
+												CorrectAnsweres is OldAns +1
+											)
+										).
+% The whole answering must occur within 30 min.										
+scoringRule5(UserID) <- onGoingTen(UserID,10) timestamp (t1(TA),t2(TB),datime_minus_datime(TB,TA,DT),DT < 1800).							
+%%%% Level 3 Rules %%%% : scoring points
+
+userScoreIs(UserID,QID,NewScore) <- updateScore(UserID,QID,NewScore) seq getScore(UserID).
+
+% Three answers incorrect without a correct answer in the middle
+scoringRule3(UserID) <- (
+							(
+								(
+								(
+									answered(UserID,_,_,'wrong') 'or' answerAfterCancel(UserID,_,_,'wrong')
+								)
+								seq 
+								(
+								answered(UserID,_,_,'wrong') 'or' answerAfterCancel(UserID,_,_,'wrong')
+								)
+								) cnot answered(UserID,_,_,'correct')
+							)
+							seq 
+							(
+							answered(UserID,_,_,'wrong') 'or' answerAfterCancel(UserID,_,_,'wrong')
+							)
+						) cnot answered(UserID,_,_,'correct') .
+
+% Correct answers to 10 consecutive questions (each correct answer is counted towards a single bonus of the same type and cannot be counted twice.)
+
+% init rule 4
+scoringRule4going(UserID,0) <- registerUser(UserID).
+
+scoringRule4going(UserID,NewCount) <- 
+								(								
+									scoringRule4going(UserID,OldCount) seq 
+									answered(UserID,_,_,'correct') fnot 
+									answered(UserID,_,_,'wrong')
+								) 	'do' (NewCount is OldCount + 1).
+
+scoringRule4going(UserID,NewCount) <- 
+								(
+									(
+										scoringRule4going(UserID,OldCount) seq 
+										answered(UserID,_,_,'wrong') fnot 
+										answered(UserID,_,_,'correct')
+									) 'or'
+									scoringRule4(UserID)
+								)
+								'do' (NewCount is 0).
+
+scoringRule4(UserID) <- scoringRule4going(UserID,10).
+					
+%%%% Level 4 Rules %%%% : Manging conflicting scoring points
+
+% Score when user answered correctly (didn't cancel, wasn't the first to answer, didn't answer after asking for the MFAA)
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(
+					(					
+					answered(UserID,QID,DT,'correct')) seq
+					questionEvent(UserID,_,_)
+					) fnot
+						(
+							canceled(UserID,QID,DT,Ans) 'or'
+							askedForMFAA(UserID,QID) 'or'
+							firstCorrectAnswer(UserID,QID)
+						)
+				)
+				do (rightAnswerPoints(P),NewPoints is P).
+
+% Score when user canceled and afterwards answered correctly ( wasn't the first to answer, didn't answer after asking for the MFAA)
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					((
+					answerAfterCancel(UserID,QID,_,'correct')) seq
+					questionEvent(UserID,_,_) 
+					)  fnot
+						(							
+							askedForMFAA(UserID,QID) 'or'
+							firstCorrectAnswer(UserID,QID)
+						)
+				)
+				do (rightAnswerPoints(P),NewPoints is P).				
+
+% User answered first, didn't cancel, didn' ask for MFAA				
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(
+					(					
+					firstCorrectAnswer(UserID,QID)) seq
+					questionEvent(UserID,QID2,_) 
+					) fnot
+						(
+							canceled(UserID,QID,DT,Ans) 'or'
+							askedForMFAA(UserID,QID)							
+						)
+				)
+				do (firstAnswerPoints(P),NewPoints is P).
+
+% User canceled, answered first, didn't ask for MFAA				
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(
+					(
+					answerAfterCancel(UserID,QID,_,'correct') and					
+					firstCorrectAnswer(UserID,QID)
+					) seq
+					questionEvent(UserID,QID2,_) 
+					) fnot
+						(							
+							askedForMFAA(UserID,QID)							
+						)
+				)
+				do (firstAnswerPoints(P),NewPoints is P).					
+				
+% Score when user answered wrong (didn't cancel)
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(					
+					answered(UserID,QID,DT,'wrong') seq
+					questionEvent(UserID,QID2,_) 
+					) fnot
+						(
+							canceled(UserID,QID,DT,Ans) 'or'
+							askedForMFAA(UserID,QID) 'or'
+							firstCorrectAnswer(UserID,QID)
+						)
+				)
+				do (wrongAnswerPoints(P),NewPoints is P).
+
+% Score when user answered wrong (didn't cancel)
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(					
+					answerAfterCancel(UserID,QID,DT,'wrong') seq
+					questionEvent(UserID,QID2,_) 
+					) fnot
+						(							
+							askedForMFAA(UserID,QID) 'or'
+							firstCorrectAnswer(UserID,QID)
+						)
+				)
+				do (wrongAnswerPoints(P),NewPoints is P).				
+
+% Score when user answered correct after asking for MFAA, didn't cancel, wasn't the first to answer				
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(					
+					askedForMFAA(UserID,QID) par answered(UserID,QID,_,'correct') seq
+					questionEvent(UserID,QID2,_) 
+					) fnot
+						(
+							canceled(UserID,QID,DT,Ans) 'or'							
+							firstCorrectAnswer(UserID,QID)
+						)
+				)
+				do (rightAnswerAfterAskingFA(P),NewPoints is P).
+
+% Score when user answered wrong after asking for MFAA, didn't cancel, wasn't the first to answer				
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(					
+					askedForMFAA(UserID,QID) par answered(UserID,QID,_,'wrong') seq
+					questionEvent(UserID,QID2,_) 
+					) fnot
+						(
+							canceled(UserID,QID,DT,Ans)							
+							
+						)
+				)
+				do (wrongAnswerPoints(P),NewPoints is P).
+
+% Score when user answered correct after asking for MFAA, didn't cancel, was the first to answer
+% because this situation is not clear in the specs, I defined it as only getting the points for just answering correctly after asking for the MFAA (1 point)				
+updateScore(UserID,QID,NewPoints) <- 
+				(
+					(					
+					askedForMFAA(UserID,QID) par answered(UserID,QID,_,'correct') par firstCorrectAnswer(UserID,QID) seq
+					questionEvent(UserID,QID2,_)  
+					) fnot
+						(
+							canceled(UserID,QID,DT,Ans)					
+							
+						)
+				)
+				do (rightAnswerAfterAskingFA(P),NewPoints is P).				
+				
+%%%% Level 5 Rules %%%% : Absolute all game cumulative score
+
+absoluteScoreIs(UserID,NewPoints) <- updateAbsoluteScore(UserID,NewPoints) seq getAbsScore(UserID).
+
+% Register a new user and creates a place-holder score.
+updateAbsoluteScore(UserId,0) <- registerUser(UserId).
+
+% TODO : Limitation : need to manage score when a users leaves the game.
+
+% Update the whole game score whenever a updateScore event is fired
+updateAbsoluteScore(UserID,NewPoints) <- 
+					updateAbsoluteScore(UserID,OldPoints) 'and' updateScore(UserID,_,P)
+					'do'
+					(						
+						nonvar(OldPoints),nonvar(P),
+						NewPoints is OldPoints + P
+					).
+					
+% Update Score when ScoringRule3 is matched					
+updateAbsoluteScore(UserID,NewPoints) <- updateAbsoluteScore(UserID,OldPoints) and scoringRule3(UserID) 'do'
+					(
+						threeOfKind(P),
+						NewPoints is OldPoints + P
+					).
+					
+% Update Score when ScoringRule4 is matched					
+updateAbsoluteScore(UserID,NewPoints) <- updateAbsoluteScore(UserID,OldPoints) and scoringRule4(UserID) 'do'
+					(
+						tenOfKind(P),
+						rightAnswerPoints(M),
+						NewPoints is OldPoints + (P - 10*M)
+					).
+					
+% Update Score when ScoringRule6 is matched					
+updateAbsoluteScore(UserID,NewPoints) <- updateAbsoluteScore(UserID,OldPoints) and scoringRule6(UserID) 'do'
+					(
+						bestDaily(P),						
+						NewPoints is OldPoints + P
+					).
+					
+% Update Score when ScoringRule7 is matched					
+updateAbsoluteScore(UserID,NewPoints) <- updateAbsoluteScore(UserID,OldP) and scoringRule7(UserID)	'do'
+					(
+						bestMonthly(P),
+						NewPoints is OldPoints + P						
+					).
+					
+updateAbsoluteScore(UserID,NewPoints) <- updateAbsoluteScore(UserID,OldP) and scoringRule5(UserID) 'do'
+					(
+						lateTen(P),
+						NewPoints is OldPoints + P
+					).
+
+%%%% Level 6 Rules %%%% : Daily/weekly cumulative score
+
+% Score Board (daily)
+dailyScoreBoard([]) <- dailyTick.
+monthlyAppearances(L) <- dailyTick and dailyScoreBoard(L) where (L \= []).
+scoringRule6(UserID) <- dailyScoreBoard(ScoreList) seq dailyTick 'do' (readScoreList(ScoreList,UserID)).					
+
+% Running daily score is reset whenever a new day begins
+dailyScoreUpdate(UserID,0) <- dailyTick 'event_multiply' (users(UserID)).
+
+
+dailyScoreUpdate(UserID,NewPoints) <- 	updateAbsoluteScore(UserID,NewPoints).
+
+% Keep an ordered list of the daily scores
+dailyScoreBoard(ScoreList) <- 	dailyScoreBoard(OldScoreList) 'and'	dailyScoreUpdate(U,DailyScore)
+									'where'
+									(updateScoreTree(ScoreList,OldScoreList,scored(U,DailyScore))).
+
+% Score Board (weekly)
+weeklyScoreBoard([]) <- weeklyTick.
+
+weeklyScoreUpdate(UserID,0) <- weeklyTick 'event_multiply' (users(UserID)).
+weeklyScoreUpdate(UserID,NewPoints) <- 	updateAbsoluteScore(UserID,NewPoints).
+
+weeklyScoreBoard(ScoreList) <- 	weeklyScoreBoard(OldScoreList) 'and'	weeklyScoreUpdate(U,DailyScore)
+									'where'
+									(updateScoreTree(ScoreList,OldScoreList,scored(U,DailyScore))).
+
+
+									
+%%%% Level 7 Rules %%%% : Most appearances in the daily score.
+
+monthlyAppearances(NumberOfAppList) <- monthlyAppearances(Old) 'and' dailyScoreBoard(NewScore)
+										'where'
+										(
+											manageMonthlyAppearances(NewScore,Old,NumberOfAppList)
+										).
+										
+scoringRule7(X) <- monthlyTick 'and' monthlyAppearances(M) 'do' (keysort(M,L),last(L,X)).
+										

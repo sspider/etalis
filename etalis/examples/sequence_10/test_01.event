@@ -1,0 +1,2 @@
+d(X,Z) <- a(X) seq b(Y) seq c(Z) where (1<X, 1<Y, X<Y, 1<Z, Y<Z).
+

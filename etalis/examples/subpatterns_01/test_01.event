@@ -1,0 +1,35 @@
+%PATTERNS:
+
+% SEQUENCE
+final1 <- a seq (sub1 <- (b0(X) seq b1(Y) 'where' (X < Y))). 
+
+% CONJUNCTION
+final2 <- a seq (sub2 <- b0(X) and b1(Y)).
+
+% DISJUNCTION
+final3 <- a or (sub3 <- b0(X) and b1(Y)).
+
+% NEGATION
+final4 <- a and (sub4 <- (b0(X) seq b1(Y)) cnot b2(Z)).
+
+% PAR
+a0 <- a1 seq a2.
+c0 <- c1 seq c2.
+final5 <- a seq (sub5 <- a0 par c0).
+
+% MEETS
+%a0 <- a1 seq a2.
+final6 <- a seq (sub6 <- a0 meets a2).
+
+% DURING
+b <- b0(X) seq b1(Y).
+d <- a seq a2.
+final7 <- a and (sub7 <- b during d).
+
+% STARTS
+%a0 <- a1 seq a2.
+c0 <- a1 seq a2.
+final8 <- a seq (sub8 <- a0 starts c0).
+
+print_trigger(_/_).
+print_event(_/_).

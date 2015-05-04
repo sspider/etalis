@@ -1,0 +1,14 @@
+\benchmark test2 eEtalis V0.15
+\author ahmed hafsi ahmed@hafsi.org
+pattern:
+e1(X,Y,E,F) <- (a(X,Y) seq d(E,F) within (0.1) .
+stream:
+a_2_d_2_500k.P
+results:
+-O3 1.5 sec (performance hit: 20% slower than eEtalis v1.0)
+stream:
+a_2_d_2_800k.P
+results:
+-O3 2.0 sec
+Comment:
+the number of complex events is verified to be correct.

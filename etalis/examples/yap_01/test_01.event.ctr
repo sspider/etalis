@@ -1,0 +1,14 @@
+trClause(unlabeled,event(b,[_132742,_132744]),seqf(etr_dbf(unlabeled,goal(event(b),event(a,[_132761,_132763]),event(temp_e_1(a,b)))),seqf(etr_delf(unlabeled,goal(event(b),event(a,[_132761,_132763]),event(temp_e_1(a,b)))),seqf(less(_132763,_132742),seqf(check_event_rule_conditions(unlabeled,temp_e_1(a,b),[_132761,_132744]),event(temp_e_1(a,b),[_132761,_132744])))))).
+
+trClause(unlabeled,event(a,[_132720,_132722]),etr_insf(unlabeled,goal(event(b),event(a,[_132720,_132722]),event(temp_e_1(a,b))))).
+
+trClause(unlabeled,event(c,[_132841,_132843]),seqf(etr_dbf(unlabeled,goal(event(c),event(temp_e_1(a,b),[_132860,_132862]),event(temp_e_2(temp_e_1(a,b),c)))),seqf(etr_delf(unlabeled,goal(event(c),event(temp_e_1(a,b),[_132860,_132862]),event(temp_e_2(temp_e_1(a,b),c)))),seqf(less(_132862,_132841),seqf(check_event_rule_conditions(unlabeled,temp_e_2(temp_e_1(a,b),c),[_132860,_132843]),event(temp_e_2(temp_e_1(a,b),c),[_132860,_132843])))))).
+
+trClause(unlabeled,event(temp_e_1(a,b),[_132819,_132821]),etr_insf(unlabeled,goal(event(c),event(temp_e_1(a,b),[_132819,_132821]),event(temp_e_2(temp_e_1(a,b),c))))).
+
+trClause(unlabeled,event(temp_e_2(temp_e_1(a,b),c),[_133023,_133025]),seqf(check_event_rule_conditions(unlabeled,d,[_133023,_133025]),event(d,[_133023,_133025]))).
+
+trClause(unlabeled,event(a,[_132940,_132942]),seqf(etr_dbf(unlabeled,goal(event(a),event(d,[_132959,_132961]),event(d))),seqf(etr_delf(unlabeled,goal(event(a),event(d,[_132959,_132961]),event(d))),seqf(less(_132961,_132940),seqf(check_event_rule_conditions(unlabeled,d,[_132959,_132942]),event(d,[_132959,_132942])))))).
+
+trClause(unlabeled,event(d,[_132918,_132920]),etr_insf(unlabeled,goal(event(a),event(d,[_132918,_132920]),event(d)))).
+

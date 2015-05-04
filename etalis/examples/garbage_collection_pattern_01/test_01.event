@@ -1,0 +1,11 @@
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+
+r1 'rule:' c(X) <- a(X) 'seq' b(X).
+event_rule_property(r1,window,1).
+event_rule_property(r1,window_step,1).
+
+r2([property(window,2),property(window_step,1)]) 'rule:' 
+	d(X) <- a(X) 'seq' b(X).

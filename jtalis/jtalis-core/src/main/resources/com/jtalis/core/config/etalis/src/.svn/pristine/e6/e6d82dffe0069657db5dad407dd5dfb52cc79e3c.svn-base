@@ -1,0 +1,64 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% $Rev: 1 $:     Revision of last commit
+% $Author: Vesko Georgiev $:  Author of last commit
+% Makes possible the communication with Jtalis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dynamic(java_queue_id/1).
+
+set_java_queue_id(ID) :- assert(java_queue_id(ID)).
+set_java_engine(Engine) :- assert(java_engine(Engine)).
+
+% JPL with RuleID
+notify_java_listener(Event, T1, T2) :-
+	save_ruleId(on),
+	java_queue_id(ID), 
+	java_engine(Engine),
+	'JPL' == Engine,
+	T1 = datime(Y1, M1, D1, H1, Min1, Sec1, Counter1),
+	T2 = datime(Y2, M2, D2, H2, Min2, Sec2, Counter2),
+	date_time_stamp(date(Y1, M1, D1, H1, Min1, Sec1, 0, -, -), TimeStamp1),
+	date_time_stamp(date(Y2, M2, D2, H2, Min2, Sec2, 0, -, -), TimeStamp2),
+	get_event_rule_id(Event, RuleID),
+	term_to_atom(RuleID, RID),
+	term_to_atom(Event, Evt),
+	jpl_call(ID, notifyEventWithRuleIDReceived, [Evt, RID, TimeStamp1, Counter1, TimeStamp2, Counter2], @(void)).
+
+% Interprolog with RuleID
+notify_java_listener(Event, T1, T2) :- 
+	save_ruleId(on),
+	java_queue_id(ID), 
+	java_engine(Engine),
+	'Interprolog' == Engine,
+	T1 = datime(Y1, M1, D1, H1, Min1, Sec1, _Counter1),
+	T2 = datime(Y2, M2, D2, H2, Min2, Sec2, _Counter2),
+	date_time_stamp(date(Y1, M1, D1, H1, Min1, Sec1, 0, -, -), TimeStamp1),
+	date_time_stamp(date(Y2, M2, D2, H2, Min2, Sec2, 0, -, -), TimeStamp2),
+	get_event_rule_id(Event, RuleID),
+	javaMessage(ID, notifyEventWithRuleIDReceived(string(Event), string(RuleID), double(TimeStamp1), double(TimeStamp2))).
+
+
+% JPL
+notify_java_listener(Event, T1, T2) :-
+	java_queue_id(ID), 
+	java_engine(Engine),
+	'JPL' == Engine,
+	T1 = datime(Y1, M1, D1, H1, Min1, Sec1, Counter1),
+	T2 = datime(Y2, M2, D2, H2, Min2, Sec2, Counter2),
+	date_time_stamp(date(Y1, M1, D1, H1, Min1, Sec1, 0, -, -), TimeStamp1),
+	date_time_stamp(date(Y2, M2, D2, H2, Min2, Sec2, 0, -, -), TimeStamp2),
+	term_to_atom(Event, Evt),
+	jpl_call(ID, notifyEventReceived, [Evt, TimeStamp1, Counter1, TimeStamp2, Counter2], @(void)).
+
+% Interprolog
+notify_java_listener(Event, T1, T2) :- 
+	java_queue_id(ID), 
+	java_engine(Engine),
+	'Interprolog' == Engine,
+	T1 = datime(Y1, M1, D1, H1, Min1, Sec1, _Counter1),
+	T2 = datime(Y2, M2, D2, H2, Min2, Sec2, _Counter2),
+	date_time_stamp(date(Y1, M1, D1, H1, Min1, Sec1, 0, -, -), TimeStamp1),
+	date_time_stamp(date(Y2, M2, D2, H2, Min2, Sec2, 0, -, -), TimeStamp2),
+	javaMessage(ID, notifyEventReceived(string(Event), double(TimeStamp1), double(TimeStamp2))).
+
+
+get_event_rule_id(Event, RuleID) :- trClause(RuleID, event(Event,_),_) ; persistentRuleID(RuleID, Event).

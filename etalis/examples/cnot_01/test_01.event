@@ -1,0 +1,6 @@
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+
+d(X) <- (a(X) 'seq' b(X)) 'cnot' c(Y).

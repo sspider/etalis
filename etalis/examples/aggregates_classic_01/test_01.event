@@ -1,0 +1,12 @@
+print_trigger(start_aggr/0).
+print_trigger(a/1).
+print_trigger(min_comp_event/1).
+
+print_trigger(_/_).
+
+% min with rules
+min_comp_event(100000) <- start_aggr.
+min_comp_event(Min) <- 
+        min_comp_event(MinTemp) 'seq'
+        a(X) 'seq'
+        prolog(min(X,MinTemp,Min)).

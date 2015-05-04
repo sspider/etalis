@@ -1,0 +1,10 @@
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+
+d(X) <- ( a(X) seq b(X) timestamp
+       ( t1(T1), t2(T2), write(t1(T1)), nl, write(t2(T2)), nl, 
+       	datime_minus_datime(T2,T1,T3), write(datime_minus_datime(T2,T1,T3)), nl, 
+       	T3 < 2 ) )
+       seq c(X).

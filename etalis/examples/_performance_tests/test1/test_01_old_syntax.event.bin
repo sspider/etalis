@@ -1,0 +1,3 @@
+eventClause(tc(_G1627,_G1628),r(_G1627,_G1628)).
+eventClause(temp_e_1(tc(_G1651,_G1655),r(_G1655,_G1652)),seqf(tc(_G1651,_G1655),r(_G1655,_G1652))).
+eventClause(tc(_G1651,_G1652),temp_e_1(tc(_G1651,_G1655),r(_G1655,_G1652))).

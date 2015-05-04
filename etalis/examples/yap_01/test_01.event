@@ -1,0 +1,7 @@
+print_trigger(a/0).
+print_trigger(b/0).
+print_trigger(c/0).
+print_trigger(d/0).
+
+d <- a 'seq' b 'seq' c.
+d <- d 'seq' a.

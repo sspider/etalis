@@ -1,0 +1,60 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Scenario 1 (normal flow):
+% In the following scenarios we assume that there are 3 stores (numbered 1,2,3).
+% The map, hence, is divided into three regions.
+%
+% Pre-conditions:
+% Drivers A,B,C are in region 1.
+%
+% 00:00 Store 1 receives an order.
+% 00:01 System matches drivers A,B,C  by location and ranking.
+% 00:02 Store receives drives A,B,C and filters out driver C.
+% 00:03 Bid request is sent to drivers A,B
+% 00:04 Drivers A,B respond with delivery bid and provide their current location
+%       and pickup time.
+% 00:05 Driver A is chosen in automatic process by the store.
+% 00:05 Assignment is sent to driver A.
+% 00:10 A arrives to the store to pick-up the delivery. The store provides
+%       pick-up confirmation.
+% 00:15 A delivers the flowers to the customer. Delivery confirmation is
+%       provided.
+% 00:16 Ranking of A is increased by one.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Flags and configuration parameters
+start_assignment_time(5). % start assignment in sec
+                                % (2 min. in the specification)
+check_manual_assignment_time(60). % check manual assignment in sec
+                                % (1 min. in the specification)
+check_pick_up_time(300). % check pickup after in sec
+                                % (5 min. in the specification)
+check_delivery_time(600). % check delivery after in sec
+                                % (10 min. in the specification)
+ranking_threshold(1). % increment/decrement ranking for drivers after N deliv.
+                                % (20 deliveries in the specification)
+delivery_alarm_threshold(5).
+                                % (5 delivery alerts in the specification)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Database for scenarion 01:
+store_record('store1',5,automatic).
+store_record('store2',5,manual).
+store_record('store3',5,automatic).
+
+driver_record('driverA',7).
+driver_record('driverB',6).
+driver_record('driverC',3).
+
+gps_to_region(coordinates('N',X,'W',Y),'Region_01') :-
+        0=<X,X<100,
+        0=<Y,Y<100,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'Region_02') :-
+        100=<X,X<200,
+        0=<Y,Y<100,
+        !.
+gps_to_region(coordinates('N',X,'W',Y),'Region_03') :-
+        200=<X,X<300,
+        0=<Y,Y<100,
+        !.

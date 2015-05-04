@@ -1,0 +1,8 @@
+Report on theoretical background of ETALIS project.
+
+= Technical Report =
+
+In this paper, we present a powerful logical encoding of complex event processing into Transaction Logic programs. Complex Event Processing (CEP) deals with finding composed events and has useful applications in areas ranging from agile business and enterprise processes management, financial market applications to active Web-and-service-oriented computation. Many systems for complex triggers have ad-hoc semantics with unexpected behaviors, cannot represent recursion or allow data flow in event composition. Therefore, formal logical semantics are important requirements for event-driven systems. On the other hand, many logic-based approaches for CEP (based on formal semantics) fail, due to their inability to compute complex events in the data-driven fashion. Our approach enables both logic-based and data-driven complex event detection. Moreover, the backward chaining approach allows for very efficient reasoning of complex situations and actions triggered by these events.
+
+
+See the document: http://etalis.googlecode.com/files/paper.pdf

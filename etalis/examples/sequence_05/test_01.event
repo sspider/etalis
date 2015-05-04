@@ -1,0 +1,6 @@
+print_trigger(ce1/1).
+print_trigger(ce2/2).
+print_trigger(a/2).
+
+ce2(X,Y3) <- a(X,Y1) 'SEQ' a(X,Y2) 'SEQ' a(X,Y3).
+

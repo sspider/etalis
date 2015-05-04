@@ -1,0 +1,10 @@
+% Case 2: the bid ends before the last bid, the winner is creditBid(2,4).
+event(bidStart).
+event(creditBid(2,4)).
+event(cashBid(29,4)).
+event(cashBid(33,3)).
+event(creditBid(66,4)).
+event(bidEnd).
+event(creditBid(56,5)).
+
+

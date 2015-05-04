@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xsi:schemaLocation="http://www.w3schools.com http://etalis.googlecode.com/files/XmlConfig.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.w3schools.com">
+	<flags>
+		<flag>
+			<name>save_ruleId</name>
+			<value>on</value>
+		</flag>
+	</flags>
+	<eventTriggers>
+		<trigger>_/_</trigger>
+	</eventTriggers>
+
+	
+	<compileEventFiles>
+		<file>test_01.event</file>
+	</compileEventFiles>
+
+	<providers>
+		<provider type="input" class="com.jtalis.core.event.provider.DefaultInputProvider" >
+			<parameters>
+				<parameter name="file">eventstream_2_1.P</parameter>
+			</parameters>
+		</provider>
+		<provider  type="output" class="com.jtalis.jdbc.JDBCOutputProvider">
+			<parameters>
+				<parameter name="bufferSize">0</parameter>
+				<parameter name="url">jdbc:h2:file:~/all-events</parameter>
+				<parameter name="user">sa</parameter>
+				<parameter name="password"></parameter>
+			</parameters>
+		</provider>
+
+	</providers>
+
+</config>

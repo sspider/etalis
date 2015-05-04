@@ -1,0 +1,604 @@
+% Implementation of the Flower Delivery Application (use case specification by
+%       Dr. Opher Etzion, implementation by the Etalis team)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Phase 1: Bid Phase
+%
+% External basic events:
+%       Delivery Request event is placed by a store in the system:
+%                delivery_request/3
+%                delivery_record(+StoreId,+ToCoordinates,+DeliveryTime)
+%               where ToCoordinates is of the form:
+%                coordinates(+SNHemisphere,+Latitude,+EWHemisphere,+Longitude)
+%       GPS location (each van is equiped with a GPS modem which
+%               periodically transmits a GPS location event):
+%                gps_location/2
+%                gps_location(+DriverId,+CurrentCoordinates)
+%               where CurrentCoordinates is of the form:
+%                coordinates(+SNHemisphere,+Latitude,+EWHemisphere,+Longitude)
+%
+% Database facts (defined below):
+%        Store record:
+%                store_record/3
+%                store_record(+StoreId,+MinRankAccepted,+AssignmentPreference)
+%               where MinRankAccepted is the minimum ranking of the driver that
+%                the store is prepared to accept because each store has a
+%                different level of tolerance for service quality,
+%                AssignmentPreference is either "manual" or "automatic"
+%        Driver records:
+%                driver_record/2
+%                driver_record(+DriverId,+Ranking)
+%        Method to transform raw latitude and longitude values into the region
+%               of the city the driver is currently in:
+%                gps_to_region/2
+%                gps_to_region(+Coordinates,-Region)
+
+% Complex event: Delivery Request enriched with the minimum ranking that the
+%       store is prepared to accept and with an DeliveryRequestId
+% Note: Location is of the form: coordinates(+SNHemisphere,+Latitude,
+%       +EWHemisphere,+Longitude)
+% delivery_request_enriched/5
+delivery_request_enriched(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                MinRank)<-
+        delivery_request(StoreId,ToCoordinates,DeliveryTime) where
+                (store_record(StoreId,MinRank,_AssignmentPreference),
+                incCounter(delivery_request_counter),
+                counter(delivery_request_counter,DeliveryRequestId)).
+print_trigger(delivery_request_enriched/5).
+
+% Multiplier: multiply the event "delivery_request_enriched" for each driver
+% delivery_request_enriched_multiplied/6
+delivery_request_enriched_multiplied(DeliveryRequestId,DriverId,StoreId,
+                ToCoordinates,DeliveryTime,MinRank)<-
+        delivery_request_enriched(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime,MinRank) event_multiply
+        driver_record(DriverId,_Ranking).
+        % event_multiply does not consume "delivery_request_enriched"
+print_trigger(delivery_request_enriched_multiplied/6).
+
+% Complex event: complex events which indicate in which region of the city the
+%       driver is currently in, translated from raw latitude and longitude
+% gps_location_translated/3
+gps_location_translated(DriverId,Rank,Region)<-
+        gps_location(DriverId,coordinates(SNHemisphere,Latitude,
+                EWHemisphere,Longitude)) where
+                ( driver_record(DriverId,Rank),
+                gps_to_region(coordinates(SNHemisphere,Latitude,
+                        EWHemisphere,Longitude),Region) ).
+print_trigger(gps_location_translated/3).
+
+% Complex event: Bid Request event is broadcasted to all drivers that pass the
+%       filter for ranking and location.
+% bid_request/5
+bid_request(DeliveryRequestId,DriverId,StoreId,ToCoordinates,DeliveryTime)<-
+        ( delivery_request_enriched_multiplied(DeliveryRequestId,DriverId,
+                        StoreId,ToCoordinates,DeliveryTime,MinRank) and
+                gps_location_translated(DriverId,Rank,Region) )
+        where ('=<'(MinRank,Rank), gps_to_region(ToCoordinates,Region)).
+print_trigger(bid_request/5).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Phase 2: Assignment Phase
+
+% External basic events:
+%  A driver responds to the Bid Request by sending a Delivery Bid event
+%       designating his or her current location and comming pick up time.
+%   delivery_bid/4
+%   delivery_bid(+DeliveryRequestId,+DriverId,+CurrentCoordinates,
+%       +PossiblePickupTime)
+print_trigger(delivery_bid/4).
+
+%  Two minutes after the broadcast the system starts the assignment process.
+% Note: the waiting time is set by a configurable parameter in the database
+%       (start_assignment_time/1). For instance, for streams we set it to 2sec.
+%       because the stream is synthetic and we don't have to wait 2min.
+% startAssignment/4
+exceptionAlarm(startAssignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime),Time)<-
+        delivery_request_enriched(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime,_MinRank) where (start_assignment_time(Time)).
+        % exceptionAlarm does not consume "delivery_request_enriched"
+print_trigger(startAssignment/4).
+
+% The assignment is either an automatic or a manual process, depending on the
+%       store's preference.
+% start_automaticAssignment/4
+start_automaticAssignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime)<-
+        startAssignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime)
+        where store_record(StoreId,_MinRank,automatic).
+print_trigger(start_automaticAssignment/4).
+
+% start_manualAssignment/4
+start_manualAssignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime)<-
+        startAssignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime)
+        where store_record(StoreId,_MinRank,manual).
+print_trigger(start_manualAssignment/4).
+
+% If the process is automatic then the first bidder among the selected drivers
+%       wins the bid.
+% The pickup time and delivery time are set and the Assignment event is sent to
+%       the driver.
+% assignment/6
+% assignment(+DeliveryRequestId,+StoreId,+ToCoordinates,+DeliveryTime,+DriverId,
+%       +ScheduledPickupTime)
+
+consumable_pick_first(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                MinRank)<-
+        delivery_request_enriched(DeliveryRequestId,StoreId,ToCoordinates,
+        DeliveryTime,MinRank) where store_record(StoreId,_MinRank,automatic).
+print_trigger(consumable_pick_first/5).
+
+assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,DriverId,
+                ScheduledPickupTime)<-
+        ((consumable_pick_first(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime,MinRank) seq
+        delivery_bid(DeliveryRequestId,DriverId,CurrentCoordinates,
+                ScheduledPickupTime) ) and
+        start_automaticAssignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime)).
+        % ) fnot no_bid_alert(DeliveryRequestId) % this line can be added in the
+        %       code to specify that no bids are accepted after timeout (it's
+        %       not addresed in the specification)
+        % we do phase 5 separatelly as different events to show the different
+        %       phase, but it can also be done in this step
+        %where ( ScheduledPickupTime=datime(Y,M,D,_,_,_),
+        %       incCounter(assignments(DriverId,date(Y,M,D))),
+        %       counter(assignments(DriverId,date(Y,M,D)),Count),
+        %       write(Count),nl).
+print_trigger(assignment/6).
+
+% If the process is manual, the system collects the Delievery Bid events that
+%       match the original Bid Request and sends the five highest-ranked of
+%       these to the store.
+% manualAssignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime)
+% collect_highest_five_delivery_bids/5
+collect_highest_five_delivery_bids(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime,[])<- % initialize with empty list
+        delivery_request_enriched(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime,_MinRank) where
+        store_record(StoreId,_MinRank,manual).
+collect_highest_five_delivery_bids(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime,HighestFive)<-
+        ( collect_highest_five_delivery_bids(DeliveryRequestId,StoreId,
+                ToCoordinates,DeliveryTime,TempHighestFive) seq
+        delivery_bid(DeliveryRequestId,DriverId,CurrentCoordinates,
+                PossiblePickupTime) ) where
+        (driver_record(DriverId,Rank),
+        select_highest_five([driver(DriverId,Rank,PossiblePickupTime)|
+                TempHighestFive],HighestFive)).
+print_trigger(collect_highest_five_delivery_bids/5).
+
+% store_transmit_highest_five_delivery_bids/5 - event sent to the store
+store_transmit_highest_five_delivery_bids(DeliveryRequestId,StoreId,
+                ToCoordinates,DeliveryTime,HighestFive)<-
+        ( collect_highest_five_delivery_bids(DeliveryRequestId,StoreId,
+                ToCoordinates,DeliveryTime,HighestFive) and
+        start_manualAssignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime) )
+        where (HighestFive\=[]).
+print_trigger(store_transmit_highest_five_delivery_bids/5).
+
+assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,DriverId,
+                ScheduledPickupTime)<-
+        store_transmit_highest_five_delivery_bids(DeliveryRequestId,StoreId,
+                ToCoordinates,DeliveryTime,HighestFive) seq
+        store_select_delivery_bid(DeliveryRequestId,DriverId,
+                ScheduledPickupTime).
+        % code to specify that no bids are accepted after timeout:
+        % ) fnot no_bid_alert(DeliveryRequestId) )
+        % ) fnot no_choice_alert(DeliveryRequestId).
+
+% Alerts:
+% If there are no bidders an alert is sent both to the store and the system
+%       manager;
+% no_bid_alert/1
+no_bid_alert(DeliveryRequestId)<-
+        start_automaticAssignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime) fnot
+        delivery_bid(DeliveryRequestId,_DriverId,_CurrentCoordinates,
+                _PossiblePickupTime).
+no_bid_alert(DeliveryRequestId)<-
+        start_manualAssignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime) fnot
+        delivery_bid(DeliveryRequestId,_DriverId,_CurrentCoordinates,
+                        _PossiblePickupTime).
+print_trigger(no_bid_alert/1).
+
+% If the store has not performed its manual assigment within one minute of
+%       receiving its Delivery Bid events then both the store and the system
+%       manager receive and alert.
+% check_manual_assignment/4
+exceptionAlarm(check_manual_assignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime),Time)<-
+        store_transmit_highest_five_delivery_bids(DeliveryRequestId,StoreId,
+                ToCoordinates,DeliveryTime,HighestFive) where
+        (check_manual_assignment_time(Time)).
+print_trigger(check_manual_assignment/4).
+
+% no_choice_alert/1
+no_choice_alert(DeliveryRequestId)<-
+        check_manual_assignment(DeliveryRequestId,StoreId,ToCoordinates,
+                DeliveryTime) fnot
+        store_select_delivery_bid(DeliveryRequestId,_DriverId,
+                _PossiblePickupTime).
+print_trigger(no_choice_alert/1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Phase 3: Delivery Process
+
+% External basic events:
+%When the driver arrives to pick up the flowers the store sends a
+%       pick_up_confirmation event:
+% pick_up_confirmation/3
+% pick_up_confirmation(+DeliveryRequestId,+DriverId,+RealPickupTime)
+print_trigger(pick_up_confirmation/3).
+%When the driver delivers the flowers the person receiving them confirms by
+%       signing the driver's mobile device, and this generates a
+%       delivery_confirmation event:
+% delivery_confirmation/3).
+% delivery_confirmation(+DeliveryRequestId,+DriverId,+RealDeliveryTime)
+print_trigger(delivery_confirmation/3).
+
+%Both pick_up_confirmation and delivery_confirmation events have time-stamps
+%       associated with them, and this allows the system to generate several
+%       alert events.
+%A pick_up_alert is reported if a pick_up_confirmation has not been reported
+%       within 5 minutes of the committed pick up time.
+% check_pick_up/4
+exceptionAlarmAbsoluteDatime(check_pick_up(DeliveryRequestId,StoreId,DriverId,
+                ScheduledPickupTime),CheckTimePickup)<-
+        assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                DriverId,ScheduledPickupTime) where
+        % the wait time is a configurable paramenter and can be changed in
+        %       the test database
+        (check_pick_up_time(WaitDuration),
+        addSec_Datime(WaitDuration,ScheduledPickupTime,CheckTimePickup)).
+print_trigger(check_pick_up/4).
+
+% pick_up_alert/4
+pick_up_alert(DeliveryRequestId,StoreId,DriverId,ScheduledPickupTime)<-
+        ( check_pick_up(DeliveryRequestId,StoreId,DriverId,
+                ScheduledPickupTime) fnot 
+        % the delivery was not handed over to another driver
+        handover(DeliveryRequestId,DriverId,_DriverIdB) ) fnot
+        pick_up_confirmation(DeliveryRequestId,DriverId,_RealPickupTime).
+print_trigger(pick_up_alert/4).
+
+%A delivery_alert is reported if a delivery_confirmation has not been reported
+%       within ten minutes of the commited delivery time.
+% check_delivery/4
+exceptionAlarmAbsoluteDatime(check_delivery(DeliveryRequestId,StoreId,DriverId,
+        DeliveryTime),CheckTimeDelivery)<-
+        assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                DriverId,_ScheduledPickupTime) where
+        (check_delivery_time(WaitDuration),
+                addSec_Datime(WaitDuration,DeliveryTime,CheckTimeDelivery)).
+print_trigger(check_delivery/4).
+% delivery_alert/4
+delivery_alert(DeliveryRequestId,StoreId,DriverId,DeliveryTime)<-
+        ( ( check_delivery(DeliveryRequestId,StoreId,DriverId,
+                DeliveryTime) fnot
+        % the delivery was not handed over to another driver
+        handover(DeliveryRequestId,DriverId,_DriverIdB) ) fnot
+        % there was no one to receive the package
+        no_one_to_receive(DeliveryRequestId)
+        ) fnot
+        delivery_confirmation(DeliveryRequestId,DriverId,_RealDeliveryTime).
+print_trigger(delivery_alert/4).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Phase 4: Ranking evaluation VERSION 1 (uses internal database for CEP)
+%The system performas an evaluation of each driver ranking every time that
+%       driver completes 20 deliveries.
+%If the driver did not have any Delivery Alerts during that period then the
+%       system generates a Ranking Increase event indicating that the driver's
+%       ranking has increased by one point.
+%Conversely if the driver has had more than five delivery alerts during that
+%       time then the system generates a Ranking Decrease to reduce the ranking
+%       by one point.
+
+% counting_driver_deliveries/2
+counting_driver_deliveries(DriverId,NewCount)<-
+        delivery_confirmation(DeliveryRequestId,DriverId,_DeliveryTime) where
+        (ranking_threshold(Max),
+                counter(driver(DriverId),Count),
+                Count<Max,
+                incCounter(driver(DriverId)),
+                counter(driver(DriverId),NewCount)).
+print_trigger(counting_driver_deliveries/2).
+
+%faulted_ranking/2
+faulted_ranking(DriverId)<-
+        delivery_alert(_DeliveryRequestId,_StoreId,DriverId,_DeliveryTime)
+        where ( incCounter(faulted(DriverId)) ).
+print_trigger(faulted_ranking/1).
+
+% ranking_decrease/2
+ranking_decrease(DriverId,NewRank)<-
+        delivery_confirmation(DeliveryRequestId,DriverId,_DeliveryTime)
+        where (ranking_threshold(Max), counter(driver(DriverId),Count),
+               Count=Max, counter(faulted(DriverId),CountAlarms),
+               CountAlarms>=5, resetCounter(driver(DriverId)),
+               driver_record(DriverId,Rank), NewRank is Rank-1,
+               retract(driver_record(DriverId,Rank)),
+               assert(driver_record(DriverId,NewRank)),
+               resetCounter(faulted(DriverId)),
+               set_flag(precedent_decrease(DriverId),yes) ).
+print_trigger(ranking_decrease/2).
+
+% ranking_increase/2
+ranking_increase(DriverId,NewRank)<-
+        delivery_confirmation(DeliveryRequestId,DriverId,_DeliveryTime)
+        where ( ranking_threshold(Max), counter(driver(DriverId),Count),
+               Count=Max, counter(faulted(DriverId),CountAlarms),
+               CountAlarms=0, resetCounter(driver(DriverId)),
+               driver_record(DriverId,Rank), NewRank is Rank+1,
+               retract(driver_record(DriverId,Rank)),
+               assert(driver_record(DriverId,NewRank)) ).
+print_trigger(ranking_increase/2).
+
+% If the generation for a Ranking Increase was for a driver, whose previous
+%       evaluation generated a Ranking Decrease in the previous evaluation, then
+%       the system generates an Improvement Note.
+%improvement_note/1
+improvement_note(DriverId)<-
+        ranking_increase(DriverId,_NewRank)
+        where (get_flag(precedent_decrease(DriverId),yes),
+                set_flag(precedent_decrease(DriverId),nil)).
+print_trigger(improvement_note/1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Phase 4: Ranking evaluation VERSION 2 (uses event operators to compose CEP)
+%%The system performas an evaluation of each driver ranking every time that
+%%       driver completes 20 deliveries.
+%%If the driver did not have any Delivery Alerts during that period then the
+%%       system generates a Ranking Increase event indicating that the driver's
+%%       ranking has increased by one point.
+%%Conversely if the driver has had more than five delivery alerts during that
+%%       time then the system generates a Ranking Decrease to reduce the ranking
+%%       by one point.
+%
+%% a single event is enough to start the counting for deliveries for all drivers
+%%       registered in store1
+%start_ranking_evaluation(DriverId,store1)<-
+%        start_ranking_evaluation_for_all_drivers event_multiply
+%        driver_record(DriverId,_Ranking).
+%
+%% driverEvaluationCounter/2
+%driverEvaluationCounter(0,DriverId,StoreId)<-
+%        start_ranking_evaluation(DriverId,StoreId).
+%driverEvaluationCounter(Count,DriverId,StoreId)<- (
+%        driverEvaluationCounter(CountTemp,DriverId,StoreId) seq
+%        delivery_confirmation(DeliveryRequestId,DriverId,_DeliveryTime) )
+%        where (Count is CountTemp+1).
+%print_trigger(driverEvaluationCounter/3).
+%
+%% detects a driverEvaluation event every after every Max delivery.
+%driverEvaluation(DriverId,StoreId)<-
+%        driverEvaluationCounter(Count,DriverId,StoreId)
+%        %Note: startRankingEvaluation will trigger driverEvaluation at the
+%        %       beggining too.
+%        where ( ranking_threshold(Max), (Count mod Max)=:=0 ).
+%print_trigger(driverEvaluation/2).
+%
+%ranking_increase(DriverId,NewRank)<-
+%        ( ( driverEvaluation(DriverId,StoreId)
+%                % enumerates for correct threashold
+%                %seq driverEvaluation(DriverId,StoreId)
+%                ) cnot
+%        delivery_alert(DeliveryRequestId,StoreId,DriverId,DeliveryTime) ) where
+%        ( driver_record(DriverId,Rank), NewRank is Rank+1,
+%        retract(driver_record(DriverId,Rank)),
+%        assert(driver_record(DriverId,NewRank)) ).
+%print_trigger(ranking_increase/2).
+%
+%% counting_delivery_alerts/2
+%counting_delivery_alerts(0,DriverId,StoreId)<-
+%        driverEvaluation(DriverId,StoreId).
+%counting_delivery_alerts(Count,DriverId,StoreId)<-
+%        ( counting_delivery_alerts(CountTemp,DriverId,StoreId) seq
+%        delivery_alert(DeliveryRequestId,StoreId,DriverId,DeliveryTime) )
+%        where (Count is CountTemp+1).
+%print_trigger(counting_delivery_alerts/3).
+%
+%% Detects when number of delivery_alert events exceeds defined maximum
+%% (i.e. defined in delivery_alarm_threshold(Max)):
+%ranking_decrease(DriverId,NewRank)<-
+%        (( counting_delivery_alerts(Count,DriverId,StoreId) where (
+%                delivery_alarm_threshold(Max), Count >= Max ) )
+%        seq driverEvaluation(DriverId,StoreId)) where
+%        ( driver_record(DriverId,Rank), NewRank is Rank-1,
+%                retract(driver_record(DriverId,Rank)),
+%                assert(driver_record(DriverId,NewRank))).
+%print_trigger(ranking_decrease/2).
+%
+%% improvement_note can be, in general, detected with the two following rules:
+%neutral_note(DriverId)<-
+%        ( driverEvaluation(DriverId,StoreId) seq
+%        driverEvaluation(DriverId,StoreId) ) cnot
+%        ( ranking_increase(DriverId,Rank) or ranking_decrease(DriverId,Rank) ).
+%print_trigger(neutral_note/1).
+%
+%improvement_note(DriverId)<-
+%        ( ranking_decrease(DriverId,Rank1) seq
+%                ranking_increase(DriverId,Rank2) ) cnot
+%        neutral_note(DriverId).
+%print_trigger(improvement_note/1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Phase 5: Activity Monitoring VERSION 1 (uses the internal database for
+%%       statistics)
+%%The system generates aggregates assignment and other events and counts the
+%%       number of assignments per day for each driver for each day on which the
+%%       driver has been active.
+%% Once a month the system creates reports on driver's performance, asserting the
+%%       drivers according to the following criteria:
+%%- A permanent weak driver is a driver with fewer than five assignments on all
+%%       the days on which the driver was active.
+%%- An idle driver is a driver with at least one day of activity which has no
+%%       assignments.
+%%- A consistent weak driver is a driver, whose daily assignments are at least
+%%       two standard deviations lower than the average assignment per driver on
+%%       each day in question.
+%%- A consistent strong driver is a driver, whose daily assignments are at least
+%%       two standard deviations higher than the average assignment per driver on
+%%       each day in question.
+%%- An improving driver is a driver whose assignments increase or stay the same
+%%       day by day.
+%
+%% All the above are queries, not events, so they are treated in the
+%%       "flower_specification_static_rules.P" file. They can also be specified
+%%       here with "db/1" facts.
+%
+%keep_counter<-
+%        % Note: the event can be done in the same step with assignment
+%        assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+%                DriverId,ScheduledPickupTime)
+%        where ( ScheduledPickupTime=datime(Y,M,D,_,_,_),
+%                incCounter(assignments(DriverId,date(Y,M,D))),
+%                retractall(work_day(DriverId,date(Y,M,D))),
+%                assert(work_day(DriverId,date(Y,M,D))) ).
+%
+%keep_counter_bids<-
+%        bid_request(DeliveryRequestId,DriverId,StoreId,ToCoordinates,
+%                DeliveryTime)
+%        where ( DeliveryTime=datime(Y,M,D,_,_,_),
+%                incCounter(bids(DriverId,date(Y,M,D))),
+%                retractall(work_day(DriverId,date(Y,M,D))),
+%                assert(work_day(DriverId,date(Y,M,D))) ).
+%
+%% report_event/1
+%report_event(report(month(Y,M),L1,L2,L3,L4,L5))<-
+%        end_month(month(Y,M)) where
+%       (monthly_report(month(Y,M),L1,L2,L3,L4,L5)).
+%print_trigger(report_event/1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Phase 5: Activity Monitoring VERSION 2 (uses event operators for statistics)
+%
+% We implement the Activity Monitoring phase using system events that are
+%       triggered periodically, i.e. month(date(Y,M)) is triggered at the
+%       beginning of each month; and day(date(D)) is triggered at
+%       the end of each working day.
+% Further on, the Activity Monitoring is implemented only for one driver.
+%       There should be similar rules created for each registered driver, and
+%       multiplication used to multiply events.
+% Multiplier: multiply the event "driver_activity_monitoring" for each driver
+%        driver_activity_monitoring(DriverId,_Ranking)<-
+%                day event_multiply driver_record(DriverId,_Ranking).
+%                print_trigger(driver_activity_monitoring/2).
+
+% A driver, whenever starting a new working day, is expected to send an
+%       activeDriver(DriverID,StoreId,date(Y,M,D))
+% event. The event contains a driver ID, a store ID and a date stamp.
+% assignmentCounter/2 counts no. of assignments per each driver (and store)
+% per day:
+assignmentCounter(0,DriverId,StoreId,date(Y,M,D))<-
+        activeDriver(DriverId,StoreId,date(Y,M,D)).
+assignmentCounter(Count,DriverId,StoreId,date(Y,M,D))<- (
+        assignmentCounter(CountTemp,DriverId,StoreId,date(Y,M,D)) seq
+        assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                DriverId,ScheduledPickupTime) )
+        where (Count is CountTemp+1).
+print_trigger(assignmentCounter/4).
+
+highActivity(DriverId,date(Y,M,D))<-
+        assignmentCounter(Count,DriverId,StoreId,date(Y,M,D)) seq day(date(D))
+        where Count>=5.
+print_trigger(highActivity/2).
+
+permanentWeakDriver(DriverId,date(Y,M))<-
+        ( month(date(Y,M)) seq month(date(Y,M1))) cnot
+        highActivity(DriverId,date(_,_,_)).
+print_trigger(permanentWeakDriver/2).
+
+zeroActivity(DriverId,date(D))<-
+        ( day(date(D)) seq day(date(D1)) ) cnot
+        assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                DriverId,ScheduledPickupTime).
+print_trigger(zeroActivity/2).
+
+idleDriver(DriverId,date(Y,M))<-
+        ( month(date(Y,M)) seq zeroActivity(DriverId,date(_)) seq
+        month(date(Y,M1)) ).
+print_trigger(idleDriver/2).
+
+strongActivity(DriverId,date(Y,M,D))<-
+        assignmentCounter(Count,DriverId,StoreId,date(Y,M,D)) seq day(date(D))
+        % instead of Count > Avg, we should calculate 2 standard deviations
+        %       lower than Avg
+        where (average_driver_assignment(Avg), Count > Avg).
+
+print_trigger(strongActivity/2).
+
+consistentWeakDriver(DriverId,date(Y,M))<-
+        (month(date(Y,M)) seq month(date(Y,M1))) cnot
+        strongActivity(DriverId,date(_,_,_)).
+print_trigger(consistentWeakDriver/2).
+
+weakActivity(DriverId,date(Y,M,D))<-
+        assignmentCounter(Count,DriverId,StoreId,date(Y,M,D)) seq day(date(D))
+        % instead of Count > Avg, we should calculate 2 standard deviations
+        %       higher than Avg
+        where (average_driver_assignment(Avg), Count < Avg).
+
+print_trigger(weakActivity/2).
+
+consistentStrongDriver(DriverId,date(Y,M))<-
+        (month(date(Y,M)) seq month(date(Y,M1))) cnot
+        weakActivity(DriverId,date(_,_,_)).
+print_trigger(consistentStrongDriver/2).
+
+activity(DriverId,date(Y,M,D),Count)<-
+        assignmentCounter(Count,DriverId,StoreId,date(Y,M,D)) seq day(date(D)).
+print_trigger(activity/3).
+
+decreasingActivity(DriverId,date(Y,M))<-
+        activity(DriverId,date(Y,M,D1),Count1) seq
+        activity(DriverId,date(Y,M,D2),Count2)
+        where Count1 > Count2.
+print_trigger(decreasingActivity/2).
+
+improvingDriver(DriverId,date(Y,M))<-
+        (month(date(Y,M)) seq month(date(Y,M1))) cnot
+        decreasingActivity(DriverId,date(_,_)).
+print_trigger(improvingDriver/2).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Additional rules
+
+%1.  Handover - When driver A decides to pass the assignment to another
+%driver (B) he produces "handover" event and now driver B is
+%responsible for the delivery.
+%    a. The event can be produced only if the first driver was chosen
+%automatically (not manually) by the store.
+%    b. The second driver that receives the assignment from the first
+%will have the same (or higher) rank than the first one.
+
+% basic event
+% handover(+DeliveryRequestId,+DriverA,+DriverB)
+
+% change assignment if handover/3 detected
+assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                DriverIdB,ScheduledPickupTime)<-
+        assignment(DeliveryRequestId,StoreId,ToCoordinates,DeliveryTime,
+                DriverIdA,ScheduledPickupTime) seq
+        handover(DeliveryRequestId,DriverIdA,DriverIdB) where
+        (
+                store_record(StoreId,_MinRank,automatic),
+                driver_record(DriverIdA,Ranking1),
+                driver_record(DriverIdB,Ranking2),
+                Ranking1 =< Ranking2
+        ).
+
+%2.  No one to receive - When driver delivers flowers and there is no
+%one to receive the flowers at recipient address, he decides to drop it
+%at porch or to drop at neighbor (depends on the area). And uses his
+%mobile device that sends 'No one to receive' alert to the system, and
+%this way Confirmation Delivery alert is canceled.
+
+% basic event
+% no_one_to_receive(+DeliveryRequestId)
+
+% modifies delivery_alert(DeliveryRequestId,StoreId,DriverId,DeliveryTime) above
+

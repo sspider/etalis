@@ -1,0 +1,184 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Static Rules for the flower_specification use case
+flower_use_case_interface:-
+        flower_use_case_write_interface_instructions,
+        repeat_read_instruction.
+
+flower_use_case_write_interface_instructions:-
+        nl, nl,
+        write('    Flower use case instructions: introduce events with '),
+        write('"event(EventInstance)." and exit with "halt."'), nl, nl.
+
+repeat_read_instruction:-
+        read_term(Term,[]),
+        call(Term),
+        repeat_read_instruction.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Phase 5: Activity Monitoring
+%- A permanent weak driver is a driver with fewer than five assignments on all
+%       the days on which the driver was active.
+permanent_weak_driver(month(Y,M),DriverId):-
+        driver_record(DriverId,_Rank),
+        findall( day_report(DriverId,date(Y,M,D),Count),
+               ( work_day(DriverId,date(Y,M,D)),
+               counter(assignments(DriverId,date(Y,M,D)),Count) ), L),
+        permanent_weak_driver_internal(L).
+permanent_weak_driver_internal([day_report(_DriverId,date(_Y,_M,_D),Count)]):-
+        Count\=0,Count<5.
+permanent_weak_driver_internal([day_report(_DriverId,date(_Y,_M,_D),Count)|T]):-
+        Count\=0,Count<5,
+        permanent_weak_driver_internal(T).
+
+%- An idle driver is a driver with at least one day of activity which has no
+%       assignments.
+idle_driver(month(Y,M),DriverId):-
+        driver_record(DriverId,_Rank),
+        findall( day_report(DriverId,date(Y,M,D),BidCount,Count),
+                ( work_day(DriverId,date(Y,M,D)),
+                counter(bids(DriverId,date(Y,M,D)),BidCount),
+                counter(assignments(DriverId,date(Y,M,D)),Count) ), L),
+        my_member(X,L),
+        idle_driver_internal(X).
+idle_driver_internal(day_report(_DriverId,date(_Y,_M,_D),BidCount,Count)):-
+        BidCount>0, Count=0.
+
+%- A consistent weak driver is a driver, whose daily assignments are at least
+%       two standard deviations lower than the average assignment per driver on
+%       each day in question.
+consistent_weak_driver(month(Y,M),DriverId):-
+        driver_record(DriverId,_Rank),
+        findall( day_report(DriverId,date(Y,M,D),Count),
+                ( work_day(DriverId,date(Y,M,D)),
+                counter(assignments(DriverId,date(Y,M,D)),Count) ), L),
+        consistent_weak_driver_internal(L).
+
+consistent_weak_driver_internal([day_report(_DriverId,date(Y,M,D),Count)]):-
+        average_assignment(date(Y,M,D),Avg), Avg2 is Avg-2,
+        Count=<Avg2.
+consistent_weak_driver_internal([day_report(_DriverId,date(Y,M,D),Count)|T]):-
+        average_assignment(date(Y,M,D),Avg), Avg2 is Avg-2,
+        Count=<Avg2,
+        consistent_weak_driver_internal(T).
+
+average_assignment(date(Y,M,D),Avg):-
+        % the date is given, so the findall finds all day_reports for one day
+        %       from all drivers
+        findall( day_report(DriverId,date(Y,M,D),Count),
+                ( driver_record(DriverId,_Rank),
+                work_day(DriverId,date(Y,M,D)),
+                counter(assignments(DriverId,date(Y,M,D)),Count) ), L),
+        sum_all(L,Sum),
+        my_length(L,Size),
+        (Size>0 -> Avg is Sum/Size ; Avg=0),
+        !.
+
+sum_all(L,Sum):-
+        sum_all(L,0,Sum).
+sum_all([],Sum,Sum).
+sum_all([day_report(_DriverId,_Date,Count)|T],PartialSum,Sum):-
+        NewPartialSum is PartialSum+Count,
+        sum_all(T,NewPartialSum,Sum).
+
+%- A consistent strong driver is a driver, whose daily assignments are at least
+%       two standard deviations higher than the average assignment per driver on
+%       each day in question.
+consistent_strong_driver(month(Y,M),DriverId):-
+        driver_record(DriverId,_Rank),
+        findall( day_report(DriverId,date(Y,M,D),Count),
+                ( work_day(DriverId,date(Y,M,D)),
+                counter(assignments(DriverId,date(Y,M,D)),Count) ), L),
+        consistent_strong_driver_internal(L).
+
+consistent_strong_driver_internal([day_report(_DriverId,date(Y,M,D),Count)]):-
+        average_assignment(date(Y,M,D),Avg), Avg2 is Avg+2,
+        Count>=Avg2.
+consistent_strong_driver_internal([day_report(_DriverId,date(Y,M,D),Count)|T]):-
+        average_assignment(date(Y,M,D),Avg), Avg2 is Avg+2,
+        Count>=Avg2,
+        consistent_strong_driver_internal(T).
+
+%- An improving driver is a driver whose assignments increase or stay the same
+%       day by day.
+improving_driver(month(Y,M),DriverId):-
+        % the days are ordered in they were asserted
+        driver_record(DriverId,_Rank),
+        findall( day_report(DriverId,date(Y,M,D),Count),
+                ( work_day(DriverId,date(Y,M,D)),
+                counter(assignments(DriverId,date(Y,M,D)),Count) ), L),
+        improving_driver_internal(L).
+
+improving_driver_internal([_]).
+improving_driver_internal([day_report(DriverId,_,Count1),
+                day_report(DriverId,_,Count2)|T]):-
+        Count1=<Count2,
+        improving_driver_internal([day_report(DriverId,_,Count2)|T]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ?- monthly_report(month(Y,M),L1,L2,L3,L4,L5),
+%       write(report(month(Y,M),L1,L2,L3,L4,L5)),nl,nl.
+monthly_report(month(Y,M),L1,L2,L3,L4,L5):-
+        findall( permanent_weak_driver(DriverId),
+                permanent_weak_driver(month(Y,M),DriverId), L1 ),
+        findall( idle_driver(DriverId), idle_driver(month(Y,M),DriverId), L2 ),
+        findall( consistent_weak_driver(DriverId),
+                consistent_weak_driver(month(Y,M),DriverId), L3 ),
+        findall( consistent_strong_driver(DriverId),
+                consistent_strong_driver(month(Y,M),DriverId), L4 ),
+        findall( improving_driver(DriverId),
+                improving_driver(month(Y,M),DriverId), L5 ),
+        !.
+:- dynamic(work_day/2).
+
+% select_highest_five/2
+% select_highest_five(+L1,-L2) where L1 is of the form
+%       [driver(DriverId,Rank,PickupTime),...]
+select_highest_five(L1,L2) :- select_highest_five(L1,[],L2).
+% select_highest_five/3
+% select_highest_five(+L1,+TempResult,-L2)
+select_highest_five([],L,L).
+select_highest_five([driver(D,R,P)|T],[],L) :-
+        select_highest_five(T,[driver(D,R,P)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1)],L) :-
+        select_highest_five(T,[driver(D,R,P),driver(D1,R1,P1)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1),driver(D2,R2,P2)],L) :-
+        select_highest_five(T,[driver(D,R,P),driver(D1,R1,P1),
+                driver(D2,R2,P2)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3)],L) :-
+        select_highest_five(T,[driver(D,R,P),driver(D1,R1,P1),
+                driver(D2,R2,P2),driver(D3,R3,P3)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D4,R4,P4)],L) :-
+        select_highest_five(T,[driver(D,R,P),driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D4,R4,P4)],L).
+select_highest_five([driver(_D,R,_P)|T],[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D4,R4,P4),driver(D5,R5,P5)],L) :-
+        R1>R,R2>R,R3>R,R4>R,R5>R,
+        select_highest_five(T,[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D4,R4,P4),driver(D5,R5,P5)],L).
+select_highest_five([driver(D,R,P)|T],[driver(_D1,R1,_P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D4,R4,P4),driver(D5,R5,P5)],L) :-
+        R>R1,R2>R1,R3>R1,R4>R1,R5>R1,
+        select_highest_five(T,[driver(D,R,P),driver(D2,R2,P2),driver(D3,R3,P3),
+                driver(D4,R4,P4),driver(D5,R5,P5)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1),driver(_D2,R2,_P2),
+                driver(D3,R3,P3),driver(D4,R4,P4),driver(D5,R5,P5)],L) :-
+        R1>R2,R>R2,R3>R2,R4>R2,R5>R2,
+        select_highest_five(T,[driver(D1,R1,P1),driver(D,R,P),driver(D3,R3,P3),
+                driver(D4,R4,P4),driver(D5,R5,P5)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(_D3,R3,_P3),driver(D4,R4,P4),driver(D5,R5,P5)],L) :-
+        R1>R3,R2>R3,R>R3,R4>R3,R5>R3,
+        select_highest_five(T,[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D,R,P),driver(D4,R4,P4),driver(D5,R5,P5)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(_D4,R4,_P4),driver(D5,R5,P5)],L) :-
+        R1>R4,R2>R4,R3>R4,R>R4,R5>R4,
+        select_highest_five(T,[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D,R,P),driver(D5,R5,P5)],L).
+select_highest_five([driver(D,R,P)|T],[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D4,R4,P4),driver(_D5,R5,_P5)],L) :-
+        R1>R5,R2>R5,R3>R5,R4>R5,R>R5,
+        select_highest_five(T,[driver(D1,R1,P1),driver(D2,R2,P2),
+                driver(D3,R3,P3),driver(D4,R4,P4),driver(D,R,P)],L).

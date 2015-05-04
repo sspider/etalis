@@ -1,0 +1,72 @@
+% count_window/1
+count_window(5).
+:- dynamic(temp_count/2).
+
+print_trigger(a/1).
+print_trigger(cws/1).
+
+% cws/1 - count window sum
+cws(Sum) <- a(X) where 
+	window_compute(X,Sum).
+
+% window_compute/2
+%  increment all aggregates, return the current one
+window_compute(X,Sum):-
+	findall(
+		temp_count(TempCount,TempSum),
+		temp_count(TempCount,TempSum),
+		List),
+	window_increment_all(List,X),
+	assert(temp_count(1,X)),
+	%write_all_temp_count,
+	findall(
+		temp_count(TempCount2,TempSum2),
+		temp_count(TempCount2,TempSum2),
+		List2),
+	take_max(List2,1,Sum),
+	!.
+
+% window_increment_all/
+%  increment all aggregates
+window_increment_all([],_X):-
+	!.
+window_increment_all([temp_count(TempCount,TempSum)|List],X):-
+	count_window(W),
+	TempCount < W,
+	retractall(temp_count(TempCount,TempSum)),
+	Count is TempCount+1,
+	Sum is TempSum+X,
+	assert( temp_count(Count,Sum) ),
+	window_increment_all(List,X),
+	!.
+window_increment_all([temp_count(TempCount,TempSum)|List],X):-
+	retractall(temp_count(TempCount,TempSum)),
+	window_increment_all(List,X),
+	!.
+
+% take_max/3
+% take_max(List2,TempMax,Sum)
+take_max([],TempMax,Sum):-
+	temp_count(TempMax,Sum),
+	!.
+take_max([temp_count(TempCount,_)|List2],TempMax,Sum):-
+	TempMax < TempCount,
+	take_max(List2,TempCount,Sum),
+	!.
+take_max([temp_count(_,_)|List2],TempMax,Sum):-
+	take_max(List2,TempMax,Sum),
+	!.
+
+% write_all_temp_count/0
+write_all_temp_count:-
+	findall(
+		temp_count(TempCount,TempSum),
+		temp_count(TempCount,TempSum),
+		List),
+	nl,
+	write(List),
+	nl,nl,
+	!.
+
+
+

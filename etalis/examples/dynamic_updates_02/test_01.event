@@ -1,0 +1,6 @@
+print_trigger(_/_).
+
+static_asserts:- 
+	ins_event_rule(r1 'rule:' c(X) <- a(X)), 
+	ins_event_rule(r2 'rule:' d(Y) <- a(Y) seq b(Y)).
+

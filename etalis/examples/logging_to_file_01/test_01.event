@@ -1,0 +1,5 @@
+print_trigger(ce2/2).
+print_trigger(a/2).
+
+ce2(X,Y) <- a(X,Z) 'SEQ' a(Z,Y).
+

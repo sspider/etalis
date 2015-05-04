@@ -1,0 +1,18 @@
+print_trigger(_).
+
+d(X1, X2) <- temp_e_7(X2, X1, X3).
+
+temp_e_1(X1) <- a(X1) where ( <(1, X1) ).
+
+temp_e_2(X3) <- b(X3) where ( <(1, X3) ).
+
+temp_e_3(X1, X3) <- temp_e_1(X1) seq temp_e_2(X3).
+
+temp_e_4(X3, X1) <- temp_e_3(X1, X3) where ( <(X1, X3) ).
+
+temp_e_5(X2) <- c(X2) where ( <(1, X2) ).
+
+temp_e_6(X3, X1, X2) <- temp_e_4(X3, X1) seq temp_e_5(X2).
+
+temp_e_7(X2, X1, X3) <- temp_e_6(X3, X1, X2) where ( <(X3, X2) ).
+

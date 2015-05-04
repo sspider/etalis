@@ -1,0 +1,125 @@
+:- style_check(-atom). % required by SWI Prolog
+
+% parse_RDF_XML(Rdf_xml,ListTriples)
+%
+% Example:
+%?- parse_RDF_XML('<rdf:Description rdf:about="odmatrix/soft/420-416-AFF">
+%   <lud:oTo rdf:resource="zones/zone416"/>
+%   <lud:reason rdf:resource="reasons/AFF"/>
+%   <lud:oFrom rdf:resource="zones/zone420"/>
+%   <lud:when rdf:resource="when/2"/>
+%   <lud:id rdf:datatype="http://www.w3.org/2001/XMLSchema#string">odmatrix-420-416-SOFT-AFF</lud:id>
+%   <lud:veq rdf:datatype="http://www.w3.org/2001/XMLSchema#float">1.010</lud:veq>
+%   <rdf:type rdf:resource="http://www.linkingurbandata.org/onto/ama/ODrecord"/>
+% </rdf:Description>',ListTriples).
+%
+% ListTriples should = [
+% t('odmatrix/soft/420-416-AFF','lud:oTo','zones/zone416'),
+% t('odmatrix/soft/420-416-AFF','lud:reason','reasons/AFF'),
+% ...
+% ]
+parse_RDF_XML(Rdf_xml,ListTriples):-
+	atom_codes(Rdf_xml,List_chars),
+	% extract the rdf:about (?- atom_codes('rdf:about="',L). 
+	% L = [114,100,102,58,97,98,111,117,116,61,34])
+	split(List_chars,[114,100,102,58,97,98,111,117,116,61,34],
+		[_,Temp1]),
+	split(Temp1,[34],[SubjectList|_]),
+	atom_codes(Subject,SubjectList),
+	%- split the rest on "\n"
+	split(Temp1,[10],[_|ListPropObj]),
+	% get from each piece the property and the value
+	list_prop_obj(ListPropObj,ResultPropObj),
+	pair_subj_prop_obj(Subject,ResultPropObj,ListTriples).
+
+list_prop_obj([],[]).
+list_prop_obj([_],[]).
+list_prop_obj([H|ListPropObj],[p(P,V)|ResultPropObj]):-
+	%- split on "<"
+	split(H,[60],[_,H2|_]),
+	%- split on " "
+	split(H2,[32],[PList,Rest|_]),
+	split(PList,[34],[PList2|_]),
+	atom_codes(P,PList2),
+	%- split on "rdf:resource="" ?- atom_codes('rdf:resource="',L). 
+	% L = [114,100,102,58,114,101,115,111,117,114,99,101,61,34] 
+	substring([114,100,102,58,114,101,115,111,117,114,99,101,61,34],
+		Rest),
+        split(Rest,[114,100,102,58,114,101,115,111,117,114,99,101,61,34],
+        	[Temp1|_]),
+        split(Temp1,[34],[VList|_]),
+	atom_codes(V,VList),
+	list_prop_obj(ListPropObj,ResultPropObj),
+	!.
+list_prop_obj([H|ListPropObj],[p(P,V)|ResultPropObj]):-
+	%- split on "<"
+	split(H,[60],[_,PList2|_]),
+	%- split on " "
+	split(PList2,[32],[PList|_]),
+	atom_codes(P,PList),
+	%- split on "rdf:datatype="" ?- atom_codes('rdf:datatype="',L). 
+	% L = [114,100,102,58,100,97,116,97,116,121,112,101,61,34] 
+        substring([114,100,102,58,100,97,116,97,116,121,112,101,61,34],H),
+        split(H,[114,100,102,58,100,97,116,97,116,121,112,101,61,34],
+        	[_,Temp1|_]),
+	%- split on ">"
+	split(Temp1,[62],[_,Temp2|_]),
+        %- split on "<"
+        split(Temp2,[60],[VList|_]),
+	atom_codes(V,VList),
+	list_prop_obj(ListPropObj,ResultPropObj),
+	!.
+list_prop_obj([_|ListPropObj],ResultPropObj):-
+	list_prop_obj(ListPropObj,ResultPropObj),
+	!.
+
+pair_subj_prop_obj(Subject,[],[]).
+pair_subj_prop_obj(Subject,[p(P,V)|ResultPropObj],
+		[t(Subject,P,V)|ListTriples]):-
+	pair_subj_prop_obj(Subject,ResultPropObj,ListTriples),
+	!.
+
+% parse_rdf_xml_file(+File,-L).
+%
+% Example:
+% parse_rdf_xml_file('rdf_examples/agency.rdf',L).
+parse_rdf_xml_file(File,ListTriples):-
+	read_file_in_list(File,L),
+	% atom_codes('<rdf:Description',L).
+	% [60,114,100,102,58,68,101,115,99,114,105,112,116,105,111,110]
+	split(L,[60,114,100,102,58,68,101,115,99,114,105,112,116,
+		105,111,110],[_|L2]),
+	parse_RDF_XML_list(L2,ListTriples).
+
+parse_RDF_XML_list([],[]).
+parse_RDF_XML_list([List_chars|L],ListTriples):-
+	split(List_chars,[114,100,102,58,97,98,111,117,116,61,34],
+		[_,Temp1]),
+	split(Temp1,[34],[SubjectList|_]),
+	atom_codes(Subject,SubjectList),
+	%- split the rest on "\n"
+	split(Temp1,[10],[_|ListPropObj]),
+	% get from each piece the property and the value
+	list_prop_obj(ListPropObj,ResultPropObj),
+	pair_subj_prop_obj(Subject,ResultPropObj,ListTriples1),
+	parse_RDF_XML_list(L,ListTriples2),
+	append(ListTriples1,ListTriples2,ListTriples),
+	!.
+
+% read_file_in_list(+File,-L).
+%
+% Example:
+% read_file_in_list('rdf_examples/agency.rdf',L).
+read_file_in_list(File,L):-
+	open(File,read,S),
+	read_stream(S,L).
+
+read_stream(S,[H|L]):-
+	not(at_end_of_stream(S)),
+	get_code(S,H),
+	read_stream(S,L),
+	!.
+read_stream(_S,[]).
+
+
+

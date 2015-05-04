@@ -1,0 +1,4 @@
+trClause(unlabeled,event(a(_G1494),[_G1961,_G1964]),seqf(prolog(window_compute(_G1494,_G1492)),seqf(check_event_rule_conditions(unlabeled,temp_e_1(a(_G1494),window_compute(_G1494,_G1492)),[_G1961,_G1964]),event(temp_e_1(a(_G1494),window_compute(_G1494,_G1492)),[_G1961,_G1964])))).
+
+trClause(unlabeled,event(temp_e_1(a(_G1494),window_compute(_G1494,_G1492)),[_G2004,_G2007]),seqf(check_event_rule_conditions(unlabeled,cws(_G1492),[_G2004,_G2007]),event(cws(_G1492),[_G2004,_G2007]))).
+

@@ -1,0 +1,5 @@
+print_trigger(_/_).
+
+ce1 <- a seq b.
+ce2 <- ce1 meets b.
+

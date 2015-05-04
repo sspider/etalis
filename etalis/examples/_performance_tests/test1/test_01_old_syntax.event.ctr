@@ -1,0 +1,4 @@
+trClause(event(r(_G1627,_G1628),[_G1951,_G1954]),event(tc(_G1627,_G1628),[_G1951,_G1954])).
+trClause(event(r(_G1655,_G1652),[_G1847,_G1850]),seqf(etr_dbf(goal(event(r(_G1655,_G1652)),event(tc(_G1651,_G1655),[_G1867,_G1870]),event(temp_e_1(tc(_G1651,_G1655),r(_G1655,_G1652))))),seqf(etr_delf(goal(event(r(_G1655,_G1652)),event(tc(_G1651,_G1655),[_G1867,_G1870]),event(temp_e_1(tc(_G1651,_G1655),r(_G1655,_G1652))))),seqf(less(_G1870,_G1847),event(temp_e_1(tc(_G1651,_G1655),r(_G1655,_G1652)),[_G1867,_G1850]))))).
+trClause(event(tc(_G1651,_G1655),[_G1816,_G1819]),etr_insf(goal(event(r(_G1655,_G1652)),event(tc(_G1651,_G1655),[_G1816,_G1819]),event(temp_e_1(tc(_G1651,_G1655),r(_G1655,_G1652)))))).
+trClause(event(temp_e_1(tc(_G1651,_G1655),r(_G1655,_G1652)),[_G1921,_G1924]),event(tc(_G1651,_G1652),[_G1921,_G1924])).

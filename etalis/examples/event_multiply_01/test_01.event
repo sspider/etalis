@@ -1,0 +1,7 @@
+print_trigger(a/1).
+print_trigger(b/1).
+
+b(Y) <- a(X) 'event_multiply' ( p(X,Y) ).
+
+db( p(1,2) ).
+db( p(1,3) ).

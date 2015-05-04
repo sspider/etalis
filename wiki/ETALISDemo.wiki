@@ -1,0 +1,6 @@
+#labels Demo
+= ETALIS Demo =
+
+We have set up a demo to present some features of ETALIS system. In particular, we provide an interactive console where a user can directly play with the engine;
+
+See the live demo: http://krake26.perimeter.fzi.de:8080/etalis

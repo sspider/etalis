@@ -1,0 +1,11 @@
+\benchmark test1 eEtalis V0.1
+\author ahmed hafsi ahmed@hafsi.org
+pattern:
+e1 <- (a seq d) within (3).
+stream:
+a_0_d_0_500000_events.P
+results:
+-O3 1.1 sec
+No Optimization 1.6 sec
+Comment:
+the number of complex events is verified to be correct.

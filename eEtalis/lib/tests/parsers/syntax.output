@@ -1,0 +1,91 @@
+Terminale, die in Grammatik unbenutzt sind
+
+   EQL
+   COMMA
+
+
+Grammatik
+
+    0 $accept: input $end
+
+    1 input: /* leer */
+    2      | input line
+
+    3 line: '\n'
+    4     | NUM '\n'
+
+
+Terminale und die Regeln, in denen sie verwendet werden
+
+$end (0) 0
+'\n' (10) 3 4
+error (256)
+EQL (258)
+COMMA (259)
+NUM (260) 4
+
+
+Nicht-Terminal und die Regeln, in denen sie verwendet werden
+
+$accept (7)
+    auf der linken Seite: 0
+input (8)
+    auf der linken Seite: 1 2, auf der rechten Seite: 0 2
+line (9)
+    auf der linken Seite: 3 4, auf der rechten Seite: 2
+
+
+Zustand 0
+
+    0 $accept: . input $end
+
+    $default  reduziere mit Regel 1 (input)
+
+    input  gehe zu Zustand 1 über
+
+
+Zustand 1
+
+    0 $accept: input . $end
+    2 input: input . line
+
+    $end  schiebe und gehe zu Zustand 2 über
+    NUM   schiebe und gehe zu Zustand 3 über
+    '\n'  schiebe und gehe zu Zustand 4 über
+
+    line  gehe zu Zustand 5 über
+
+
+Zustand 2
+
+    0 $accept: input $end .
+
+    $default  annehmen
+
+
+Zustand 3
+
+    4 line: NUM . '\n'
+
+    '\n'  schiebe und gehe zu Zustand 6 über
+
+
+Zustand 4
+
+    3 line: '\n' .
+
+    $default  reduziere mit Regel 3 (line)
+
+
+Zustand 5
+
+    2 input: input line .
+
+    $default  reduziere mit Regel 2 (input)
+
+
+Zustand 6
+
+    4 line: NUM '\n' .
+
+    $default  reduziere mit Regel 4 (line)

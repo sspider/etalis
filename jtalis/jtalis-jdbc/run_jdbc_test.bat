@@ -1,0 +1,1 @@
+..\jtalis-core\scripts\jtalis-run.bat pom.xml src\main\resources\jdbc-run-config.xml

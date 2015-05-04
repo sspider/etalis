@@ -1,0 +1,12 @@
+eventClause(unlabeled,e1(_G633),wheref(b(_G633),1<_G633)).
+
+eventClause(unlabeled,e2(_G649,_G650),seqf(a(_G649),e1(_G650))).
+
+eventClause(unlabeled,e3(_G665,_G666),wheref(e2(_G665,_G666),_G665<_G666)).
+
+eventClause(unlabeled,e4(_G683),wheref(c(_G683),_G683<5)).
+
+eventClause(unlabeled,e5(_G699,_G700,_G701),seqf(e3(_G699,_G700),e4(_G701))).
+
+eventClause(unlabeled,d(_G717,_G718),wheref(e5(_G717,_G721,_G718),_G717>_G718)).
+

@@ -1,0 +1,14 @@
+event(bidStart).
+sleep(32).
+event(creditBid(2,4)).
+sleep(1).
+event(cashBid(29,4)).
+sleep(1).
+event(cashBid(33,3)).
+sleep(2).
+event(creditBid(66,4)).
+sleep(23).
+event(creditBid(56,5)).
+sleep(1).
+
+

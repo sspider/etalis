@@ -1,0 +1,20 @@
+print_trigger(reaches/4).
+print_trigger(detectedAt/2).
+print_trigger(reaches_internal/2).
+
+reaches_internal(detectedAt(P1, L1),detectedAt(P2, L2)) <- detectedAt(P1, L1) seq detectedAt(P2, L2).
+
+reaches(P2, P1, L1, L2) <- reaches_internal(detectedAt(P1, L1),detectedAt(P2, L2)) where floorplan(L1, connected, L2).
+
+floorplan('http://deri.org/floorplan/D010', connected, 'http://deri.org/floorplan/D010').
+floorplan('http://deri.org/floorplan/D010', connected, 'http://deri.org/floorplan/D011').
+floorplan('http://deri.org/floorplan/D010', connected, 'http://deri.org/floorplan/C023').
+
+floorplan('http://deri.org/floorplan/D011', connected, 'http://deri.org/floorplan/D010').
+floorplan('http://deri.org/floorplan/D011', connected, 'http://deri.org/floorplan/D011').
+floorplan('http://deri.org/floorplan/D011', connected, 'http://deri.org/floorplan/C023').
+
+floorplan('http://deri.org/floorplan/C023', connected, 'http://deri.org/floorplan/D010').
+floorplan('http://deri.org/floorplan/C023', connected, 'http://deri.org/floorplan/D011').
+floorplan('http://deri.org/floorplan/C023', connected, 'http://deri.org/floorplan/C023').
+

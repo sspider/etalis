@@ -1,0 +1,12 @@
+eventClause(unlabeled,temp_e_1(a(_G1421),b(_G1421)),seqf(a(_G1421),b(_G1421))).
+
+eventClause(unlabeled,c(_G1421),temp_e_1(a(_G1421),b(_G1421))).
+
+eventClause(unlabeled,temp_e_2(a0(_G1436),b0(_G1436)),seqf(a0(_G1436),b0(_G1436))).
+
+eventClause(unlabeled,d(_G1436),temp_e_2(a0(_G1436),b0(_G1436))).
+
+eventClause(unlabeled,temp_e_3(c(_G1451),d(_G1451)),duringf(c(_G1451),d(_G1451))).
+
+eventClause(unlabeled,e(_G1451),temp_e_3(c(_G1451),d(_G1451))).
+

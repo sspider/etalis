@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5"
+         xmlns="http://java.sun.com/xml/ns/javaee">
+
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>DataServiceServlet</servlet-name>
+    <servlet-class>com.scadaview.jtalis.server.DataServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>DataServiceServlet</servlet-name>
+    <url-pattern>/jtalis_visual/DataService</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  <servlet-name>eventServiceImpl</servlet-name>
+  <servlet-class>de.novanic.eventservice.service.EventServiceImpl</servlet-class>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>eventServiceImpl</servlet-name>
+  <url-pattern>/jtalis_visual/gwteventservice</url-pattern>
+</servlet-mapping>
+  
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>Jtalis_visual.html</welcome-file>
+  </welcome-file-list>
+
+</web-app>

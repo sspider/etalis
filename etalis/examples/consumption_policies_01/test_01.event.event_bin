@@ -1,0 +1,4 @@
+eventClause(unlabeled,temp_e_1(a,b),seqf(a,b)).
+
+eventClause(unlabeled,c,temp_e_1(a,b)).
+

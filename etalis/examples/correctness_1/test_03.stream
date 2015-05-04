@@ -1,0 +1,9 @@
+% Case 3: we consider application time (i.e., timestamps are attached to events by respective event producers) 
+event(bidStart,[datime(2011,11,17,12,55,00,1),datime(2011,11,17,12,55,00,1)]).
+event(creditBid(2,4),[datime(2011,11,17,12,55,32,1),datime(2011,11,17,12,55,32,1)]).
+event(cashBid(29,4),[datime(2011,11,17,12,55,33,1),datime(2011,11,17,12,55,33,1)]).
+event(cashBid(33,3),[datime(2011,11,17,12,55,34,1),datime(2011,11,17,12,55,34,1)]).
+event(creditBid(66,4),[datime(2011,11,17,12,55,36,1),datime(2011,11,17,12,55,36,1)]).
+event(creditBid(56,5),[datime(2011,11,17,12,55,59,1),datime(2011,11,17,12,55,59,1)]).
+event(bidEnd,[datime(2011,11,17,12,56,00,1),datime(2011,11,17,12,56,00,1)]).
+

@@ -1,0 +1,8 @@
+trClause(unlabeled,event(b(_G1484),[_G1747,_G1750]),seqf(etr_dbf(unlabeled,goal(event(b(_G1484)),event(a(_G1486),[_G1768,_G1771]),event(temp1(_G1484)))),seqf(less(_G1771,_G1747),seqf(check_event_rule_conditions(unlabeled,temp1(_G1484),[_G1768,_G1750]),seqf(prolog(_G1484>_G1486),seqf(etr_delf(unlabeled,goal(event(b(_G1484)),event(a(_G1486),[_G1768,_G1771]),event(temp1(_G1484)))),event(temp1(_G1484),[_G1768,_G1750]))))))).
+
+trClause(unlabeled,event(a(_G1486),[_G1714,_G1717]),etr_insf(unlabeled,goal(event(b(_G1484)),event(a(_G1486),[_G1714,_G1717]),event(temp1(_G1484))))).
+
+trClause(unlabeled,event(c(_G1505),[_G1872,_G1875]),seqf(etr_dbf(unlabeled,goal(event(c(_G1505)),event(temp1(_G1507),[_G1893,_G1896]),event(d(_G1505)))),seqf(less(_G1896,_G1872),seqf(check_event_rule_conditions(unlabeled,d(_G1505),[_G1893,_G1875]),seqf(prolog(_G1505>_G1507),seqf(etr_delf(unlabeled,goal(event(c(_G1505)),event(temp1(_G1507),[_G1893,_G1896]),event(d(_G1505)))),event(d(_G1505),[_G1893,_G1875]))))))).
+
+trClause(unlabeled,event(temp1(_G1507),[_G1839,_G1842]),etr_insf(unlabeled,goal(event(c(_G1505)),event(temp1(_G1507),[_G1839,_G1842]),event(d(_G1505))))).
+

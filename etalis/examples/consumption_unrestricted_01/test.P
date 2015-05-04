@@ -1,0 +1,22 @@
+test(EventFile):-
+	load_event_stream_file(EventFile,EventList),
+	my_cputime(T0),
+	repeat_fireEvent(EventList),
+	my_cputime(T1),
+	DT is T1-T0,
+	nl,
+	write(DT),
+	nl,
+	nl.
+
+repeat_fireEvent([H|T]):-
+	call(event(H)),
+	repeat_fireEvent(T).
+repeat_fireEvent([]).
+
+my_cputime(T):-
+	cputime(T),
+	!.
+my_cputime(T):-
+	T is cputime.
+

@@ -1,0 +1,107 @@
+% base_events/2
+% base_events(+Rules,-BaseEvents)
+base_events(Rules,BaseEvents):-
+	break_events(Rules,[],[],BodyEvents,DerivedEvents),
+	set_difference(BodyEvents,DerivedEvents,BaseEvents),
+	!.
+
+% complex_events/2
+% complex_events(+Rules,-DerivedEvents)
+complex_events(Rules,ComplexEvents):-
+	break_events(Rules,[],[],_BaseEvents,DerivedEvents),
+	filter_temp_events(DerivedEvents,ComplexEvents),
+	!.
+
+% filter_temp_events(+DerivedEvents,-ComplexEvents)
+filter_temp_events([],[]).
+filter_temp_events([H|T],[H|R]):-
+	H=..[EventSymbol|_],
+	\+( atom_codes(EventSymbol,[116,101,109,112,95|_]) ),
+	!,
+	filter_temp_events(T,R).
+filter_temp_events([_H|T],R):-
+	!,
+	filter_temp_events(T,R).
+	
+% break_events/5
+% break_events(+Rules,+TempBaseEvents,+TempDerivedEvents,
+%		-BaseEvents,-DerivedEvents)
+break_events([],BaseEvents,DerivedEvents,
+		BaseEvents,DerivedEvents):-
+	!.
+break_events([[eventClause(_,Head,Body)|T]],TempBaseEvents,TempDerivedEvents,
+		BaseEvents,DerivedEvents):-
+	!,
+	break_events([eventClause(_,Head,Body)|T],TempBaseEvents,TempDerivedEvents,
+		BaseEvents,DerivedEvents).
+break_events([eventClause(_,Head,Body)|T],TempBaseEvents,TempDerivedEvents,
+		BaseEvents,DerivedEvents):-
+	Head =.. [EventName|Args],
+	args_arity(Args,Arity),
+	NewHead =.. [EventName|Arity], % this is a derived event
+	( my_member(NewHead,TempDerivedEvents) 
+		-> NewTempDerivedEvents = TempDerivedEvents
+		; NewTempDerivedEvents = [NewHead|TempDerivedEvents]
+	),
+	break_body(Body,TempBaseEvents,NewTempBaseEvents),
+	break_events(T,NewTempBaseEvents,NewTempDerivedEvents,
+		BaseEvents,DerivedEvents),
+	!.
+
+% break_body/3
+% break_body(+Body,+TempBaseEvents,-NewTempBaseEvents)
+break_body(seqf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(andf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(orf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(checkf(X,_Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents).
+break_body(wheref(X,_Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents).
+break_body(cnotf(X,Y),TempBaseEvents,NewTempBaseEvents):-
+	!,
+	break_body(X,TempBaseEvents,NewTempBaseEvents2),
+	break_body(Y,NewTempBaseEvents2,NewTempBaseEvents).
+break_body(X,TempBaseEvents,NewTempBaseEvents):-
+	X =.. [EventName|Args],
+	args_arity(Args,Arity),
+	NewX =.. [EventName|Arity],
+	( my_member(NewX,TempBaseEvents) 
+		-> NewTempBaseEvents = TempBaseEvents
+		; NewTempBaseEvents = [NewX|TempBaseEvents]
+	),
+	!.
+
+% transform_args_arity(+Args,-Arity)
+args_arity([],[]).
+args_arity([_|Args],[_|Arity]):-
+	args_arity(Args,Arity),
+	!.	
+
+% my_write_list(+L)
+my_write_list(L):-
+	write('['),
+	write_list2(L),
+	write(']').
+
+% write_list2(+L)
+write_list2([]).
+write_list2([H1,H2|T]):-
+	!,
+	write(H1), write(', '),
+	write_list2([H2|T]).
+write_list2([H1]):-
+	!,
+	write(H1).
+
+

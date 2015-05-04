@@ -1,0 +1,10 @@
+print_trigger(_).
+
+% d(X,Z) <- a(X) seq b(Y) seq c(Z) where (X<Y, 1<Y, Z<5, X>Z).
+
+e1(Y) <- b(Y) where (1<Y).
+e2(X,Y) <- a(X) seq e1(Y).
+e3(X,Y) <- e2(X,Y) where (X<Y).
+e4(Z) <- c(Z) where (Z<5).
+e5(X,Y,Z) <- e3(X,Y) seq e4(Z).
+d(X,Z) <- e5(X,Y,Z) where (X>Z).

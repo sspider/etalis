@@ -1,0 +1,10 @@
+patternMatch1(Id,X,Y) <-
+        a(Id,X) 'seq' 
+        b(Id,Y) 'where'
+        (Y<11).
+conj1(Id,X,Y) <-
+        a(Id,X) 'and' 
+        b(Id,Y) 'and'
+        c(Id,Z).		
+patternMatch3(Id) <- patternMatch1(ID,_,_) 'or' conj1(ID,_,_). 		
+%print_trigger(patternMatch1/3)

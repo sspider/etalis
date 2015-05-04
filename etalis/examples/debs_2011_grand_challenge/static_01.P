@@ -1,0 +1,123 @@
+%% A Static Rule File along with initial database data.
+%% 12 Apr 2011
+%% Author hafsi
+
+
+%A test database of correct answers.
+%Format : answer(QID,Right_answer)
+answer(1,2).
+answer(2,1).
+answer(3,4).
+answer(4,2).
+answer(5,3).
+
+
+possibleCorrectPoints(5).
+possibleCorrectPoints(1).
+possibleCorrectPoints(100).
+
+%Scoring rules:
+%Score				Event
+%5					Correct answer
+%1					Correct answer after asking for the most frequent answer
+%-5					Incorrect answer
+%100				First who answered
+%-50				Three answers incorrect without a correct answer in the middle
+%500				Correct answers to 10 consecutive questions*
+%500					
+%1000				Best daily score (may apply to multiple players)**
+%1000				Most appearances in the daily top five within a month (may apply to multiple players)**
+%1000				Best weekly score, given every Sunday midnight (may apply to multiple players)**
+
+% Every scoring rule in a predicate is faster than saving them all in one predicate.
+
+:- dynamic rightAnswerPoints/1.
+:- dynamic wrongAnswerPoints/1.
+:- dynamic firstAnswerPoints/1.
+:- dynamic threeOfKind/1.
+:- dynamic tenOfKind/1.
+:- dynamic bestDaily/1.
+
+rightAnswerPoints(5).
+wrongAnswerPoints(-1).
+firstAnswerPoints(105).
+threeOfKind(-50).
+tenOfKind(500).
+lateTen(500).
+bestDaily(1000).
+bestMonthly(1000).
+
+
+rightAnswerAfterAskingFA(1).
+
+%UserList
+:- dynamic users/1.
+%users(1).
+%users(2).
+%users(3).
+
+
+updateScoreTree(ScoreList,OldScoreList,scored(U,DailyScore)) :- select(X-U,OldScoreList,UserRemoved),List = [DailyScore-U|UserRemoved],keysort(List,ScoreList).
+updateScoreTree(ScoreList,OldScoreList,scored(U,DailyScore)) :- List = [DailyScore-U|OldScoreList],keysort(List,ScoreList).
+
+
+%% Predicates to calculate most frequently asked answer.
+% find the number of Member duplicates in List
+numberOfDuplicates(Member,List,Count) :- findall(L,select(Member,List,L),Lo),length(Lo,Count).
+
+% how much is duplicated every member of List ?
+findDuplicates([],[]).
+findDuplicates([H|T],[Number-H|TT]) :- numberOfDuplicates(H,[H|T],Number),findDuplicates(T,TT).
+getMFAA(Ans,OldAnsList,[Ans|OldAnsList],MFAA) :- findDuplicates([Ans|OldAnsList],C),keysort(C,L),last(L,MFAA).
+
+updateMonthlyAppearanceCount(X,Old,NewCount-X) :- 
+						member(OldCount-X,Old),
+						select(OldCount-X,Old,NewList),
+						NewCount is OldCount +1.
+
+% Most appearances in a day
+% key : 
+% New Score : [-5-3,-3-2,1-1] Score list.
+% old :       [1-1,2-2,3-3] : For every user, how many appearances they did.
+% NewMList : New List of daily appearances
+% manageMonthlyAppearances(NewScore,Old,NewMList).
+
+manageMonthlyAppearances([],_,[]).
+manageMonthlyAppearances(S,[],N) :- generateBlankScoreList(Old),manageMonthlyAppearances(S,Old,N).
+manageMonthlyAppearances([_-H|T],Old,[NewCount-H|TT]) :- manageMonthlyAppearances(T,Old,TT),updateMonthlyAppearanceCount(H,Old,NewCount-H).
+
+
+generateBlankScoreList(L) :- setof(H,users(H),S),reshape(S,L).
+
+reshape([H|T],[0-H|T1]) :- reshape(T,T1).
+reshape([],[]).
+
+getLastMember(L,LastMember) :- last(L,LastMember).
+readScoreList([_-UserID|_],UserID).
+
+batchFire(EventFile):-
+	load_event_stream_file(EventFile,EventList),
+	my_cputime(T0),	
+	repeat_fireEvent(EventList),
+	my_cputime(T1),
+	DT is T1-T0,
+	nl,
+	write(DT),		
+	nl.
+
+
+repeat_fireEvent([H|T]):-
+	H \= _-_,
+	call(event(H)),
+	repeat_fireEvent(T).
+	
+repeat_fireEvent([H-Time|T]):-	
+	call(event(H,[Time,Time])),
+	repeat_fireEvent(T).
+repeat_fireEvent([]).
+
+my_cputime(T):-
+	cputime(T),
+	!.
+my_cputime(T):-
+	T is cputime.

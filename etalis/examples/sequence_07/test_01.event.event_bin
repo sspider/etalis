@@ -1,0 +1,4 @@
+eventClause(unlabeled,temp1(_G1484),wheref(seqf(a(_G1486),b(_G1484)),_G1484>_G1486)).
+
+eventClause(unlabeled,d(_G1505),wheref(seqf(temp1(_G1507),c(_G1505)),_G1505>_G1507)).
+

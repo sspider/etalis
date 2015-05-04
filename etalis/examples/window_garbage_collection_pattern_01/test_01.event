@@ -1,0 +1,3 @@
+print_trigger(_/_).
+
+r1([property(window,1),property(window_step,1)]) 'rule:' d(X) <- a(X) 'seq' b(X).

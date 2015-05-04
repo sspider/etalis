@@ -1,0 +1,8 @@
+print_trigger(stock/3).
+print_trigger(ce1/3).
+print_trigger(temp_e_1/2).
+
+ce1(Company,Pr2,Vol2) <- stock(Company,Pr1,Vol1) 
+	seq stock(Company,Pr2,Vol2).
+	 
+	%where (X is (Pr1*1.2), write(X), write(Pr2), X<Pr2).

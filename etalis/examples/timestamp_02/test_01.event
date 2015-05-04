@@ -1,0 +1,10 @@
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+
+d(X) <- (((a(X) seq b(X) timestamp (t1(T1), t2(T2)))
+       seq c(X) timestamp (t1(T3), t2(T4)))
+       seq e(X) timestamp (t1(T5), t2(T6)))
+       do 
+       (write(times(T1,T2,T3,T4,T5,T6)),nl).

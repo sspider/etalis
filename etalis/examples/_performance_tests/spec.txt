@@ -1,0 +1,19 @@
+Tests taken into account
+
+possible variables:
+1) consumption policy (recent/unrestricted)
+2) garbage collection (on/off)
+3) out-of-order (on/off)
+
+this 3 combinations leaves 8 tests for every pattern.
+
+- seq complexity level 1
+- seq complexity level 2
+- transitive closure
+- compound test: seq-or-where-and
+
+A total of 32 tests are done with this framework.
+
+Results are presented in a text file containing results for every combination.
+Results have the following parameters:
+time performance for a test, a detailed time analysis of every predicate.

@@ -1,0 +1,57 @@
+dailyTick.
+registerUser(1).
+registerUser(2).
+registerUser(3).
+
+% updateAbsoluteScore(1,0).
+% updateAbsoluteScore(2,0).
+% updateAbsoluteScore(3,0).
+
+% scoringRule4going(1,0).
+% scoringRule4going(2,0).
+% scoringRule4going(3,0).
+
+goingWeek(1).
+
+%%%%%%%%%%%%%% Round 1 %%%%%%%%%%%%%%
+
+questionEvent(1,'q1')-datime(2011, 6, 26, 9, 0, 0, 0).
+answerEvent(1, 1, 1)-datime(2011, 6, 26, 9, 0, 1, 32).
+answerEvent(2, 1, 2)-datime(2011, 6, 26, 9, 0, 1, 18).
+answerEvent(3, 1, 2)-datime(2011, 6, 26, 9, 0, 2, 10).
+
+%%%%%%%%%%%%%% Round 2 (Testing Most Frequent Answer) %%%%%%%%%%%%%%
+
+questionEvent(2,'q2')-datime(2011, 6, 26, 9, 0, 30, 0).
+answerEvent(1, 2, 1)-datime(2011, 6, 26, 9, 0, 31, 12).
+requestAnswerEvent(2,2)-datime(2011, 6, 26, 9, 0, 31, 13).
+answerEvent(2, 2, 1)-datime(2011, 6, 26, 9, 0, 31, 15).
+answerEvent(3, 2, 3)-datime(2011, 6, 26, 9, 0, 33, 0).
+
+%%%%%%%%%%%%%% Round 3 (Testing answer annulment) %%%%%%%%%%%%%%
+
+questionEvent(3,'q3')-datime(2011, 6, 26, 9, 1, 0, 0).
+answerEvent(1, 3, 1)-datime(2011, 6, 26, 9, 1, 2, 0).
+answerAnnulmentEvent(1, 3)-datime(2011, 6, 26, 9, 1, 5, 0).
+answerEvent(1, 3, 4)-datime(2011, 6, 26, 9, 2, 10, 0).
+answerEvent(2, 3, 4)-datime(2011, 6, 26, 9, 1, 10, 0).
+answerEvent(3, 3, 3)-datime(2011, 6, 26, 9, 1, 50, 0).	
+
+%%%%%%%%%%%%%% Round 4 (Testing late annulment and three incorrect answers) %%%%%%%%%%%%%%
+
+questionEvent(4,'q4')-datime(2011, 6, 26, 9, 1, 30, 0).
+answerEvent(1, 4, 2)-datime(2011, 6, 26, 9, 1, 32, 0).
+answerEvent(2, 4, 3)-datime(2011, 6, 26, 9, 1, 45, 0).
+answerAnnulmentEvent(2, 4)-datime(2011, 6, 26, 9, 2, 2, 0).
+answerEvent(2, 4, 2)-datime(2011, 6, 26, 9, 2, 4, 0).
+answerEvent(3, 4, 1)-datime(2011, 6, 26, 9, 1, 35, 0).
+
+%%%%%%%%%%%%%% Round 5 (Testing change of rules) %%%%%%%%%%%%%%
+
+changeRule(firstAnswerPoints, 205)-datime(2011, 6, 26, 9, 1, 59, 0).
+
+questionEvent(5,'q5')-datime(2011, 6, 26, 9, 2, 0, 0).
+answerEvent(1, 5, 3)-datime(2011, 6, 26, 9, 2, 10, 0).
+answerEvent(2, 5, 3)-datime(2011, 6, 26, 9, 2, 15, 0).
+answerEvent(3, 5, 3)-datime(2011, 6, 26, 9, 2, 2, 0).
+

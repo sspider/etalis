@@ -1,0 +1,7 @@
+print_trigger(start_aggr/0).
+print_trigger(a/1).
+print_trigger(d/1).
+
+print_trigger(_/_).
+
+d(X) <- start_aggr 'seq' aggregate(min(Y),a(Y),X).

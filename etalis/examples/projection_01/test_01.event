@@ -1,0 +1,4 @@
+print_trigger(a/5).
+print_trigger(ce/1).
+
+ce(A1) <- a(ID,A1,A2,A3,TS).

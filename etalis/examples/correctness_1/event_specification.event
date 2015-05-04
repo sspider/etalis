@@ -1,0 +1,31 @@
+% correctness_01 test: a bid window is defined by bidStart and bidEnd events.
+	
+e3 'rule:' enrichedCreditBid(Id,Price,Status) <- 
+			creditBid(Id,Price)	where credit_status(Id,Status).
+	
+e4 'rule:' confirmedCreditBid(Id,Price) <- 
+			enrichedCreditBid(Id,Price,Status) where credit_status(_,'OK').
+
+a3 'rule:' newBid(Id,Price) 	<- 	confirmedCreditBid(Id,Price) or cashBid(Id,Price).
+
+bidTmpWinner(-1,-1) 			<- 	bidStart.								
+bidTmpWinner(Id2,Price2) 		<- 	bidTmpWinner(Id1,Price1) seq newBid(Id2,Price2)
+									where (Price1 < Price2).
+e5 'rule:' bidWinner(Id,Price)	<- 	bidTmpWinner(Id,Price) seq bidEnd.
+
+% Credit store
+credit_status(2,'OK').
+credit_status(56,'OK').
+credit_status(66,'OK').
+
+
+
+% When test is running, print following events in console:
+print_trigger(bidStart/0).
+print_trigger(bidEnd/0).
+print_trigger(creditBid/2).
+print_trigger(enrichedCreditBid/3).
+print_trigger(confirmedCreditBid/2).
+print_trigger(cashBid/2).
+print_trigger(newBid/2).
+print_trigger(bidWinner/2).

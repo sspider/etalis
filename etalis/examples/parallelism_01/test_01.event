@@ -1,0 +1,4 @@
+ce2(X,Y)<- ce1(X) seq e(Y).
+ce1(X)<- a(X) seq b(X).
+ce1(X)<- c(X) seq d(X).
+

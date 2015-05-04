@@ -1,0 +1,57 @@
+print_trigger(a/2).
+print_trigger(b/2).
+
+fire_event(Agent,Event) :-
+	findall(Channel,agent_channel(Agent,Channel),L),
+	fire_event_channels(Event,L),
+	!.
+
+fire_event_channels(Event,[]):-
+	!.
+fire_event_channels(Event,[Channel|T]):-
+	Event =.. [H|L],
+	NewEvent =.. [H,Channel|L],
+	event(NewEvent),
+	fire_event_channels(Event,T),
+	!.
+
+b(Channel,X) <- a(Channel,X).
+
+agent_channel(sensor1,channel1).
+agent_channel(sensor1,channel2).
+agent_channel(sensor2,channel2).
+agent_channel(sensor2,channel3).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Define event types:
+%
+%event_type(a/1,[number]). % facts
+%event_type(b/1,[number]).
+%
+%check_event_type(X):-
+%  X=..[EventName|Args],
+%  length(Args,Arity),
+%  event_type(EventName/Arity,ArgumentTypes),
+%  check_arg_types(Args,ArgumentTypes).
+%
+%check_arg_types([],[]):-
+%  !.
+%check_arg_types([Head|Args],[Type|ArgumentTypes]):-
+%  Check=..[Type,Head],
+%  call(Check),
+%  check_arg_types(Args,ArgumentTypes),
+%  !.
+%
+%Define channel's event types:
+%
+%channel_types(channel1,[a/1,b/1]).
+%
+%- check if an event matches the types of a channel:
+%check_channel_input(Channel,Event):-
+%  Event=..[EventName|Args],
+%  length(Args,Arity),
+%  channel_types(Channel,EventTypes),
+%  member(EventName/Arity,EventTypes),
+%  check_event_type(Event). % checks if the arguments are ok
+%  
+%The predicate member/2 is the standard one in Prolog. I think it's already defined in Etalis utils.P. Maybe its name there is my_member or something like that. Otherwise just search "member Prolog" of Google. Same with length/2.

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns="http://www.w3schools.com" 
+	elementFormDefault="qualified" 
+	targetNamespace="http://www.w3schools.com"
+>
+	<xsd:complexType name="waterlevelregulate">
+		<xsd:sequence>
+			<xsd:element name="watertank" type="xsd:integer" />
+			<xsd:element name="waterlevel" type="xsd:integer" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	
+</xsd:schema>

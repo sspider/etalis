@@ -1,0 +1,4 @@
+print_trigger(_/_).
+persistent_event(c(_)).
+
+c(X) <- a(X) seq b(X).

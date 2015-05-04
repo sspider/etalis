@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="test-classes" path="test"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/svg/lib-gwt-svg-0.5.4.jar" sourcepath="C:/Users/Jia/.m2/repository/org/vectomatic/lib-gwt-svg/0.5.4/lib-gwt-svg-0.5.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/google/visualization/gwt-visualization-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/google/visualization/gwt-visualization-noredist.jar"/>
+	<classpathentry kind="lib" path="lib/google/visualization/gwt-visualization.jar"/>
+	<classpathentry kind="lib" path="lib/gwtEventService/gwteventservice-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/jtalis/jtalis-core-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/openscada/org.openscada.utgard.sdk-R.0.10.0/org.openscada.opc.lib_0.9.0.201203290910.jar"/>
+	<classpathentry kind="lib" path="lib/openscada/j-Interop_2_08/j-Interop/lib/j-interop.jar"/>
+	<classpathentry kind="lib" path="lib/json/json-rpc-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/jtalis/jpl.jar"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>

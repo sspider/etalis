@@ -1,0 +1,5 @@
+print_trigger(_/_).
+
+c(X) <- a(X) seq b(X).
+d(X) <- a0(X) seq b0(X).
+e(X) <- c(X) during d(X).

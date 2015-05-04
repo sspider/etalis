@@ -1,0 +1,104 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Scenario 2:
+%       see flower_test_03.db
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Pre-conditions:
+% Drivers E,F,G,H,I,J,K are in region 3
+
+% Drivers location: Drivers E,F,G,H,I,J,K are in region 3
+event(gps_location(driverE,coordinates('N',210.000,'W',10.000))).
+event(gps_location(driverF,coordinates('N',210.000,'W',10.000))).
+event(gps_location(driverG,coordinates('N',210.000,'W',10.000))).
+event(gps_location(driverH,coordinates('N',210.000,'W',10.000))).
+event(gps_location(driverI,coordinates('N',210.000,'W',10.000))).
+event(gps_location(driverJ,coordinates('N',210.000,'W',10.000))).
+event(gps_location(driverK,coordinates('N',210.000,'W',10.000))).
+
+% Driver F had 10 delivery alerts during previous 19 deliveries.
+event(delivery_alert(-19,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-18,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-17,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-16,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-15,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-14,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-13,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-12,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-11,store1,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_alert(-10,store1,driverF,datime(2010,1,1,0,0,0))).
+% delivery_confirmation(DeliveryRequestId,DriverId,DeliveryTime)
+event(delivery_confirmation(-19,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-18,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-17,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-16,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-15,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-14,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-13,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-12,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-11,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-10,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-9,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-8,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-7,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-6,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-5,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-4,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-3,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-2,driverF,datime(2010,1,1,0,0,0))).
+event(delivery_confirmation(-1,driverF,datime(2010,1,1,0,0,0))).
+
+% 00:00 Store 3 receives an order (System receives "delivery request" event).
+
+event(delivery_request(store1,coordinates('N',210.000,'W',10.000),
+        datime(2010,1,2,0,0,0))).
+
+% 00:01 System matches drivers F,G,H,I,J,K  by location and ranking (Driver E
+%       is filtered out due     to his low rating).
+% 00:02 Bid request is sent to drivers F,G,H,I,J,K .
+
+% 00:03 Drivers F,G,H,I,J,K  respond with "delivery bid", provide their current
+%       location and commit a pick-up time.
+
+event(delivery_bid(1,driverF,coordinates('N',210.000,'W',10.000),
+        datime(2010,1,2,0,3,0))).
+event(delivery_bid(1,driverG,coordinates('N',210.000,'W',10.000),
+        datime(2010,1,2,0,3,0))).
+event(delivery_bid(1,driverH,coordinates('N',210.000,'W',10.000),
+        datime(2010,1,2,0,3,0))).
+event(delivery_bid(1,driverI,coordinates('N',210.000,'W',10.000),
+        datime(2010,1,2,0,3,0))).
+event(delivery_bid(1,driverJ,coordinates('N',210.000,'W',10.000),
+        datime(2010,1,2,0,3,0))).
+event(delivery_bid(1,driverK,coordinates('N',210.000,'W',10.000),
+        datime(2010,1,2,0,3,0))).
+
+% 00:03-00:05.Store doesn't perform manual assignment (Alert is sent both to
+%       the store and the system manager).
+
+% We leave enough time for the alert to take place
+sleep(5).
+
+% 00:06 Driver F is chosen by the store (manual assignment is finally performed
+%       after a  3 minute delay). Assignment is sent to driver F. Pick-up time
+%       and delivery time is set.
+
+event(assignment(1,store1,coordinates('N',50.000,'W',50.000),
+       datime(2010,1,2,0,6,0),driverF,datime(2010,1,2,0,10,0))).
+
+% 00:10 Driver F arrives to the store while exceeding pick-up time by 6 minutes
+%       (Pick-Up Alert expected). Pick-up confirmation is set.
+
+sleep(4).
+event(pick_up_confirmation(1,driverF,datime(2010, 1, 2, 0, 10, 0))).
+
+% 00:25 F delivers the flowers to the customer while exceeding delivery time by
+%       10 minutes (Delivery Alert expected). Delivery confirmation is provided.
+
+sleep(15).
+event(delivery_confirmation(1,driverF,datime(2010, 1, 2, 0, 25, 0))).
+
+% 00:31 Rank of F is decreased by one.
+
+% Note: The ranking of the driverA is decreased
+
+%halt.

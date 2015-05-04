@@ -1,0 +1,8 @@
+eventClause(unlabeled,temp_e_1(a(_G604),b(_G608)),seqf(a(_G604),b(_G608))).
+
+eventClause(unlabeled,temp_e_2(temp_e_1(a(_G604),b(_G608)),c(_G613)),seqf(temp_e_1(a(_G604),b(_G608)),c(_G613))).
+
+eventClause(unlabeled,temp_e_3(temp_e_2(temp_e_1(a(_G604),b(_G608)),c(_G613)),_G613>1),wheref(temp_e_2(temp_e_1(a(_G604),b(_G608)),c(_G613)),_G613>1)).
+
+eventClause(unlabeled,d(_G604),temp_e_3(temp_e_2(temp_e_1(a(_G604),b(_G608)),c(_G613)),_G613>1)).
+

@@ -1,0 +1,4 @@
+eventClause(unlabeled,temp_e_1(a(_G1494),window_compute(_G1494,_G1492)),wheref(a(_G1494),window_compute(_G1494,_G1492))).
+
+eventClause(unlabeled,cws(_G1492),temp_e_1(a(_G1494),window_compute(_G1494,_G1492))).
+

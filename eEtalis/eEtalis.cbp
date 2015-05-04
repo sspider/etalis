@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="eEtalis" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\eEtalis" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="C:\hafsi\workspace\eEtalis\" />
+					<Add directory="src" />
+					<Add directory="lib" />
+					<Add directory="dep\swi-32\pl\include" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\eEtalis" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add directory="C:\hafsi\workspace\eEtalis\" />
+					<Add directory="lib" />
+					<Add directory="src" />
+					<Add directory="dep\swi-32\pl\include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Linker>
+			<Add library="dep\swi-32\pl\bin\swipl.dll" />
+		</Linker>
+		<Unit filename="ProjectDescription-intern.txt" />
+		<Unit filename="Statics.P" />
+		<Unit filename="lib\btree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib\btree.h" />
+		<Unit filename="lib\fifo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib\fifo.h" />
+		<Unit filename="lib\kbtree.h" />
+		<Unit filename="lib\rb_misc.h" />
+		<Unit filename="lib\red_black_tree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib\red_black_tree.h" />
+		<Unit filename="lib\stack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lib\stack.h" />
+		<Unit filename="src\ETALIS_conf.h" />
+		<Unit filename="src\cep_core.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\cep_core.h" />
+		<Unit filename="src\events.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\events.h" />
+		<Unit filename="src\execution.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\execution.h" />
+		<Unit filename="src\main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\memory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\memory.h" />
+		<Unit filename="src\misc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\storage_conf.h" />
+		<Unit filename="src\term.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\term.h" />
+		<Unit filename="src\utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="" main="" init_handlers="necessary" language="CPP" />
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

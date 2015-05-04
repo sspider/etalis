@@ -1,0 +1,20 @@
+print_trigger(a0/1).
+print_trigger(b0/1).
+
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+print_trigger(e/1).
+
+% Original program
+%c(X) <- a(X) 'seq' b(X).
+%d(X) <- a(X) 'seq' b(X).
+
+%e(X) <- c(X) 'during' d(X).
+
+% Modiefied program
+c(X) <- a(X) 'seq' b(X).
+d(X) <- a0(X) 'seq' b0(X).
+
+e(X) <- c(X) 'during' d(X).

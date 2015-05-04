@@ -1,0 +1,5 @@
+external_trigger(a/0).
+external_trigger(b/0).
+external_trigger(c/0).
+
+c <- a 'seq' b.

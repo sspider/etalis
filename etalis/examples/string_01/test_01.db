@@ -1,0 +1,33 @@
+% Static knowledge for the string containment
+
+sublist(S, L) :-
+  append(_, L2, L),
+  append(S, _, L2).
+
+contains(A, B) :-
+  atom(A),
+  atom(B),
+  name(A, AA),
+  name(B, BB),
+  sublist(BB,AA).
+
+%contains(A, B) :-
+%  atom(A),
+%  atom(B),
+%  name(A, AA),
+%  name(B, BB),
+%  contains(AA, BB).
+
+%contains(A, B) :-
+%  atom(A),
+%  name(A, AA),
+%  contains(AA, B).
+
+%% The empty list is removed mainly for nicer output in the following example.
+%contains(A, B) :-
+%  sublist(B, A),
+%  B \= [].
+
+% ?- forall( contains('bergen', X) , writef("%s\n", [X]) ).  
+
+

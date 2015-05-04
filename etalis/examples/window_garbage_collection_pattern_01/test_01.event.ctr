@@ -1,0 +1,6 @@
+trClause(r1,event(b(_G1573),[_G1789,_G1792]),seqf(etr_dbf(r1,goal(event(b(_G1573)),event(a(_G1573),[_G1810,_G1813]),event(temp_e_1(a(_G1573),b(_G1573))))),seqf(etr_delf(r1,goal(event(b(_G1573)),event(a(_G1573),[_G1810,_G1813]),event(temp_e_1(a(_G1573),b(_G1573))))),seqf(less(_G1813,_G1789),seqf(check_event_rule_conditions(r1,temp_e_1(a(_G1573),b(_G1573)),[_G1810,_G1792]),event(temp_e_1(a(_G1573),b(_G1573)),[_G1810,_G1792])))))).
+
+trClause(r1,event(a(_G1573),[_G1756,_G1759]),etr_insf(r1,goal(event(b(_G1573)),event(a(_G1573),[_G1756,_G1759]),event(temp_e_1(a(_G1573),b(_G1573)))))).
+
+trClause(r1,event(temp_e_1(a(_G1573),b(_G1573)),[_G1879,_G1882]),seqf(check_event_rule_conditions(r1,d(_G1573),[_G1879,_G1882]),event(d(_G1573),[_G1879,_G1882]))).
+

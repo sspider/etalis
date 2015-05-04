@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/BasicEventSchema" xmlns:tns="http://www.example.org/BasicEventSchema" elementFormDefault="qualified">
+
+	<xsd:complexType name="a">
+		<xsd:sequence>
+			<xsd:element name="x" type="xsd:integer" />
+			<xsd:element name="y" type="xsd:integer" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="b">
+		<xsd:sequence>
+			<xsd:element name="x" type="xsd:integer" />
+			<xsd:element name="y" type="xsd:integer" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="c">
+		<xsd:sequence>
+			<xsd:element name="x" type="xsd:integer" />
+			<xsd:element name="y" type="xsd:integer" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+</schema>

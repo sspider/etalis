@@ -1,0 +1,2 @@
+serviceClass: com.scadaview.jtalis.client.DataService
+path: 2B26C453CEB18A506706D8A6D27F4259.gwt.rpc

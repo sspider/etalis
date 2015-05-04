@@ -1,0 +1,4 @@
+tc(X,Y)<- r(X,Y).
+tc(X,Z)<- tc(X,Y) seq r(Y,Z).
+
+%print_trigger(tc/2).

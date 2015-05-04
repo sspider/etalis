@@ -1,0 +1,9 @@
+% Case 1: we consider the following input stream where system time is used for event timestamps
+event(bidStart).
+event(creditBid(2,4)).
+event(cashBid(29,4)).
+event(cashBid(33,3)).
+event(creditBid(66,4)).
+event(creditBid(56,5)).
+event(bidEnd).
+

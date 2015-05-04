@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3schools.com" elementFormDefault="qualified" targetNamespace="http://www.w3schools.com">
+
+	<xs:element name="config" type="ConfigType" />
+
+	<xs:complexType name="ConfigType">
+		<xs:sequence>
+			<xs:element name="debug" type="xs:boolean" minOccurs="0" maxOccurs="1" />
+			<xs:element name="consult" type="ConsultFilesListType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="flags" type="EtalisFlagsListType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="predicates" type="PredicatesListType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="compileEventFiles" type="EventFilesListType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="eventTriggers" type="EventTriggersListType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="eventRules" type="EventRuleListType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="providers" type="ProviderListType" minOccurs="0" maxOccurs="1" />
+			<xs:element name="outputQueues" type="OutputQueuesListType" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ConsultFilesListType">
+		<xs:sequence>
+			<xs:element name="file" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="EtalisFlagsListType">
+		<xs:sequence>
+			<xs:element name="flag" type="EtalisFlagType" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="PredicatesListType">
+		<xs:sequence>
+			<xs:element name="predicate" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="EventFilesListType">
+		<xs:sequence>
+			<xs:element name="file" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="EventTriggersListType">
+		<xs:sequence>
+			<xs:element name="trigger" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="EtalisFlagType">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="OutputQueuesListType">
+		<xs:sequence>
+			<xs:element name="queue" type="OutputQueueType" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="OutputQueueType">
+		<xs:sequence>
+			<xs:element name="providers" type="ProviderListType" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="regex" type="xs:string" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="EventRuleListType">
+		<xs:sequence>
+			<xs:element name="eventRule" type="EventRuleType" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="EventRuleType">
+		<xs:all>
+			<xs:element name="consequence" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="antecedent" type="xs:string" minOccurs="1" maxOccurs="1" />
+		</xs:all>
+		<xs:attribute name="ruleId" type="xs:string" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="ProviderListType">
+		<xs:sequence>
+			<xs:element name="provider" type="ProviderType" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ProviderType">
+		<xs:sequence minOccurs="0">
+			<xs:element name="parameters" type="ParameterListType" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="regex" type="xs:string" use="optional" />
+		<xs:attribute name="class" type="xs:string" use="required" />
+		<xs:attribute name="feedDelay" type="xs:long" use="optional" />
+		<xs:attribute name="type" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="input" />
+					<xs:enumeration value="output" />
+					<xs:enumeration value="both" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+
+	</xs:complexType>
+
+	<xs:complexType name="ParameterListType">
+		<xs:sequence>
+			<xs:element name="parameter" type="ParameterType" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ParameterType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="name" type="xs:string" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+</xs:schema>
+

@@ -1,0 +1,8 @@
+#labels Getting_Started_with_ETALIS
+= Getting Started with ETALIS=
+
+To install and run ETALIS see <a href="http://code.google.com/p/etalis/source/browse/etalis/docs/userman/Instalation_and_getting_started.txt">User Manual Instructions</a>.
+
+Examples, demonstrating capabilities of ETALIS system, can be found <a href="http://code.google.com/p/etalis/source/browse/etalis/#etalis/examples">here</a>.
+
+ 

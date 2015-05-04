@@ -1,0 +1,18 @@
+examples\justification_01
+
+?- event(a), event(b), etalis_justify(c,[T1,T2],J), write_justification(J).
+
+*Event: a @ [datime(2010, 4, 15, 18, 7, 54, 1), datime(2010, 4, 15, 18, 7, 54, 1)]
+*Event: b @ [datime(2010, 4, 15, 18, 7, 54, 2), datime(2010, 4, 15, 18, 7, 54, 2)]
+*Event: c @ [datime(2010, 4, 15, 18, 7, 54, 1), datime(2010, 4, 15, 18, 7, 54, 2)]
+
+        seq(
+                event(a, [datime(2010, 4, 15, 18, 7, 54, 1), datime(2010, 4, 15, 18, 7, 54, 1)])
+        ,
+                event(b, [datime(2010, 4, 15, 18, 7, 54, 2), datime(2010, 4, 15, 18, 7, 54, 2)])
+        )
+        --------------------
+        event(temp_e_1(a, b), [datime(2010, 4, 15, 18, 7, 54, 1), datime(2010, 4, 15, 18, 7, 54, 2)])
+--------------------
+event(c, [datime(2010, 4, 15, 18, 7, 54, 1), datime(2010, 4, 15, 18, 7, 54, 2)])
+

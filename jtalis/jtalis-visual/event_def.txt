@@ -1,0 +1,16 @@
+%This file defines all event mappings of the GUI
+
+there are 4 water tanks, this event changes the level of water in them.
+water_tank(ID,VALUE)
+IDs are 0,1,2,3 from left to right in picture.
+
+there are 2 water flow sensors.
+water_flow(ID,Value)
+IDs are 0,1.
+
+temperature_tank(ID,Value)
+
+this defines the numbers on the dash board.
+dash_board(ID,Value)
+
+

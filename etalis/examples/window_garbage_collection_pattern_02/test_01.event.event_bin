@@ -1,0 +1,4 @@
+eventClause(r1,temp_e_1(a(_G1441),b(_G1441)),seqf(a(_G1441),b(_G1441))).
+
+eventClause(r1,d(_G1441),temp_e_1(a(_G1441),b(_G1441))).
+

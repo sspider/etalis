@@ -1,0 +1,10 @@
+print_trigger(a/1).
+print_trigger(b/1).
+print_trigger(c/1).
+print_trigger(d/1).
+print_trigger(e/1).
+
+c(X) <- a(X) 'seq' b(X).
+d(X) <- a(X) 'seq' b(X).
+
+e(X) <- c(X) 'starts' d(X).

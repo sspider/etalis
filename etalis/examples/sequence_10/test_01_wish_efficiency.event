@@ -1,0 +1,7 @@
+temp_e_1(X) <- a(X) where (1<X).
+temp_e_2(Y) <- b(Y) where (1<Y).
+temp_e_3([X,Y]) <- temp_e_1(X) seq temp_e_2(Y).
+temp_e_4(Z) <- c(Z) where (1<Z).
+temp_e_5([X,Y,Z]) <- temp_e_3([X,Y]) seq temp_e_4(Z).
+temp_e_6([X,Y,Z]) <- temp_e_5([X,Y,Z]) where (Y<Z).
+d(X,Z) <- temp_e_6([X,Y,Z]).

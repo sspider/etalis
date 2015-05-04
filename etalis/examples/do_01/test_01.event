@@ -1,0 +1,3 @@
+print_trigger(_/0).
+
+c do write(hello) <- a seq b.

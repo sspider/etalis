@@ -1,0 +1,1 @@
+swipl -g "open('../results.txt',append,FH), ['../../src/etalis.P'], set_etalis_flag(output_temporary_files,on), set_etalis_flag(logging_to_file,on), set_etalis_flag(binarization_flag,off), compile_event_file('test_01.event'), event(a(1)), event(b(2)), event(c(0)), halt."
